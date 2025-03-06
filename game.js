@@ -16,12 +16,12 @@ const game = new Phaser.Game(config);
 
 // Константы
 const CELL_SIZE = 80;
-const CHUNK_SIZE = 10; // Уменьшено для снижения нагрузки
+const CHUNK_SIZE = 10;
 const START_TIME = 60;
 
 let cells = {};
-let cameraX = 0;
-let cameraY = 0;
+let cameraX = -(window.innerWidth / 2); // Центрируем камеру
+let cameraY = -(window.innerHeight / 2);
 let scoreTotal = 0;
 let timeLeft = START_TIME;
 let currentScene = 'menu';
@@ -93,11 +93,12 @@ function startGame(scene) {
     cells = {};
     scoreTotal = 0;
     timeLeft = START_TIME;
-    cameraX = 0;
-    cameraY = 0;
+    cameraX = -(window.innerWidth / 2); // Центрируем камеру
+    cameraY = -(window.innerHeight / 2);
 
-    // Генерация начальных чанков
+    // Генерация начального чанка в центре экрана
     generateChunk(0, 0);
+    console.log('Cells after generation:', cells); // Отладка
 
     // Обработка мыши
     scene.input.on('pointerdown', (pointer) => {
@@ -106,8 +107,8 @@ function startGame(scene) {
             lastPointerX = pointer.x;
             lastPointerY = pointer.y;
         } else if (pointer.leftButtonDown()) {
-            const clicked = getClickedDigit(pointer.x, pointer.y, time.time);
-            if (clicked) console.log('Clicked:', clicked.value); // Пока просто логируем
+            const clicked = getClickedDigit(pointer.x, pointer.y, time / 1000);
+            if (clicked) console.log('Clicked:', clicked.value);
         }
     });
 
@@ -133,9 +134,8 @@ function updateGame(scene, currentTime) {
     for (let key in cells) {
         const cell = cells[key];
         const [px, py] = screenPosition(cell, currentTime);
-        if (px < -CELL_SIZE || px > window.innerWidth + CELL_SIZE || py < -CELL_SIZE || py > window.innerHeight + CELL_SIZE) continue;
-
-        scene.add.text(px, py, cell.value, {
+        // Убираем проверку видимости для отладки
+        const text = scene.add.text(px, py, cell.value, {
             font: '24px Arial',
             color: '#7AC0D6'
         }).setOrigin(0.5);
@@ -171,8 +171,8 @@ function generateChunk(cx, cy) {
 
 // Позиция на экране
 function screenPosition(cell, currentTime) {
-    const baseX = cell.gridX * CELL_SIZE + cameraX;
-    const baseY = cell.gridY * CELL_SIZE + cameraY;
+    const baseX = cell.gridX * CELL_SIZE + cameraX + window.innerWidth / 2;
+    const baseY = cell.gridY * CELL_SIZE + cameraY + window.innerHeight / 2;
     return [baseX, baseY];
 }
 
