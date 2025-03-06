@@ -18,15 +18,20 @@ const game = new Phaser.Game(config);
 const CELL_SIZE = 80;
 const CHUNK_SIZE = 10;
 const START_TIME = 60;
+const FLY_DURATION = 1.0;
+const FOLDER_HEIGHT = 80;
 
+// Переменные
 let cells = {};
-let cameraX = -(window.innerWidth / 2); // Центрируем камеру
-let cameraY = -(window.innerHeight / 2);
+let cameraX = 0;
+let cameraY = 0;
 let scoreTotal = 0;
 let timeLeft = START_TIME;
+let folderScores = [0, 0];
 let currentScene = 'menu';
 let dragging = false;
 let lastPointerX, lastPointerY;
+let flyingDigits = [];
 
 // Preload
 function preload() {
@@ -35,11 +40,13 @@ function preload() {
 
 // Create
 function create() {
-    console.log('Creating scene...');
+    console.log('Creating scene:', currentScene);
     if (currentScene === 'menu') {
         createMenu(this);
     } else if (currentScene === 'game') {
         startGame(this);
+    } else if (currentScene === 'game_over') {
+        createGameOver(this);
     }
 }
 
@@ -93,12 +100,14 @@ function startGame(scene) {
     cells = {};
     scoreTotal = 0;
     timeLeft = START_TIME;
-    cameraX = -(window.innerWidth / 2); // Центрируем камеру
-    cameraY = -(window.innerHeight / 2);
+    folderScores = [0, 0];
+    flyingDigits = [];
+    cameraX = -(window.innerWidth / 2 - CELL_SIZE * CHUNK_SIZE / 2); // Центрируем первый чанк
+    cameraY = -(window.innerHeight / 2 - CELL_SIZE * CHUNK_SIZE / 2);
 
-    // Генерация начального чанка в центре экрана
+    // Генерация начального чанка
     generateChunk(0, 0);
-    console.log('Cells after generation:', cells); // Отладка
+    console.log('Cells after generation:', Object.keys(cells).length, cells);
 
     // Обработка мыши
     scene.input.on('pointerdown', (pointer) => {
@@ -108,7 +117,7 @@ function startGame(scene) {
             lastPointerY = pointer.y;
         } else if (pointer.leftButtonDown()) {
             const clicked = getClickedDigit(pointer.x, pointer.y, time / 1000);
-            if (clicked) console.log('Clicked:', clicked.value);
+            if (clicked) handleClick(clicked, scene, time / 1000);
         }
     });
 
@@ -134,14 +143,44 @@ function updateGame(scene, currentTime) {
     for (let key in cells) {
         const cell = cells[key];
         const [px, py] = screenPosition(cell, currentTime);
-        // Убираем проверку видимости для отладки
         const text = scene.add.text(px, py, cell.value, {
             font: '24px Arial',
             color: '#7AC0D6'
         }).setOrigin(0.5);
     }
 
-    // UI
+    // Отрисовка летающих цифр
+    flyingDigits = flyingDigits.filter(fd => {
+        const t = (currentTime - fd.startTime) / FLY_DURATION;
+        if (t >= 1) return false;
+        const x = fd.startX + (fd.endX - fd.startX) * t;
+        const y = fd.startY + (fd.endY - fd.startY) * t;
+        scene.add.text(x, y, fd.value, {
+            font: '24px Arial',
+            color: '#7AC0D6'
+        }).setOrigin(0.5);
+        return true;
+    });
+
+    // UI: Папки
+    const folderNames = ["Перевёрнутые", "Иная анимация"];
+    for (let i = 0; i < 2; i++) {
+        scene.add.rectangle(
+            window.innerWidth / 4 + i * window.innerWidth / 2,
+            window.innerHeight - FOLDER_HEIGHT / 2,
+            window.innerWidth / 2,
+            FOLDER_HEIGHT,
+            0x7AC0D6
+        );
+        scene.add.text(
+            window.innerWidth / 4 + i * window.innerWidth / 2,
+            window.innerHeight - FOLDER_HEIGHT / 2,
+            `${folderNames[i]}: ${folderScores[i]}`,
+            { font: '24px Arial', color: '#021013' }
+        ).setOrigin(0.5);
+    }
+
+    // UI: Счёт и таймер
     scene.add.text(20, 20, `Счёт: ${scoreTotal}`, { font: '24px Arial', color: '#7AC0D6' });
     scene.add.text(window.innerWidth / 2, 20, `${Math.floor(timeLeft)} с.`, {
         font: '24px Arial',
@@ -151,20 +190,20 @@ function updateGame(scene, currentTime) {
 
 // Генерация чанка
 function generateChunk(cx, cy) {
-    const chunkKey = `${cx},${cy}`;
-    if (cells[chunkKey]) return;
-
     for (let lx = 0; lx < CHUNK_SIZE; lx++) {
         for (let ly = 0; ly < CHUNK_SIZE; ly++) {
             const x = cx * CHUNK_SIZE + lx;
             const y = cy * CHUNK_SIZE + ly;
-            cells[`${x},${y}`] = {
-                gridX: x,
-                gridY: y,
-                value: Math.floor(Math.random() * 10),
-                anomaly: 0,
-                spawnTime: Date.now() / 1000
-            };
+            const key = `${x},${y}`;
+            if (!cells[key]) {
+                cells[key] = {
+                    gridX: x,
+                    gridY: y,
+                    value: Math.floor(Math.random() * 10),
+                    anomaly: 0,
+                    spawnTime: Date.now() / 1000
+                };
+            }
         }
     }
 }
@@ -190,6 +229,49 @@ function getClickedDigit(mx, my, currentTime) {
         }
     }
     return closest;
+}
+
+// Обработка клика
+function handleClick(cell, scene, currentTime) {
+    const [sx, sy] = screenPosition(cell, currentTime);
+    const fx = window.innerWidth / 4; // Летим в первую папку
+    const fy = window.innerHeight - FOLDER_HEIGHT / 2;
+    flyingDigits.push({
+        value: cell.value,
+        startX: sx,
+        startY: sy,
+        endX: fx,
+        endY: fy,
+        startTime: currentTime
+    });
+    delete cells[`${cell.gridX},${cell.gridY}`];
+    scoreTotal += 10;
+    folderScores[0] += 1;
+    timeLeft += 1;
+}
+
+// Экран "Game Over"
+function createGameOver(scene) {
+    scene.children.removeAll();
+    scene.add.text(window.innerWidth / 2, window.innerHeight / 4, "Время вышло!", {
+        font: '36px Arial',
+        color: '#7AC0D6'
+    }).setOrigin(0.5);
+
+    scene.add.text(window.innerWidth / 2, window.innerHeight / 2, `Ваш счёт: ${scoreTotal}`, {
+        font: '36px Arial',
+        color: '#7AC0D6'
+    }).setOrigin(0.5);
+
+    scene.add.text(window.innerWidth / 2, window.innerHeight - 50, "Enter - в меню, ESC - выход", {
+        font: '24px Arial',
+        color: '#7AC0D6'
+    }).setOrigin(0.5);
+
+    scene.input.keyboard.on('keydown', (event) => {
+        if (event.key === 'Enter') switchScene('menu');
+        else if (event.key === 'Escape') window.close();
+    });
 }
 
 // Переключение сцены
