@@ -67,10 +67,7 @@ export function drawCells(ctx, camX, camY, w, h) {
     if (ic.removeStart) {
       const dt = now - ic.removeStart;
       const alpha = 1 - dt / 500;
-      if (alpha <= 0) {
-        delete cells[k];
-        continue;
-      }
+      if (alpha <= 0) { delete cells[k]; continue; }
       ic.draw(ctx, camX, camY, now, alpha);
     } else {
       ic.draw(ctx, camX, camY, now, 1);
@@ -86,9 +83,7 @@ export function getClickedIcon(mx, my, camX, camY) {
     const pos = ic.screenPosition(camX, camY, now);
     const dx = mx - pos.x, dy = my - pos.y;
     const d = Math.hypot(dx, dy);
-    if (d < 32 && d < dmin) {
-      dmin = d; best = k;
-    }
+    if (d < 32 && d < dmin) { dmin = d; best = k; }
   }
   return best;
 }
