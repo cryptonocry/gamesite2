@@ -1,3 +1,4 @@
+// main.js
 import { addParticipantToXano, fetchAllParticipantsFromXano } from "./api.js";
 import { showRecordsOverlay } from "./ui.js";
 import { Icon } from "./digit.js";
@@ -70,7 +71,7 @@ let isDragging = false, dragStart, cameraStart;
 let missEvents = [];
 let gameStartTime = 0;
 
-// Для «мигания» иконки и текста +10
+// Для «мигания» и текста +10
 let blinkUntil = 0;
 let lastPct = null;
 
@@ -392,5 +393,5 @@ function updateUI() {
   }
 }
 
-// Инициализация
+// — Инициализация —
 updateUI();
