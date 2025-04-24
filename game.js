@@ -22,13 +22,12 @@ export function generateChunk(cx, cy) {
   const key = `${cx}_${cy}`;
   if (generatedChunks.has(key)) return;
   generatedChunks.add(key);
-
   const slots = getChunkCoords(cx, cy);
   for (let s of slots) {
     const slotKey = `${s.x}_${s.y}`;
     const r = Math.random();
     let type;
-    if      (r < 0.005) type = "key";
+    if (r < 0.005) type = "key";
     else if (r < 0.010) type = "clock";
     else {
       const d = [
@@ -47,10 +46,10 @@ export function ensureVisibleChunks(camX, camY, w, h) {
   const top    = -camY / CELL_SIZE;
   const right  = (w - camX) / CELL_SIZE;
   const bottom = (h - camY) / CELL_SIZE;
-  const cxMin = Math.floor(left / CHUNK_SIZE) - 1;
-  const cxMax = Math.floor(right / CHUNK_SIZE) + 1;
-  const cyMin = Math.floor(top / CHUNK_SIZE) - 1;
-  const cyMax = Math.floor(bottom / CHUNK_SIZE) + 1;
+  const cxMin = Math.floor(left/CHUNK_SIZE) - 1;
+  const cxMax = Math.floor(right/CHUNK_SIZE) + 1;
+  const cyMin = Math.floor(top/CHUNK_SIZE) - 1;
+  const cyMax = Math.floor(bottom/CHUNK_SIZE) + 1;
   for (let cx = cxMin; cx <= cxMax; cx++) {
     for (let cy = cyMin; cy <= cyMax; cy++) {
       generateChunk(cx, cy);
@@ -63,11 +62,8 @@ export function drawCells(ctx, camX, camY, w, h) {
   for (const k of Object.keys(cells)) {
     const ic = cells[k];
     const pos = ic.screenPosition(camX, camY, now);
-    if (
-      pos.x < -CELL_SIZE || pos.x > w + CELL_SIZE ||
-      pos.y < -CELL_SIZE || pos.y > h + CELL_SIZE
-    ) continue;
-
+    if (pos.x < -CELL_SIZE || pos.x > w + CELL_SIZE ||
+        pos.y < -CELL_SIZE || pos.y > h + CELL_SIZE) continue;
     if (ic.removeStart) {
       const dt = now - ic.removeStart;
       const alpha = 1 - dt / 500;
