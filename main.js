@@ -263,17 +263,22 @@ function startGame(bonus = 0) {
 function update(dt) {
   if (gameState !== "game") return;
 
-  // 1) плавный pan по направлению курсора от центра экрана
   const dtSec = dt / 1000;
   const w = gameCanvas.width, h = gameCanvas.height;
+  const centerX = w / 2, centerY = h / 2;
+
+  // 1) Панорамирование с «мертвой зоной» в центре и ускорением ближе к краю
+  // Половина размеров «мертвой зоны» (px) — подкорректируйте по вкусу
+  const dzX = 200, dzY = 150;
+
+  // Если курсор вышел за пределы центральной зоны…
   if (
-    cursorX < edgeThreshold ||
-    cursorX > w - edgeThreshold ||
-    cursorY < edgeThreshold ||
-    cursorY > h - edgeThreshold
+    cursorX < centerX - dzX ||
+    cursorX > centerX + dzX ||
+    cursorY < centerY - dzY ||
+    cursorY > centerY + dzY
   ) {
-    // вектор от центра экрана к курсору, нормализованный
-    const centerX = w / 2, centerY = h / 2;
+    // Направление от центра к курсору (нормализуем)
     let dx = (cursorX - centerX) / centerX;
     let dy = (cursorY - centerY) / centerY;
     const len = Math.hypot(dx, dy);
@@ -281,12 +286,23 @@ function update(dt) {
       dx /= len;
       dy /= len;
     }
-    cameraX -= dx * panSpeed * dtSec;
-    cameraY -= dy * panSpeed * dtSec;
+
+    // Насколько далеко зашел курсор за «мертвую зону» по X и Y (0…1)
+    let fx = 0, fy = 0;
+    if (cursorX < centerX - dzX) fx = ((centerX - dzX) - cursorX) / (centerX - dzX);
+    else if (cursorX > centerX + dzX) fx = (cursorX - (centerX + dzX)) / (centerX - dzX);
+    if (cursorY < centerY - dzY) fy = ((centerY - dzY) - cursorY) / (centerY - dzY);
+    else if (cursorY > centerY + dzY) fy = (cursorY - (centerY + dzY)) / (centerY - dzY);
+
+    const factor = Math.min(1, Math.max(fx, fy));    // 0…1
+    const speed  = panSpeed * (1 + factor);          // от panSpeed до 2×panSpeed
+
+    // Инвертируем знак, чтобы мир двигался в ожидании (мышь вправо → камера вправо)
+    cameraX -= dx * speed * dtSec;
+    cameraY -= dy * speed * dtSec;
   }
 
-
-  // 2) обновление “тряски” и таймера
+  // 2) Усиливающаяся тряска и уменьшение батареи
   const now     = performance.now();
   const elapsed = (now - gameStartTime) / 1000;
   Icon.shakeFactor = 1 + Math.min(elapsed / START_TIME, 1) * 2;
@@ -314,10 +330,12 @@ function update(dt) {
 
 function draw() {
   if (gameState !== "game") return;
+
   ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
   drawCells(ctx, cameraX, cameraY, gameCanvas.width, gameCanvas.height);
 
   const now = performance.now();
+  // Подсветка красным при промахах
   for (let i = missEvents.length - 1; i >= 0; i--) {
     const ev = missEvents[i];
     const ic = cells[ev.key];
@@ -334,7 +352,7 @@ function draw() {
     ctx.restore();
   }
 
-  // фонарик
+  // Рисуем «фонарик»
   const w = gameCanvas.width, h = gameCanvas.height;
   ctx.save();
     const grad = ctx.createRadialGradient(
@@ -347,7 +365,7 @@ function draw() {
     ctx.fillRect(0, 0, w, h);
   ctx.restore();
 
-  // затемнение последней пятёрки процентов
+  // Затемнение последних 20%
   if (batteryPercent <= 20) {
     const alpha = 1 - (batteryPercent / 20);
     ctx.save();
@@ -366,6 +384,7 @@ function loop() {
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
+
 
 // — SHOW/HIDE UI —
 function updateUI() {
