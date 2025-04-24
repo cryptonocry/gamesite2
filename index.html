@@ -10,10 +10,11 @@
       overflow:hidden;
       background:#f5e9d4;
       font-family:Arial,sans-serif;
+      position: relative;
     }
     #fullscreenButton {
       position:absolute; top:10px; right:10px;
-      z-index:300; padding:10px 15px;
+      z-index:500; padding:10px 15px;
       background:#7AC0D6; border:none; border-radius:5px;
       cursor:pointer;
     }
@@ -23,7 +24,7 @@
     #topNav {
       position:absolute; top:0; left:0; width:100%;
       display:flex; justify-content:center; gap:30px;
-      background:#f5e9d4; padding:15px 0; z-index:200;
+      background:#f5e9d4; padding:15px 0; z-index:400;
     }
     .navButton {
       padding:10px 20px; font-size:18px;
@@ -33,111 +34,33 @@
     .navActive { background:#7AC0D6; color:#021013; }
     .navDisabled { opacity:0.5; cursor:default; }
 
-    #loginContainer,
-    #summaryOverlay,
-    #gameOverOverlay,
-    #recordsContainer,
-    #errorOverlay {
-      position:absolute; top:0; left:0;
-      width:100%; height:100%;
-      display:none; z-index:500;
+    /* HUD */
+    #hud {
+      position:absolute; top:10px; left:10px; right:10px;
+      display:flex; justify-content:space-between;
+      align-items:center; z-index:450;
+      pointer-events:none;
     }
-    #loginContainer { background:rgba(0,0,0,0.8); }
-    #recordsContainer { background:rgba(0,0,0,0.9); }
-    #summaryOverlay { background:rgba(0,0,0,0.7); }
-    #gameOverOverlay { background:rgba(0,0,0,0.75); }
-    #errorOverlay {
-      background:rgba(255,0,0,0.9); color:#fff;
-      font-size:18px; padding:20px; box-sizing:border-box;
+    #hud div {
+      display:flex; align-items:center; gap:8px;
     }
-    .overlayContent {
-      position:absolute; top:50%; left:50%;
-      transform:translate(-50%,-50%);
-      background:#f5e9d4; padding:20px;
-      border-radius:10px; text-align:center;
-      color:#33484f; max-width:90%; word-wrap:break-word;
+    #hud img {
+      width:32px; height:32px;
+    }
+    #hud span {
+      font-size:24px; color:#fff;
+      text-shadow:0 0 4px rgba(0,0,0,0.7);
     }
 
-    #menuContainer {
-      position:absolute; top:80px; left:0;
-      width:100%; height:calc(100% - 80px);
-      display:none; flex-direction:column;
-      background:#f5e9d4; color:#33484f; z-index:100;
-    }
-    #topSection { text-align:center; padding:30px 0; }
-    #topSection h1 { font-size:56px; margin:0; }
-    #topSection p  { font-size:22px; }
-    #centerSection {
-      display:flex; justify-content:center;
-      align-items:center; gap:70px; padding:20px;
-    }
-    #centerLeft {
-      display:flex; flex-direction:column; gap:20px;
-    }
-    .menuButton {
-      width:220px; padding:18px;
-      background:#7AC0D6; color:#021013;
-      font-size:20px; border:none; border-radius:5px;
-      cursor:pointer;
-    }
-    .menuButton:hover { background:#fff; }
-    .buyButton {
-      background:#b33838!important; color:#fff!important;
-    }
-    .buyButton:hover { background:#9f2f2f!important; }
-    #centerRight {
-      max-width:30em; font-size:20px; line-height:1.4;
-    }
-    #centerRight h3 { margin-bottom:10px; font-size:24px; }
-    #centerRight p  { margin-bottom:15px; }
-    .highlight { color:#b33838; font-weight:bold; }
-
+    /* rest of your existing styles… */
     #gameCanvas {
       position:absolute; top:0; left:0;
-      width:100vw; height:100vh;
-      display:none; background:#f5e9d4;
+      width:100vw; height:100vh; display:none;
     }
-
-    #vignette {
-      display:none; position:absolute;
-      top:0; left:0; width:100%; height:100%;
-      pointer-events:none;
-      background:radial-gradient(
-        ellipse at center,
-        transparent 60%,
-        rgba(0,0,0,0.8) 100%
-      );
-      opacity:0; transition:opacity 0.5s;
-      z-index:400;
-    }
-
-    .goButton {
-      margin:10px; padding:10px 20px;
-      font-size:18px; background:#7AC0D6;
-      color:#021013; border:none; border-radius:5px;
-      cursor:pointer;
-    }
-    .goButton:hover { background:#fff; }
-
-    #recordsContent {
-      position:absolute; top:5%; left:50%;
-      transform:translateX(-50%);
-      width:90%; max-height:90%; overflow-y:auto;
-      background:#f5e9d4; padding:20px; border-radius:10px;
-    }
-    #recordsContent table {
-      width:100%; border-collapse:collapse;
-    }
-    #recordsContent th, td {
-      padding:10px; border:1px solid #33484f;
-      background:#f5e9d4; color:#33484f;
-      text-align:left;
-    }
-    #recordsContent th { background:#7AC0D6; color:#021013; }
+    /* … */
   </style>
 </head>
 <body>
-
   <button id="fullscreenButton">Fullscreen</button>
   <div id="topNav">
     <button class="navButton navActive">ICON HUNT</button>
@@ -145,80 +68,23 @@
     <button class="navButton navDisabled">COMING SOON</button>
   </div>
 
-  <!-- LOGIN -->
-  <div id="loginContainer">
-    <div class="overlayContent" id="loginContent">
-      <h2>Enter your BTC wallet</h2>
-      <input id="walletInput" type="text" maxlength="62"
-         placeholder="62 chars [a-z0-9]" /><br/><br/>
-      <button id="loginOkButton">OK</button>
-      <button id="loginCancelButton">Cancel</button><br/><br/>
-      <button id="playWithoutWalletButton"
-         class="menuButton buyButton">Play without wallet</button>
+  <!-- HUD -->
+  <div id="hud">
+    <div id="hud-left">
+      <img id="keyIconHUD" src="icons/key.svg" alt="Key" />
+      <span id="keyCount">0</span>
     </div>
+    <div id="hud-center">
+      <img id="batteryIcon" src="icons/per100.svg" alt="Battery" />
+      <span id="batteryPercent">100%</span>
+    </div>
+    <div id="hud-right"></div>
   </div>
 
-  <!-- SUMMARY -->
-  <div id="summaryOverlay">
-    <div class="overlayContent">
-      <h2>Your best score: <span id="lastRecord">0</span></h2>
-      <p>You have <strong><span id="refCount">0</span></strong> referrals —
-         +<strong><span id="timeBonus">0</span></strong> sec bonus</p>
-      <button id="btnPlayNow" class="menuButton"
-         style="background:#4CAF50;">PLAY</button>
-    </div>
-  </div>
-
-  <!-- MENU -->
-  <div id="menuContainer">
-    <div id="topSection">
-      <h1>ICON HUNT</h1>
-      <p>Find as many keys and clocks as you can in 60 seconds!</p>
-    </div>
-    <div id="centerSection">
-      <div id="centerLeft">
-        <button id="btnStart" class="menuButton">Start Game</button>
-        <button id="btnRecords" class="menuButton">Records</button>
-        <button id="btnBuy" class="menuButton buyButton">BUY TOKEN</button>
-      </div>
-      <div id="centerRight">
-        <h3>Objective</h3>
-        <p>Collect <strong>keys</strong> for +1 point each and
-           <strong>clocks</strong> for +10 seconds.
-           Distractor-icons only animate and don’t give rewards.</p>
-        <h3>Controls</h3>
-        <p>
-          <span class="highlight">Left-click</span>: collect an icon.<br/>
-          <span class="highlight">Right-click + drag</span>: move the view.
-        </p>
-      </div>
-    </div>
-  </div>
-
+  <!-- LOGIN, MENU, CANVAS, OVERLAYS -->
+  <!-- (остальной HTML без изменений) -->
   <canvas id="gameCanvas"></canvas>
-  <div id="vignette"></div>
-
-  <!-- GAME OVER -->
-  <div id="gameOverOverlay">
-    <div class="overlayContent" id="gameOverContent">
-      <h1>Time’s up!</h1>
-      <p id="finalScore">Your score: 0</p>
-      <button id="btnMenu" class="goButton">MENU</button>
-      <button id="btnRestart" class="goButton">RESTART</button>
-    </div>
-  </div>
-
-  <!-- RECORDS -->
-  <div id="recordsContainer">
-    <div id="recordsContent">
-      <h2>Ranking</h2>
-      <div id="recordsTableContainer">Loading...</div>
-      <button id="closeRecordsButton" class="goButton">Close</button>
-    </div>
-  </div>
-
-  <!-- ERROR -->
-  <div id="errorOverlay"></div>
+  <!-- … -->
 
   <script type="module" src="main.js"></script>
 </body>
