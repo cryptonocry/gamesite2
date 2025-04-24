@@ -78,8 +78,8 @@ let cursorX = 0, cursorY = 0;
 const spotlightRadius = 500;
 
 // Настройки паннинга
-const edgeThreshold = 100;  // px от края, после которых начинается движение
-const panSpeed      = 300;  // px/sec
+const edgeThreshold = 500;  // px от края, после которых начинается движение
+const panSpeed      = 400;  // px/sec
 
 // Слежение за курсором для фонарика и паннинга
 gameCanvas.addEventListener("mousemove", e => {
