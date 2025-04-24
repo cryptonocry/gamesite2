@@ -1,25 +1,26 @@
 // main.js
 import { addParticipantToXano, fetchAllParticipantsFromXano } from "./api.js";
 import { showRecordsOverlay } from "./ui.js";
+import { Icon } from "./digit.js";
 import {
   cells, generatedChunks,
   ensureVisibleChunks, drawCells,
   getClickedIcon
 } from "./game.js";
 
-// Звуки
 function playSound(src, vol=0.5) {
   const s = new Audio(src);
-  s.volume = vol; s.play().catch(e=>console.error(e));
+  s.volume = vol;
+  s.play().catch(e=>console.error(e));
 }
 
-// HTML-elements
+// HTML elements
 const fullscreenButton = document.getElementById("fullscreenButton");
-const topNav            = document.getElementById("topNav");
-const loginContainer    = document.getElementById("loginContainer");
-const walletInput       = document.getElementById("walletInput");
-const loginOkButton     = document.getElementById("loginOkButton");
-const loginCancelButton = document.getElementById("loginCancelButton");
+const topNav           = document.getElementById("topNav");
+const loginContainer   = document.getElementById("loginContainer");
+const walletInput      = document.getElementById("walletInput");
+const loginOkButton    = document.getElementById("loginOkButton");
+const loginCancelButton= document.getElementById("loginCancelButton");
 const playWithoutWalletButton = document.getElementById("playWithoutWalletButton");
 
 const summaryOverlay = document.getElementById("summaryOverlay");
@@ -52,24 +53,21 @@ const errorOverlay = document.getElementById("errorOverlay");
 let gameState = "menu";
 let currentPlayer = null;
 const START_TIME = 60;
-let timeLeft = 0;
-let scoreTotal = 0;
-let cameraX=0, cameraY=0;
-let isDragging=false, dragStart, cameraStart;
+let timeLeft = 0, scoreTotal = 0;
+let cameraX = 0, cameraY = 0;
+let isDragging = false, dragStart, cameraStart;
 let lastTime = performance.now();
-
-// For highlighting misses
-let missEvents = [];  // { key, time }
+let missEvents = [];
 
 // Error handling
 window.onerror = (msg,url,line,col,err) => {
-  errorOverlay.style.display="block";
+  errorOverlay.style.display = "block";
   errorOverlay.textContent = `Error: ${msg} at ${line}:${col}`;
   console.error(err);
   return true;
 };
 window.onunhandledrejection = ev => {
-  errorOverlay.style.display="block";
+  errorOverlay.style.display = "block";
   errorOverlay.textContent = `Promise rejection: ${ev.reason}`;
   console.error(ev.reason);
 };
@@ -82,8 +80,8 @@ fullscreenButton.addEventListener("click", ()=>{
 
 // Menu
 btnStart.addEventListener("click", ()=>{
-  walletInput.value="";
-  loginContainer.style.display="block";
+  walletInput.value = "";
+  loginContainer.style.display = "block";
 });
 btnRecords.addEventListener("click", ()=>{
   showRecordsOverlay(recordsTableContainer, recordsContainer, currentPlayer);
@@ -93,9 +91,9 @@ btnBuy.addEventListener("click", ()=> window.open("https://site.com","_blank"));
 // Login
 loginOkButton.addEventListener("click", async ()=>{
   const w = walletInput.value.trim().toLowerCase();
-  if (!w || w.length!==62) return alert("Invalid wallet!");
+  if (!w || w.length !== 62) return alert("Invalid wallet!");
   currentPlayer = { wallet:w, score:0, timeBonus:0 };
-  loginContainer.style.display="none";
+  loginContainer.style.display = "none";
 
   const all = await fetchAllParticipantsFromXano();
   const me  = all.find(r=>r.wallet===w) || { score:0, referals:0 };
@@ -111,20 +109,20 @@ loginOkButton.addEventListener("click", async ()=>{
   timeBonusEl.textContent = b;
   currentPlayer.timeBonus = b;
 
-  summaryOverlay.style.display="block";
+  summaryOverlay.style.display = "block";
 });
 loginCancelButton.addEventListener("click", ()=>{
-  loginContainer.style.display="none";
+  loginContainer.style.display = "none";
 });
 playWithoutWalletButton.addEventListener("click", ()=>{
   currentPlayer = null;
-  loginContainer.style.display="none";
+  loginContainer.style.display = "none";
   startGame(0);
 });
 
 // Play now
 btnPlayNow.addEventListener("click", ()=>{
-  summaryOverlay.style.display="none";
+  summaryOverlay.style.display = "none";
   const bonus = currentPlayer ? currentPlayer.timeBonus : 0;
   startGame(bonus);
 });
@@ -172,25 +170,28 @@ gameCanvas.addEventListener("contextmenu", e=> e.preventDefault());
 // Click to collect / penalty
 gameCanvas.addEventListener("click", e=>{
   if(gameState!=="game") return;
-  const r=gameCanvas.getBoundingClientRect();
-  const mx=e.clientX - r.left, my=e.clientY - r.top;
+  const rect = gameCanvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
   const key = getClickedIcon(mx,my,cameraX,cameraY);
   if(!key) return;
   const ic = cells[key];
+  if(ic.removeStart) return;  // уже в fade
+
+  const now = performance.now();
   if(ic.type==="key"){
-    delete cells[key];
+    ic.removeStart = now;
     scoreTotal++;
     playSound("plus.wav",0.4);
   }
   else if(ic.type==="clock"){
-    delete cells[key];
-    timeLeft+=10;
+    ic.removeStart = now;
+    timeLeft += 10;
     playSound("time.wav",0.4);
   }
   else {
-    // штраф и подсветка
+    // штраф
     timeLeft = Math.max(0, timeLeft - 3);
-    missEvents.push({ key, time: performance.now() });
+    missEvents.push({ key, time: now });
     playSound("miss.wav", 0.5);
   }
 });
@@ -199,50 +200,55 @@ gameCanvas.addEventListener("click", e=>{
 function update(dt){
   if(gameState==="game"){
     timeLeft -= dt/1000;
-    if(timeLeft<=0){
+    // усиление shakeFactor
+    Icon.shakeFactor = 1 + (1 - Math.max(0, timeLeft)/START_TIME)*2;
+    if(timeLeft <= 0){
       gameState="game_over";
       if(currentPlayer){
-        currentPlayer.score=scoreTotal;
-        addParticipantToXano(currentPlayer.wallet,scoreTotal);
+        currentPlayer.score = scoreTotal;
+        addParticipantToXano(currentPlayer.wallet, scoreTotal);
       }
       playSound("end.wav",0.5);
       updateUI();
       return;
     }
     ensureVisibleChunks(cameraX,cameraY,gameCanvas.width,gameCanvas.height);
-    // vignette ×2 ярче
+
+    // faster vignette
     if(timeLeft<=10){
       vignette.style.display="block";
       vignette.style.opacity = `${Math.min(1, (1 - timeLeft/10)*2)}`;
-    } else vignette.style.display="none";
+    } else {
+      vignette.style.display="none";
+    }
   }
 }
 
 function draw(){
   if(gameState==="game"){
     ctx.clearRect(0,0,gameCanvas.width,gameCanvas.height);
+
+    // обычные иконки + fade
     drawCells(ctx,cameraX,cameraY,gameCanvas.width,gameCanvas.height);
 
     // подсветка ошибок
     const now = performance.now();
     for(let i=missEvents.length-1; i>=0; i--){
       const ev = missEvents[i];
-      if(now - ev.time > 1000) missEvents.splice(i,1);
-      else {
-        const ic = cells[ev.key];
-        if(ic){
-          const pos = ic.screenPosition(cameraX,cameraY,now);
-          const SIZE = 30;
-          ctx.save();
-          ctx.globalAlpha = 0.5 * (1 - (now-ev.time)/1000);
-          ctx.fillStyle = "red";
-          ctx.fillRect(pos.x - SIZE/2, pos.y - SIZE/2, SIZE, SIZE);
-          ctx.restore();
-        }
-      }
+      const ic = cells[ev.key];
+      if(!ic) { missEvents.splice(i,1); continue; }
+      const dt = now - ev.time;
+      if(dt > 1000) { missEvents.splice(i,1); continue; }
+      const pos = ic.screenPosition(cameraX,cameraY,now);
+      const SIZE = 30;
+      ctx.save();
+      ctx.globalAlpha = 0.5 * (1 - dt/1000);
+      ctx.fillStyle = "red";
+      ctx.fillRect(pos.x - SIZE/2, pos.y - SIZE/2, SIZE, SIZE);
+      ctx.restore();
     }
 
-    // UI: score & timer
+    // UI
     ctx.save();
     ctx.font="24px Arial"; ctx.fillStyle="#33484f"; ctx.textAlign="left";
     ctx.fillText(`Score: ${scoreTotal}`,15,32);
@@ -253,9 +259,9 @@ function draw(){
 }
 
 function loop(){
-  const now=performance.now();
-  const dt = now - lastTime;
-  lastTime=now;
+  const now = performance.now();
+  const dt  = now - lastTime;
+  lastTime = now;
   update(dt);
   draw();
   requestAnimationFrame(loop);
@@ -263,11 +269,12 @@ function loop(){
 requestAnimationFrame(loop);
 
 function startGame(bonus=0){
-  Object.keys(cells).forEach(k=>delete cells[k]);
+  Object.keys(cells).forEach(k=> delete cells[k]);
   generatedChunks.clear();
   scoreTotal=0;
   timeLeft=START_TIME+bonus;
-  missEvents = [];
+  missEvents=[];
+  Icon.shakeFactor = 1;
   cameraX=cameraY=0;
   playSound("start.wav",0.7);
   gameState="game";
@@ -278,22 +285,31 @@ function updateUI(){
   if(gameState==="menu"){
     menuContainer.style.display="flex";
     gameCanvas.style.display="none";
-    loginContainer.style.display=summaryOverlay.style.display=
-      gameOverOverlay.style.display=recordsContainer.style.display="none";
-    topNav.style.display=fullscreenButton.style.display="block";
-  }
-  else if(gameState==="game"){
-    menuContainer.style.display=loginContainer.style.display=summaryOverlay.style.display=
-      gameOverOverlay.style.display=recordsContainer.style.display="none";
+    loginContainer.style.display=
+    summaryOverlay.style.display=
+    gameOverOverlay.style.display=
+    recordsContainer.style.display="none";
+    topNav.style.display=
+    fullscreenButton.style.display="block";
+  } else if(gameState==="game"){
+    menuContainer.style.display=
+    loginContainer.style.display=
+    summaryOverlay.style.display=
+    gameOverOverlay.style.display=
+    recordsContainer.style.display="none";
     gameCanvas.style.display="block";
-    topNav.style.display=fullscreenButton.style.display="none";
-  }
-  else if(gameState==="game_over"){
-    menuContainer.style.display=loginContainer.style.display=summaryOverlay.style.display=
-      recordsContainer.style.display="none";
-    gameCanvas.style.display=gameOverOverlay.style.display="block";
+    topNav.style.display=
+    fullscreenButton.style.display="none";
+  } else if(gameState==="game_over"){
+    menuContainer.style.display=
+    loginContainer.style.display=
+    summaryOverlay.style.display=
+    recordsContainer.style.display="none";
+    gameCanvas.style.display=
+    gameOverOverlay.style.display="block";
     finalScore.textContent = `Your score: ${scoreTotal}`;
-    topNav.style.display=fullscreenButton.style.display="none";
+    topNav.style.display=
+    fullscreenButton.style.display="none";
   }
 }
 updateUI();
