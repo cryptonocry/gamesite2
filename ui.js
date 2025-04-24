@@ -9,7 +9,7 @@ export async function showRecordsOverlay(recordsTableContainer, recordsContainer
     return;
   }
   records.sort((a, b) => b.score - a.score);
-  let html = "<table><tr><th>#</th><th>BTC Wallet</th><th>Score</th><th>Referals</th></tr>";
+  let html = "<table><tr><th>#</th><th>Wallet</th><th>Score</th><th>Refs</th></tr>";
   records.forEach((rec, i) => {
     const rank = i + 1;
     const highlight = currentPlayer && rec.wallet === currentPlayer.wallet
