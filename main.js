@@ -1,4 +1,3 @@
-// main.js
 import { addParticipantToXano, fetchAllParticipantsFromXano } from "./api.js";
 import { showRecordsOverlay } from "./ui.js";
 import { Icon } from "./digit.js";
@@ -29,40 +28,40 @@ const btnFullscreenIG   = document.getElementById("btnFullscreenIG");
 const btnRestartIG      = document.getElementById("btnRestartIG");
 const btnMainIG         = document.getElementById("btnMainIG");
 
-// Меню и оверлеи
-const loginContainer         = document.getElementById("loginContainer");
-const walletInput            = document.getElementById("walletInput");
-const loginOkButton          = document.getElementById("loginOkButton");
-const loginCancelButton      = document.getElementById("loginCancelButton");
-const playWithoutWalletButton= document.getElementById("playWithoutWalletButton");
+// Login & overlays
+const loginContainer          = document.getElementById("loginContainer");
+const walletInput             = document.getElementById("walletInput");
+const loginOkButton           = document.getElementById("loginOkButton");
+const loginCancelButton       = document.getElementById("loginCancelButton");
+const playWithoutWalletButton = document.getElementById("playWithoutWalletButton");
 
-const summaryOverlay         = document.getElementById("summaryOverlay");
-const lastRecord             = document.getElementById("lastRecord");
-const refCount               = document.getElementById("refCount");
-const timeBonusEl            = document.getElementById("timeBonus");
-const btnPlayNow             = document.getElementById("btnPlayNow");
+const summaryOverlay = document.getElementById("summaryOverlay");
+const lastRecord     = document.getElementById("lastRecord");
+const refCount       = document.getElementById("refCount");
+const timeBonusEl    = document.getElementById("timeBonus");
+const btnPlayNow     = document.getElementById("btnPlayNow");
 
-const menuContainer          = document.getElementById("menuContainer");
-const btnStart               = document.getElementById("btnStart");
-const btnRecords             = document.getElementById("btnRecords");
-const btnBuy                 = document.getElementById("btnBuy");
+const menuContainer = document.getElementById("menuContainer");
+const btnStart      = document.getElementById("btnStart");
+const btnRecords    = document.getElementById("btnRecords");
+const btnBuy        = document.getElementById("btnBuy");
 
-const gameCanvas             = document.getElementById("gameCanvas");
-const ctx                    = gameCanvas.getContext("2d");
+const gameCanvas    = document.getElementById("gameCanvas");
+const ctx           = gameCanvas.getContext("2d");
 
-const gameOverOverlay        = document.getElementById("gameOverOverlay");
-const finalScore             = document.getElementById("finalScore");
-const btnMenuOver            = document.getElementById("btnMenu");
-const btnRestartOver         = document.getElementById("btnRestart");
+const gameOverOverlay = document.getElementById("gameOverOverlay");
+const finalScore      = document.getElementById("finalScore");
+const btnMenuOver     = document.getElementById("btnMenu");
+const btnRestartOver  = document.getElementById("btnRestart");
 
-const recordsContainer       = document.getElementById("recordsContainer");
-const recordsTableContainer  = document.getElementById("recordsTableContainer");
-const closeRecordsButton     = document.getElementById("closeRecordsButton");
+const recordsContainer      = document.getElementById("recordsContainer");
+const recordsTableContainer = document.getElementById("recordsTableContainer");
+const closeRecordsButton    = document.getElementById("closeRecordsButton");
 
-// Game state
+// State
 let gameState      = "menu";
 let currentPlayer  = null;
-const START_TIME   = 50;  // сек
+const START_TIME   = 50;
 let batteryPercent = 100;
 let scoreTotal     = 0;
 let cameraX = 0, cameraY = 0;
@@ -82,7 +81,7 @@ gameCanvas.addEventListener("mousemove", e => {
 
 // FULLSCREEN
 fullscreenButton.addEventListener("click", toggleFullscreen);
-btnFullscreenIG   .addEventListener("click", () => {
+btnFullscreenIG  .addEventListener("click", () => {
   toggleFullscreen();
   inGameMenuOverlay.style.display = "none";
 });
@@ -91,7 +90,7 @@ function toggleFullscreen() {
   else document.exitFullscreen();
 }
 
-// IN-GAME MENU
+// In-game MENU
 gameMenuButton.addEventListener("click", () => {
   inGameMenuOverlay.style.display = "flex";
 });
@@ -103,6 +102,15 @@ btnMainIG.addEventListener("click", () => {
   inGameMenuOverlay.style.display = "none";
   gameState = "menu";
   updateUI();
+});
+
+// GAME OVER buttons
+btnMenuOver.addEventListener("click", () => {
+  gameState = "menu";
+  updateUI();
+});
+btnRestartOver.addEventListener("click", () => {
+  startGame(0);
 });
 
 // START GAME
@@ -156,7 +164,7 @@ closeRecordsButton.addEventListener("click", () => {
   updateUI();
 });
 
-// CANVAS RESIZE
+// RESIZE
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 function resizeCanvas() {
@@ -191,59 +199,65 @@ gameCanvas.addEventListener("click", e => {
   const mx = e.clientX - r.left, my = e.clientY - r.top;
   const key = getClickedIcon(mx, my, cameraX, cameraY);
   if (!key) return;
-  const ic  = cells[key];
+  const ic = cells[key];
   if (ic.removeStart) return;
 
   const now = performance.now();
-  let immediateHUD = true;
-
   if (ic.type === "key") {
     ic.removeStart = now;
     scoreTotal++;
     playSound("plus.wav", 0.4);
+    updateHUD();
   }
   else if (ic.type === "clock") {
     ic.removeStart = now;
-    // Добавляем 10% к батарее
+    // даём +10%
     batteryPercent = Math.min(100, batteryPercent + 10);
     playSound("time.wav", 0.4);
-    // Мигание иконки perplus
-    batteryIconEl.src = "icons/perplus.svg";
-    // Обновляем HUD через 500ms, чтобы вернуть percent-иконку
-    setTimeout(updateHUD, 500);
-    // Не затираем сразу
-    immediateHUD = false;
+    // мигаем perplus
+    batteryIconEl.style.opacity = 0;
+    setTimeout(() => {
+      batteryIconEl.src     = "icons/perplus.svg";
+      batteryIconEl.style.opacity = 1;
+    }, 0);
+    // отмена мигания через 500 мс
+    setTimeout(() => {
+      updateHUD();
+    }, 500);
   }
   else {
     batteryPercent = Math.max(0, batteryPercent - 6);
     missEvents.push({ key, time: now });
     playSound("miss.wav", 0.5);
+    updateHUD();
   }
-
-  if (immediateHUD) updateHUD();
 });
 
 // UPDATE HUD
 function updateHUD() {
   keyCountEl.textContent = scoreTotal;
   const pct = Math.max(0, Math.min(100, Math.floor(batteryPercent)));
-  batteryPctEl.textContent = pct + "%";
+  batteryPctEl.textContent = `${pct}%`;
   let iconName = "per0";
   if      (pct > 80) iconName = "per100";
   else if (pct > 60) iconName = "per80";
   else if (pct > 40) iconName = "per60";
   else if (pct > 20) iconName = "per40";
   else if (pct > 0)  iconName = "per20";
-  batteryIconEl.src = `icons/${iconName}.svg`;
+  batteryIconEl.style.opacity = 0;
+  setTimeout(() => {
+    batteryIconEl.src     = `icons/${iconName}.svg`;
+    batteryIconEl.style.opacity = 1;
+  }, 0);
 }
 
 // START GAME
 function startGame(bonus = 0) {
   Object.keys(cells).forEach(k => delete cells[k]);
   generatedChunks.clear();
-  scoreTotal     = 0;
+  scoreTotal = 0;
   batteryPercent = 100 + bonus;
-  missEvents     = [];
+  missEvents = [];
   Icon.shakeFactor = 1;
   cameraX = cameraY = 0;
   gameStartTime = performance.now();
@@ -256,7 +270,7 @@ function startGame(bonus = 0) {
 // UPDATE & DRAW
 function update(dt) {
   if (gameState !== "game") return;
-  const now = performance.now();
+  const now     = performance.now();
   const elapsed = (now - gameStartTime) / 1000;
   Icon.shakeFactor = 1 + Math.min(elapsed / START_TIME, 1) * 2;
 
@@ -272,9 +286,10 @@ function update(dt) {
     return;
   }
   ensureVisibleChunks(cameraX, cameraY, gameCanvas.width, gameCanvas.height);
-  updateHUD();
+  // не затираем батарейку во время мигания, HUD уже сам позаботится
 }
 
+// DRAW
 function draw() {
   if (gameState !== "game") return;
   ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
@@ -293,7 +308,7 @@ function draw() {
     ctx.save();
     ctx.globalAlpha = 0.5 * (1 - (now - ev.time) / 1000);
     ctx.fillStyle = "red";
-    ctx.fillRect(pos.x - S / 2, pos.y - S / 2, S, S);
+    ctx.fillRect(pos.x - S/2, pos.y - S/2, S, S);
     ctx.restore();
   }
 
@@ -304,7 +319,7 @@ function draw() {
     cursorX, cursorY, spotlightRadius
   );
   grad.addColorStop(0, "rgba(0,0,0,0)");
-  grad.addColorStop(1, "rgba(0,0,0,1)");  
+  grad.addColorStop(1, "rgba(0,0,0,1)");
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, w, h);
   ctx.restore();
@@ -331,9 +346,9 @@ requestAnimationFrame(loop);
 // SHOW/HIDE UI
 function updateUI() {
   const isGame = (gameState === "game");
-  hud.style.display            = isGame ? "flex" : "none";
-  gameMenuButton.style.display = isGame ? "block": "none";
-  fullscreenButton.style.display = (gameState === "menu") ? "block":"none";
+  hud.style.display            = isGame ? "flex"   : "none";
+  gameMenuButton.style.display = isGame ? "block"  : "none";
+  fullscreenButton.style.display = (gameState === "menu") ? "block" : "none";
 
   if (gameState === "menu") {
     menuContainer.style.display     = "flex";
