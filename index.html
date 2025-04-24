@@ -55,143 +55,70 @@
       text-shadow: 0 0 4px rgba(0,0,0,0.7);
     }
 
-    /* LOGIN OVERLAY */
-    #loginContainer {
+    /* GAME MENU BUTTON */
+    #gameMenuButton {
+      position: absolute;
+      top: 10px; right: 10px;
+      z-index: 460;
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: none;
+      pointer-events: auto;
+    }
+    #gameMenuButton:hover {
+      background: rgba(0,0,0,0.8);
+    }
+
+    /* IN-GAME MENU OVERLAY */
+    #inGameMenuOverlay {
       position: absolute; top: 0; left: 0;
       width: 100%; height: 100%;
       background: rgba(0,0,0,0.8);
-      display: none; z-index: 600;
+      display: none;
+      z-index: 700;
+      align-items: center;
+      justify-content: center;
     }
-    #loginContent {
-      position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      background: #021013; padding: 20px;
-      border-radius: 10px; color: #7AC0D6;
-      text-align: center; width: 300px;
+    #inGameMenuOverlay .menuBox {
+      background: #f5e9d4;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      color: #33484f;
     }
-    #loginContent input {
-      width: 280px; padding: 10px; font-size: 16px;
-      margin-bottom: 10px;
+    #inGameMenuOverlay .menuBox button {
+      width: 200px;
+      margin: 10px 0;
+      padding: 12px;
+      font-size: 18px;
+      background: #7AC0D6;
+      color: #021013;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
     }
-    .menuButton {
-      width: 220px; padding: 18px; font-size: 20px;
-      background: #7AC0D6; color: #021013;
-      border: none; border-radius: 5px; cursor: pointer;
+    #inGameMenuOverlay .menuBox button:hover {
+      background: #fff;
     }
-    .menuButton:hover { background: #fff; }
-    .buyButton {
-      background: #b33838!important; color: #fff!important;
-    }
-    .buyButton:hover { background: #9f2f2f!important; }
 
+    /* LOGIN OVERLAY */
+    #loginContainer { /* ... ваш прошлый CSS ... */ }
     /* SUMMARY OVERLAY */
-    #summaryOverlay {
-      position: absolute; top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
-      display: none; z-index: 600;
-    }
-    #summaryOverlay .overlayContent {
-      position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      background: #f5e9d4; padding: 20px; border-radius: 10px;
-      text-align: center; color: #33484f;
-    }
-    #summaryOverlay .overlayContent h2 {
-      margin: 0 0 10px;
-    }
-    #summaryOverlay .overlayContent p {
-      margin: 0 0 20px;
-    }
-
+    #summaryOverlay { /* ... */ }
     /* MENU */
-    #menuContainer {
-      position: absolute; top: 80px; left: 0;
-      width: 100%; height: calc(100% - 80px);
-      display: none; flex-direction: column;
-      background: #f5e9d4; color: #33484f; z-index: 300;
-    }
-    #topSection { text-align: center; padding: 30px 0; }
-    #topSection h1 { font-size: 56px; margin: 0; }
-    #topSection p  { font-size: 22px; }
-    #centerSection {
-      display: flex; justify-content: center; align-items: center;
-      gap: 70px; padding: 20px;
-    }
-    #centerLeft {
-      display: flex; flex-direction: column; gap: 20px;
-    }
-    #centerRight {
-      max-width: 30em; font-size: 20px; line-height: 1.4;
-    }
-    #centerRight h3 {
-      margin-top: 0; margin-bottom: 10px; font-size: 24px;
-    }
-    #centerRight p { margin-bottom: 15px; }
-    .highlight { color: #b33838; font-weight: bold; }
-
-    /* CANVAS */
-    #gameCanvas {
-      position: absolute; top: 0; left: 0;
-      width: 100vw; height: 100vh; display: none;
-    }
-
-    /* GAME OVER OVERLAY */
-    #gameOverOverlay {
-      position: absolute; top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.75);
-      display: none; z-index: 600; color: #7AC0D6;
-    }
-    #gameOverContent {
-      position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%, -50%); text-align: center;
-    }
-    #gameOverContent h1 {
-      font-size: 36px; margin-bottom: 20px;
-    }
-    #gameOverContent p { font-size: 24px; margin: 20px 0; }
-    .goButton {
-      margin: 10px; padding: 10px 20px; font-size: 18px;
-      background: #7AC0D6; color: #021013;
-      border: none; border-radius: 5px; cursor: pointer;
-    }
-    .goButton:hover { background: #fff; }
-
-    /* RECORDS OVERLAY */
-    #recordsContainer {
-      position: absolute; top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.9);
-      display: none; z-index: 600; color: #7AC0D6;
-    }
-    #recordsContent {
-      position: absolute; top: 5%; left: 50%;
-      transform: translateX(-50%);
-      width: 90%; max-height: 90%; background: #f5e9d4;
-      padding: 20px; border-radius: 10px;
-      overflow-y: auto;
-    }
-    #recordsContent table {
-      width: 100%; border-collapse: collapse;
-      margin-bottom: 10px;
-    }
-    #recordsContent th, #recordsContent td {
-      padding: 8px; border: 1px solid #33484f;
-      text-align: left;
-    }
-    #recordsContent th {
-      background: #7AC0D6; color: #021013;
-    }
-    #recordsContent button {
-      padding: 8px 16px; font-size: 16px;
-      background: #7AC0D6; color: #021013;
-      border: none; border-radius: 5px; cursor: pointer;
-    }
-    #recordsContent button:hover { background: #fff; }
+    #menuContainer { /* ... */ }
+    /* GAME OVER */
+    #gameOverOverlay { /* ... */ }
+    /* RECORDS */
+    #recordsContainer { /* ... */ }
   </style>
 </head>
 <body>
+  <!-- Fullscreen & top nav -->
   <button id="fullscreenButton">Fullscreen</button>
   <div id="topNav">
     <button class="navButton navActive">ICON HUNT</button>
@@ -212,74 +139,44 @@
     <div id="hud-right"></div>
   </div>
 
+  <!-- In-Game Menu Button -->
+  <button id="gameMenuButton">MENU</button>
+
+  <!-- In-Game Menu Overlay -->
+  <div id="inGameMenuOverlay">
+    <div class="menuBox">
+      <button id="btnFullscreenIG">FULL SCREEN</button><br/>
+      <button id="btnRestartIG">RESTART</button><br/>
+      <button id="btnMainIG">MAIN PAGE</button>
+    </div>
+  </div>
+
   <!-- LOGIN OVERLAY -->
   <div id="loginContainer">
-    <div id="loginContent">
-      <h2>Enter your BTC wallet</h2>
-      <input id="walletInput" type="text" maxlength="62" placeholder="62 chars [a-z0-9]" />
-      <div style="margin-top:10px;">
-        <button id="loginOkButton" class="menuButton">OK</button>
-        <button id="loginCancelButton" class="menuButton">Cancel</button>
-      </div>
-      <button id="playWithoutWalletButton" class="menuButton buyButton">
-        Play without wallet
-      </button>
-    </div>
+    <!-- ваш существующий HTML -->
   </div>
 
   <!-- SUMMARY OVERLAY -->
   <div id="summaryOverlay">
-    <div class="overlayContent">
-      <h2>Your best score: <span id="lastRecord">0</span></h2>
-      <p>You have <strong><span id="refCount">0</span></strong> referrals — +<strong><span id="timeBonus">0</span></strong>% bonus</p>
-      <button id="btnPlayNow" class="menuButton" style="background:#4CAF50;">PLAY</button>
-    </div>
+    <!-- ... -->
   </div>
 
-  <!-- MENU -->
+  <!-- MAIN MENU -->
   <div id="menuContainer">
-    <div id="topSection">
-      <h1>ICON HUNT</h1>
-      <p>Collect keys and clocks—and keep your flashlight powered!</p>
-    </div>
-    <div id="centerSection">
-      <div id="centerLeft">
-        <button id="btnStart" class="menuButton">Start Game</button>
-        <button id="btnRecords" class="menuButton">Records</button>
-        <button id="btnBuy" class="menuButton buyButton">BUY TOKEN</button>
-      </div>
-      <div id="centerRight">
-        <h3>Objective</h3>
-        <p>Find as many <strong>keys</strong> (+1 each) and <strong>clocks</strong> (+10%) as you can before your flashlight dies.</p>
-        <h3>Controls</h3>
-        <p>
-          <span class="highlight">Left-click</span>: collect icon.<br/>
-          <span class="highlight">Right-click + drag</span>: move camera.
-        </p>
-      </div>
-    </div>
+    <!-- ... -->
   </div>
 
-  <!-- CANVAS -->
+  <!-- GAME CANVAS -->
   <canvas id="gameCanvas"></canvas>
 
-  <!-- GAME OVER OVERLAY -->
+  <!-- GAME OVER -->
   <div id="gameOverOverlay">
-    <div id="gameOverContent">
-      <h1>Time’s up!</h1>
-      <p id="finalScore">Your score: 0</p>
-      <button id="btnMenu" class="goButton">MENU</button>
-      <button id="btnRestart" class="goButton">RESTART</button>
-    </div>
+    <!-- ... -->
   </div>
 
-  <!-- RECORDS OVERLAY -->
+  <!-- RECORDS -->
   <div id="recordsContainer">
-    <div id="recordsContent">
-      <h2>Ranking</h2>
-      <div id="recordsTableContainer">Loading...</div>
-      <button id="closeRecordsButton" class="goButton">Close</button>
-    </div>
+    <!-- ... -->
   </div>
 
   <script type="module" src="main.js"></script>
