@@ -49,17 +49,19 @@ const closeRecordsButton    = document.getElementById("closeRecordsButton");
 
 const errorOverlay = document.getElementById("errorOverlay");
 
-// State
-let gameState = "menu";
-let currentPlayer = null;
-const START_TIME = 60;
-let timeLeft = 0, scoreTotal = 0;
+// Game state
+let gameState      = "menu";
+let currentPlayer  = null;
+const START_TIME   = 60;
+let timeLeft       = 0;
+let scoreTotal     = 0;
 let cameraX = 0, cameraY = 0;
 let isDragging = false, dragStart, cameraStart;
-let lastTime = performance.now();
-let missEvents = [];
+let lastTime   = performance.now();
+let missEvents  = [];
+let gameStartTime = 0;
 
-// Error handling
+// Error overlay
 window.onerror = (msg,url,line,col,err) => {
   errorOverlay.style.display = "block";
   errorOverlay.textContent = `Error: ${msg} at ${line}:${col}`;
@@ -92,7 +94,7 @@ btnBuy.addEventListener("click", ()=> window.open("https://site.com","_blank"));
 loginOkButton.addEventListener("click", async ()=>{
   const w = walletInput.value.trim().toLowerCase();
   if (!w || w.length !== 62) return alert("Invalid wallet!");
-  currentPlayer = { wallet:w, score:0, timeBonus:0 };
+  currentPlayer = { wallet: w, score: 0, timeBonus: 0 };
   loginContainer.style.display = "none";
 
   const all = await fetchAllParticipantsFromXano();
@@ -100,12 +102,12 @@ loginOkButton.addEventListener("click", async ()=>{
   lastRecord.textContent = me.score;
   refCount.textContent    = me.referals;
 
-  let b=0, n=me.referals;
-  if (n>=1&&n<=3) b=5;
-  if (n>=4&&n<=10) b=10;
-  if (n>=11&&n<=30) b=15;
-  if (n>=31&&n<=100) b=20;
-  if (n>100) b=25;
+  let b = 0, n = me.referals;
+  if (n>=1 && n<=3) b = 5;
+  if (n>=4 && n<=10) b = 10;
+  if (n>=11&& n<=30) b = 15;
+  if (n>=31&& n<=100) b = 20;
+  if (n>100)          b = 25;
   timeBonusEl.textContent = b;
   currentPlayer.timeBonus = b;
 
@@ -123,20 +125,19 @@ playWithoutWalletButton.addEventListener("click", ()=>{
 // Play now
 btnPlayNow.addEventListener("click", ()=>{
   summaryOverlay.style.display = "none";
-  const bonus = currentPlayer ? currentPlayer.timeBonus : 0;
-  startGame(bonus);
+  startGame(currentPlayer ? currentPlayer.timeBonus : 0);
 });
 
 // Game over
 btnRestartOver.addEventListener("click", ()=> startGame(0));
 btnMenuOver.addEventListener("click", ()=>{
-  gameState="menu"; updateUI();
+  gameState = "menu"; updateUI();
 });
 
-// Records close
+// Close records
 closeRecordsButton.addEventListener("click", ()=>{
-  recordsContainer.style.display="none";
-  gameState="menu"; updateUI();
+  recordsContainer.style.display = "none";
+  gameState = "menu"; updateUI();
 });
 
 // Resize
@@ -149,47 +150,44 @@ resize();
 
 // Camera drag
 gameCanvas.addEventListener("mousedown", e=>{
-  if(e.button===2){
-    isDragging=true;
-    dragStart={x:e.clientX,y:e.clientY};
-    cameraStart={x:cameraX,y:cameraY};
-    playSound("move.wav",0.2);
+  if (e.button === 2) {
+    isDragging = true;
+    dragStart = { x: e.clientX, y: e.clientY };
+    cameraStart = { x: cameraX, y: cameraY };
+    playSound("move.wav", 0.2);
   }
 });
 gameCanvas.addEventListener("mousemove", e=>{
-  if(isDragging){
+  if (isDragging) {
     cameraX = cameraStart.x + (e.clientX - dragStart.x);
     cameraY = cameraStart.y + (e.clientY - dragStart.y);
   }
 });
 gameCanvas.addEventListener("mouseup", e=>{
-  if(e.button===2) isDragging=false;
+  if (e.button === 2) isDragging = false;
 });
 gameCanvas.addEventListener("contextmenu", e=> e.preventDefault());
 
-// Click to collect / penalty
+// Click handling
 gameCanvas.addEventListener("click", e=>{
-  if(gameState!=="game") return;
+  if (gameState !== "game") return;
   const rect = gameCanvas.getBoundingClientRect();
   const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-  const key = getClickedIcon(mx,my,cameraX,cameraY);
-  if(!key) return;
+  const key = getClickedIcon(mx, my, cameraX, cameraY);
+  if (!key) return;
   const ic = cells[key];
-  if(ic.removeStart) return;  // уже в fade
+  if (ic.removeStart) return; // уже удаляется
 
   const now = performance.now();
-  if(ic.type==="key"){
+  if (ic.type === "key") {
     ic.removeStart = now;
     scoreTotal++;
-    playSound("plus.wav",0.4);
-  }
-  else if(ic.type==="clock"){
+    playSound("plus.wav", 0.4);
+  } else if (ic.type === "clock") {
     ic.removeStart = now;
     timeLeft += 10;
-    playSound("time.wav",0.4);
-  }
-  else {
-    // штраф
+    playSound("time.wav", 0.4);
+  } else {
     timeLeft = Math.max(0, timeLeft - 3);
     missEvents.push({ key, time: now });
     playSound("miss.wav", 0.5);
@@ -198,48 +196,53 @@ gameCanvas.addEventListener("click", e=>{
 
 // Game loop
 function update(dt){
-  if(gameState==="game"){
+  if (gameState === "game") {
+    const now = performance.now();
+
+    // нарастающая shakeFactor от реального времени
+    const elapsed = (now - gameStartTime)/1000;
+    const frac = Math.min(elapsed/START_TIME, 1);
+    Icon.shakeFactor = 1 + frac*2; // от 1 до 3
+
     timeLeft -= dt/1000;
-    // усиление shakeFactor
-    Icon.shakeFactor = 1 + (1 - Math.max(0, timeLeft)/START_TIME)*2;
-    if(timeLeft <= 0){
-      gameState="game_over";
-      if(currentPlayer){
+    if (timeLeft <= 0) {
+      gameState = "game_over";
+      if (currentPlayer) {
         currentPlayer.score = scoreTotal;
         addParticipantToXano(currentPlayer.wallet, scoreTotal);
       }
-      playSound("end.wav",0.5);
+      playSound("end.wav", 0.5);
       updateUI();
       return;
     }
-    ensureVisibleChunks(cameraX,cameraY,gameCanvas.width,gameCanvas.height);
+    ensureVisibleChunks(cameraX, cameraY, gameCanvas.width, gameCanvas.height);
 
-    // faster vignette
-    if(timeLeft<=10){
-      vignette.style.display="block";
+    // виньетка
+    if (timeLeft <= 10) {
+      vignette.style.display = "block";
       vignette.style.opacity = `${Math.min(1, (1 - timeLeft/10)*2)}`;
     } else {
-      vignette.style.display="none";
+      vignette.style.display = "none";
     }
   }
 }
 
 function draw(){
-  if(gameState==="game"){
-    ctx.clearRect(0,0,gameCanvas.width,gameCanvas.height);
+  if (gameState === "game") {
+    ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
-    // обычные иконки + fade
-    drawCells(ctx,cameraX,cameraY,gameCanvas.width,gameCanvas.height);
+    // иконки + fade у удаляемых
+    drawCells(ctx, cameraX, cameraY, gameCanvas.width, gameCanvas.height);
 
-    // подсветка ошибок
+    // подсветка промахов
     const now = performance.now();
-    for(let i=missEvents.length-1; i>=0; i--){
+    for (let i = missEvents.length - 1; i >= 0; i--) {
       const ev = missEvents[i];
       const ic = cells[ev.key];
-      if(!ic) { missEvents.splice(i,1); continue; }
+      if (!ic) { missEvents.splice(i,1); continue; }
       const dt = now - ev.time;
-      if(dt > 1000) { missEvents.splice(i,1); continue; }
-      const pos = ic.screenPosition(cameraX,cameraY,now);
+      if (dt > 1000) { missEvents.splice(i,1); continue; }
+      const pos = ic.screenPosition(cameraX, cameraY, now);
       const SIZE = 30;
       ctx.save();
       ctx.globalAlpha = 0.5 * (1 - dt/1000);
@@ -260,7 +263,7 @@ function draw(){
 
 function loop(){
   const now = performance.now();
-  const dt  = now - lastTime;
+  const dt = now - lastTime;
   lastTime = now;
   update(dt);
   draw();
@@ -269,47 +272,48 @@ function loop(){
 requestAnimationFrame(loop);
 
 function startGame(bonus=0){
-  Object.keys(cells).forEach(k=> delete cells[k]);
+  Object.keys(cells).forEach(k=>delete cells[k]);
   generatedChunks.clear();
-  scoreTotal=0;
-  timeLeft=START_TIME+bonus;
-  missEvents=[];
+  scoreTotal   = 0;
+  timeLeft     = START_TIME + bonus;
+  missEvents   = [];
   Icon.shakeFactor = 1;
-  cameraX=cameraY=0;
-  playSound("start.wav",0.7);
-  gameState="game";
+  cameraX = cameraY = 0;
+  gameStartTime = performance.now();
+  playSound("start.wav", 0.7);
+  gameState = "game";
   updateUI();
 }
 
 function updateUI(){
-  if(gameState==="menu"){
-    menuContainer.style.display="flex";
-    gameCanvas.style.display="none";
-    loginContainer.style.display=
-    summaryOverlay.style.display=
-    gameOverOverlay.style.display=
-    recordsContainer.style.display="none";
-    topNav.style.display=
-    fullscreenButton.style.display="block";
-  } else if(gameState==="game"){
-    menuContainer.style.display=
-    loginContainer.style.display=
-    summaryOverlay.style.display=
-    gameOverOverlay.style.display=
-    recordsContainer.style.display="none";
-    gameCanvas.style.display="block";
-    topNav.style.display=
-    fullscreenButton.style.display="none";
-  } else if(gameState==="game_over"){
-    menuContainer.style.display=
-    loginContainer.style.display=
-    summaryOverlay.style.display=
-    recordsContainer.style.display="none";
-    gameCanvas.style.display=
-    gameOverOverlay.style.display="block";
+  if (gameState === "menu") {
+    menuContainer.style.display = "flex";
+    gameCanvas.style.display    = "none";
+    loginContainer.style.display =
+    summaryOverlay.style.display =
+    gameOverOverlay.style.display =
+    recordsContainer.style.display = "none";
+    topNav.style.display =
+    fullscreenButton.style.display = "block";
+  } else if (gameState === "game") {
+    menuContainer.style.display =
+    loginContainer.style.display =
+    summaryOverlay.style.display =
+    gameOverOverlay.style.display =
+    recordsContainer.style.display = "none";
+    gameCanvas.style.display = "block";
+    topNav.style.display =
+    fullscreenButton.style.display = "none";
+  } else if (gameState === "game_over") {
+    menuContainer.style.display =
+    loginContainer.style.display =
+    summaryOverlay.style.display =
+    recordsContainer.style.display = "none";
+    gameCanvas.style.display =
+    gameOverOverlay.style.display = "block";
     finalScore.textContent = `Your score: ${scoreTotal}`;
-    topNav.style.display=
-    fullscreenButton.style.display="none";
+    topNav.style.display =
+    fullscreenButton.style.display = "none";
   }
 }
 updateUI();
