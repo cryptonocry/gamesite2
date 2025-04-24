@@ -222,7 +222,7 @@ gameCanvas.addEventListener("click", e => {
     playSound("time.wav", 0.4);
 
     // мигание perplus + запуск "+10"
-    blinkUntil = now + 500;
+    blinkUntil = now + 1000;
     batteryPctEl.textContent = `${Math.floor(batteryPercent)}%`;
     batteryIconEl.src        = "icons/perplus.svg";
     plusTextEl.classList.remove("play");
