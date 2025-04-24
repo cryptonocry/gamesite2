@@ -19,6 +19,7 @@ const hud           = document.getElementById("hud");
 const keyCountEl    = document.getElementById("keyCount");
 const batteryIconEl = document.getElementById("batteryIcon");
 const batteryPctEl  = document.getElementById("batteryPercent");
+const plusTextEl    = document.getElementById("plusText");
 
 // In-game menu UI
 const fullscreenButton  = document.getElementById("fullscreenButton");
@@ -61,7 +62,7 @@ const closeRecordsButton    = document.getElementById("closeRecordsButton");
 // Game state
 let gameState      = "menu";
 let currentPlayer  = null;
-const START_TIME   = 50;    // секунд
+const START_TIME   = 50;
 let batteryPercent = 100;
 let scoreTotal     = 0;
 let cameraX = 0, cameraY = 0;
@@ -69,10 +70,8 @@ let isDragging = false, dragStart, cameraStart;
 let missEvents = [];
 let gameStartTime = 0;
 
-// Для «мигания» иконки при +10%
+// Для «мигания» иконки и текста +10
 let blinkUntil = 0;
-
-// Чтобы не обновлять HUD каждые миллисекунды зря, а только при изменении процента
 let lastPct = null;
 
 // Spotlight
@@ -84,21 +83,20 @@ gameCanvas.addEventListener("mousemove", e => {
   cursorY = e.clientY - r.top;
 });
 
-// ---------------- FULLSCREEN ----------------
+// — FULLSCREEN —
 fullscreenButton.addEventListener("click", toggleFullscreen);
-btnFullscreenIG .addEventListener("click", () => {
+btnFullscreenIG.addEventListener("click", () => {
   toggleFullscreen();
   inGameMenuOverlay.style.display = "none";
 });
 function toggleFullscreen() {
-  if (!document.fullscreenElement) {
+  if (!document.fullscreenElement)
     document.documentElement.requestFullscreen();
-  } else {
+  else
     document.exitFullscreen();
-  }
 }
 
-// ---------------- In-game MENU ----------------
+// — In-game MENU —
 gameMenuButton.addEventListener("click", () => {
   inGameMenuOverlay.style.display = "flex";
 });
@@ -112,7 +110,7 @@ btnMainIG.addEventListener("click", () => {
   updateUI();
 });
 
-// ---------------- GAME OVER buttons ----------------
+// — GAME OVER buttons —
 btnMenuOver.addEventListener("click", () => {
   gameState = "menu";
   updateUI();
@@ -121,12 +119,12 @@ btnRestartOver.addEventListener("click", () => {
   startGame(0);
 });
 
-// ---------------- START GAME ----------------
+// — START GAME button —
 btnStart.addEventListener("click", () => {
   loginContainer.style.display = "block";
 });
 
-// ---------------- LOGIN FLOW ----------------
+// — LOGIN FLOW —
 loginOkButton.addEventListener("click", async () => {
   const w = walletInput.value.trim().toLowerCase();
   if (!w || w.length !== 62) return alert("Invalid wallet!");
@@ -156,13 +154,13 @@ playWithoutWalletButton.addEventListener("click", () => {
   startGame(0);
 });
 
-// ---------------- PLAY NOW ----------------
+// — PLAY NOW —
 btnPlayNow.addEventListener("click", () => {
   summaryOverlay.style.display = "none";
   startGame(currentPlayer ? parseInt(timeBonusEl.textContent) : 0);
 });
 
-// ---------------- RECORDS ----------------
+// — RECORDS —
 btnRecords.addEventListener("click", () => {
   showRecordsOverlay(recordsTableContainer, recordsContainer, currentPlayer);
 });
@@ -172,7 +170,7 @@ closeRecordsButton.addEventListener("click", () => {
   updateUI();
 });
 
-// ---------------- CANVAS RESIZE ----------------
+// — RESIZE —
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 function resizeCanvas() {
@@ -180,7 +178,7 @@ function resizeCanvas() {
   gameCanvas.height = window.innerHeight;
 }
 
-// ---------------- CAMERA DRAG ----------------
+// — CAMERA DRAG —
 gameCanvas.addEventListener("mousedown", e => {
   if (e.button === 2) {
     isDragging = true;
@@ -200,7 +198,7 @@ gameCanvas.addEventListener("mouseup", e => {
 });
 gameCanvas.addEventListener("contextmenu", e => e.preventDefault());
 
-// ---------------- CLICK TO COLLECT ----------------
+// — CLICK TO COLLECT —
 gameCanvas.addEventListener("click", e => {
   if (gameState !== "game") return;
   const r  = gameCanvas.getBoundingClientRect();
@@ -215,18 +213,20 @@ gameCanvas.addEventListener("click", e => {
     ic.removeStart = now;
     scoreTotal++;
     playSound("plus.wav", 0.4);
-    updateHUD();  // сразу обновить счёт и иконку (процент не менялся)
+    updateHUD();
   }
   else if (ic.type === "clock") {
     ic.removeStart = now;
-    // +10% батареи
     batteryPercent = Math.min(100, batteryPercent + 10);
     playSound("time.wav", 0.4);
 
-    // начинка мигания
+    // мигание perplus + запуск "+10"
     blinkUntil = now + 500;
     batteryPctEl.textContent = `${Math.floor(batteryPercent)}%`;
     batteryIconEl.src        = "icons/perplus.svg";
+    plusTextEl.classList.remove("play");
+    void plusTextEl.offsetWidth;
+    plusTextEl.classList.add("play");
   }
   else {
     batteryPercent = Math.max(0, batteryPercent - 6);
@@ -236,14 +236,13 @@ gameCanvas.addEventListener("click", e => {
   }
 });
 
-// ---------------- UPDATE HUD ----------------
+// — UPDATE HUD —
 function updateHUD() {
   keyCountEl.textContent = scoreTotal;
 
   const pct = Math.max(0, Math.min(100, Math.floor(batteryPercent)));
   batteryPctEl.textContent = `${pct}%`;
 
-  // Если сейчас мигаем «perplus», и ещё не время вернуть — выходим
   if (performance.now() < blinkUntil) return;
 
   let iconName = "per0";
@@ -256,7 +255,7 @@ function updateHUD() {
   batteryIconEl.src = `icons/${iconName}.svg`;
 }
 
-// ---------------- START GAME ----------------
+// — START GAME —
 function startGame(bonus = 0) {
   Object.keys(cells).forEach(k => delete cells[k]);
   generatedChunks.clear();
@@ -275,22 +274,20 @@ function startGame(bonus = 0) {
   updateUI();
 }
 
-// ---------------- UPDATE & DRAW ----------------
+// — UPDATE & DRAW —
 function update(dt) {
   if (gameState !== "game") return;
 
-  const now = performance.now();
+  const now     = performance.now();
   const elapsed = (now - gameStartTime) / 1000;
   Icon.shakeFactor = 1 + Math.min(elapsed / START_TIME, 1) * 2;
 
-  // уменьшить батарею
   batteryPercent -= 2 * (dt / 1000);
 
-  // обновляем HUD только когда процент изменился на 1% (и не в мигании)
   const pct = Math.max(0, Math.min(100, Math.floor(batteryPercent)));
   if (pct !== lastPct && performance.now() >= blinkUntil) {
     lastPct = pct;
-    updateHUD();
+    updateHUD();  
   }
 
   if (batteryPercent <= 0) {
@@ -304,7 +301,7 @@ function update(dt) {
     return;
   }
 
-  ensureVisibleChunks(cameraX, cameraY, gameCanvas. width, gameCanvas.height);
+  ensureVisibleChunks(cameraX, cameraY, gameCanvas.width, gameCanvas.height);
 }
 
 function draw() {
@@ -330,7 +327,6 @@ function draw() {
     ctx.restore();
   }
 
-  // фонарик
   const w = gameCanvas.width, h = gameCanvas.height;
   ctx.save();
     const grad = ctx.createRadialGradient(
@@ -343,7 +339,6 @@ function draw() {
     ctx.fillRect(0, 0, w, h);
   ctx.restore();
 
-  // затемнение в концовке (последние 20%)
   if (batteryPercent <= 20) {
     const alpha = 1 - (batteryPercent / 20);
     ctx.save();
@@ -363,7 +358,7 @@ function loop() {
 }
 requestAnimationFrame(loop);
 
-// ---------------- SHOW/HIDE UI ----------------
+// — SHOW/HIDE UI —
 function updateUI() {
   const isGame = (gameState === "game");
   hud.style.display            = isGame ? "flex"   : "none";
