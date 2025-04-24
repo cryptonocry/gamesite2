@@ -10,7 +10,8 @@ import {
 
 function playSound(src, vol=0.5) {
   const s = new Audio(src);
-  s.volume = vol; s.play().catch(e=>console.error(e));
+  s.volume = vol;
+  s.play().catch(e=>console.error(e));
 }
 
 // HTML elements
@@ -61,7 +62,7 @@ let gameStartTime = 0;
 
 // Spotlight
 let cursorX = 0, cursorY = 0;
-const spotlightRadius = 300;
+const spotlightRadius = 500; // увеличен в 2 раза
 gameCanvas.addEventListener("mousemove", e => {
   const r = gameCanvas.getBoundingClientRect();
   cursorX = e.clientX - r.left;
@@ -229,10 +230,10 @@ function draw(){
   if (gameState === "game") {
     ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
-    // 1) иконки + fade
+    // 1) Иконки + fade
     drawCells(ctx, cameraX, cameraY, gameCanvas.width, gameCanvas.height);
 
-    // 2) штрафные вспышки
+    // 2) Штрафные вспышки
     const now = performance.now();
     for (let i = missEvents.length - 1; i >= 0; i--) {
       const ev = missEvents[i];
@@ -253,18 +254,26 @@ function draw(){
     // 3) Градиентный фонарик (source-over)
     const w = gameCanvas.width, h = gameCanvas.height;
     ctx.save();
-      // рисуем градиент от центра (прозрачный) к краю (чёрный 85%)
       const grad = ctx.createRadialGradient(
         cursorX, cursorY, 0,
         cursorX, cursorY, spotlightRadius
       );
-      grad.addColorStop(0, "rgba(0,0,0,0)");
-      grad.addColorStop(1, "rgba(0,0,0,0.85)");
+      grad.addColorStop(0, "rgba(0,0,0,0)");    // центр — прозрачный
+      grad.addColorStop(1, "rgba(0,0,0,1)");    // край — чёрный
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
     ctx.restore();
 
-    // 4) UI
+    // 4) Батарейка: затемнение экрана 10→0 с
+    if (timeLeft <= 10) {
+      ctx.save();
+      const alpha = 1 - (timeLeft / 10);
+      ctx.fillStyle = `rgba(0,0,0,${alpha})`;
+      ctx.fillRect(0, 0, w, h);
+      ctx.restore();
+    }
+
+    // 5) UI
     ctx.save();
       ctx.font="24px Arial"; ctx.fillStyle="#33484f"; ctx.textAlign="left";
       ctx.fillText(`Score: ${scoreTotal}`,15,32);
