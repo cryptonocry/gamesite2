@@ -47,10 +47,10 @@ export function ensureVisibleChunks(camX, camY, w, h) {
   const top    = -camY / CELL_SIZE;
   const right  = (w - camX) / CELL_SIZE;
   const bottom = (h - camY) / CELL_SIZE;
-  const cxMin = Math.floor(left/CHUNK_SIZE) - 1;
-  const cxMax = Math.floor(right/CHUNK_SIZE) + 1;
-  const cyMin = Math.floor(top/CHUNK_SIZE) - 1;
-  const cyMax = Math.floor(bottom/CHUNK_SIZE) + 1;
+  const cxMin = Math.floor(left / CHUNK_SIZE) - 1;
+  const cxMax = Math.floor(right / CHUNK_SIZE) + 1;
+  const cyMin = Math.floor(top / CHUNK_SIZE) - 1;
+  const cyMax = Math.floor(bottom / CHUNK_SIZE) + 1;
   for (let cx = cxMin; cx <= cxMax; cx++) {
     for (let cy = cyMin; cy <= cyMax; cy++) {
       generateChunk(cx, cy);
@@ -60,21 +60,32 @@ export function ensureVisibleChunks(camX, camY, w, h) {
 
 export function drawCells(ctx, camX, camY, w, h) {
   const now = performance.now();
-  for (let k in cells) {
+  for (const k of Object.keys(cells)) {
     const ic = cells[k];
     const pos = ic.screenPosition(camX, camY, now);
     if (
       pos.x < -CELL_SIZE || pos.x > w + CELL_SIZE ||
       pos.y < -CELL_SIZE || pos.y > h + CELL_SIZE
     ) continue;
-    ic.draw(ctx, camX, camY, now);
+
+    if (ic.removeStart) {
+      const dt = now - ic.removeStart;
+      const alpha = 1 - dt / 500;
+      if (alpha <= 0) {
+        delete cells[k];
+        continue;
+      }
+      ic.draw(ctx, camX, camY, now, alpha);
+    } else {
+      ic.draw(ctx, camX, camY, now, 1);
+    }
   }
 }
 
 export function getClickedIcon(mx, my, camX, camY) {
   const now = performance.now();
   let best = null, dmin = Infinity;
-  for (let k in cells) {
+  for (const k of Object.keys(cells)) {
     const ic = cells[k];
     const pos = ic.screenPosition(camX, camY, now);
     const dx = mx - pos.x, dy = my - pos.y;
