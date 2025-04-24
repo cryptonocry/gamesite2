@@ -281,8 +281,8 @@ function update(dt) {
       dx /= len;
       dy /= len;
     }
-    cameraX += dx * panSpeed * dtSec;
-    cameraY += dy * panSpeed * dtSec;
+    cameraX -= dx * panSpeed * dtSec;
+    cameraY -= dy * panSpeed * dtSec;
   }
 
 
