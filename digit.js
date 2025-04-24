@@ -5,7 +5,7 @@ export class Icon {
   constructor(gx, gy, type, spawnTime = performance.now()) {
     this.gx = gx;
     this.gy = gy;
-    this.type = type; // mask, letterS, cd, xicon, clock, key, ethicon, btcicon, eye, lock, scroll, dna, flask
+    this.type = type;
     this.spawnTime = spawnTime;
     this.phaseOffset = Math.random() * Math.PI * 2;
     const baseAmp = 3, baseSpd = 0.5;
