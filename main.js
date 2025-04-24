@@ -1,4 +1,3 @@
-// main.js
 import { addParticipantToXano, fetchAllParticipantsFromXano } from "./api.js";
 import { showRecordsOverlay } from "./ui.js";
 import { Icon } from "./digit.js";
@@ -30,7 +29,7 @@ const btnFullscreenIG   = document.getElementById("btnFullscreenIG");
 const btnRestartIG      = document.getElementById("btnRestartIG");
 const btnMainIG         = document.getElementById("btnMainIG");
 
-// Login & Overlays
+// Login & overlays
 const loginContainer          = document.getElementById("loginContainer");
 const walletInput             = document.getElementById("walletInput");
 const loginOkButton           = document.getElementById("loginOkButton");
@@ -63,21 +62,26 @@ const closeRecordsButton    = document.getElementById("closeRecordsButton");
 // Game state
 let gameState      = "menu";
 let currentPlayer  = null;
-const START_TIME   = 50;
-let batteryPercent = 100;
+const START_TIME   = 50;    // продолжительность игры в секундах
+let batteryPercent = 100;   // таймер в процентах
 let scoreTotal     = 0;
 let cameraX = 0, cameraY = 0;
-let isDragging = false, dragStart, cameraStart;
 let missEvents = [];
 let gameStartTime = 0;
 
-// Для «мигания» и текста +10
+// Для “мигания” иконки и текста +10
 let blinkUntil = 0;
-let lastPct = null;
+let lastPct    = null;
 
 // Spotlight
 let cursorX = 0, cursorY = 0;
 const spotlightRadius = 500;
+
+// Настройки паннинга
+const edgeThreshold = 100;  // px от края, после которых начинается движение
+const panSpeed      = 300;  // px/sec
+
+// Слежение за курсором для фонарика и паннинга
 gameCanvas.addEventListener("mousemove", e => {
   const r = gameCanvas.getBoundingClientRect();
   cursorX = e.clientX - r.left;
@@ -133,7 +137,7 @@ loginOkButton.addEventListener("click", async () => {
   loginContainer.style.display = "none";
 
   const all = await fetchAllParticipantsFromXano();
-  const me  = all.find(r => r.wallet === w) || { score: 0, referals: 0 };
+  const me = all.find(r => r.wallet === w) || { score: 0, referals: 0 };
   lastRecord.textContent = me.score;
   refCount.textContent   = me.referals;
   let b = 0, n = me.referals;
@@ -171,33 +175,13 @@ closeRecordsButton.addEventListener("click", () => {
   updateUI();
 });
 
-// — RESIZE —
+// — CANVAS RESIZE —
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 function resizeCanvas() {
   gameCanvas.width  = window.innerWidth;
   gameCanvas.height = window.innerHeight;
 }
-
-// — CAMERA DRAG —
-gameCanvas.addEventListener("mousedown", e => {
-  if (e.button === 2) {
-    isDragging = true;
-    dragStart  = { x: e.clientX, y: e.clientY };
-    cameraStart= { x: cameraX, y: cameraY };
-    playSound("move.wav", 0.2);
-  }
-});
-gameCanvas.addEventListener("mousemove", e => {
-  if (isDragging) {
-    cameraX = cameraStart.x + (e.clientX - dragStart.x);
-    cameraY = cameraStart.y + (e.clientY - dragStart.y);
-  }
-});
-gameCanvas.addEventListener("mouseup", e => {
-  if (e.button === 2) isDragging = false;
-});
-gameCanvas.addEventListener("contextmenu", e => e.preventDefault());
 
 // — CLICK TO COLLECT —
 gameCanvas.addEventListener("click", e => {
@@ -220,9 +204,8 @@ gameCanvas.addEventListener("click", e => {
     ic.removeStart = now;
     batteryPercent = Math.min(100, batteryPercent + 10);
     playSound("time.wav", 0.4);
-
-    // мигание perplus + запуск "+10"
-    blinkUntil = now + 1000;
+    // мигание перезарядки + “+10”
+    blinkUntil = now + 1000;  // 1 сек, чтобы синхронизировать с plusAnim
     batteryPctEl.textContent = `${Math.floor(batteryPercent)}%`;
     batteryIconEl.src        = "icons/perplus.svg";
     plusTextEl.classList.remove("play");
@@ -244,6 +227,7 @@ function updateHUD() {
   const pct = Math.max(0, Math.min(100, Math.floor(batteryPercent)));
   batteryPctEl.textContent = `${pct}%`;
 
+  // если ещё мигаем perplus — пропускаем
   if (performance.now() < blinkUntil) return;
 
   let iconName = "per0";
@@ -279,16 +263,24 @@ function startGame(bonus = 0) {
 function update(dt) {
   if (gameState !== "game") return;
 
+  // 1) плавный pan по краям
+  const dtSec = dt / 1000;
+  const w = gameCanvas.width, h = gameCanvas.height;
+  if (cursorX < edgeThreshold)      cameraX += panSpeed * dtSec;
+  else if (cursorX > w - edgeThreshold) cameraX -= panSpeed * dtSec;
+  if (cursorY < edgeThreshold)      cameraY += panSpeed * dtSec;
+  else if (cursorY > h - edgeThreshold) cameraY -= panSpeed * dtSec;
+
+  // 2) обновление “тряски” и таймера
   const now     = performance.now();
   const elapsed = (now - gameStartTime) / 1000;
   Icon.shakeFactor = 1 + Math.min(elapsed / START_TIME, 1) * 2;
 
-  batteryPercent -= 2 * (dt / 1000);
-
+  batteryPercent -= 2 * dtSec;
   const pct = Math.max(0, Math.min(100, Math.floor(batteryPercent)));
-  if (pct !== lastPct && performance.now() >= blinkUntil) {
+  if (pct !== lastPct && now >= blinkUntil) {
     lastPct = pct;
-    updateHUD();  
+    updateHUD();
   }
 
   if (batteryPercent <= 0) {
@@ -302,12 +294,11 @@ function update(dt) {
     return;
   }
 
-  ensureVisibleChunks(cameraX, cameraY, gameCanvas.width, gameCanvas.height);
+  ensureVisibleChunks(cameraX, cameraY, w, h);
 }
 
 function draw() {
   if (gameState !== "game") return;
-
   ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
   drawCells(ctx, cameraX, cameraY, gameCanvas.width, gameCanvas.height);
 
@@ -328,6 +319,7 @@ function draw() {
     ctx.restore();
   }
 
+  // фонарик
   const w = gameCanvas.width, h = gameCanvas.height;
   ctx.save();
     const grad = ctx.createRadialGradient(
@@ -340,6 +332,7 @@ function draw() {
     ctx.fillRect(0, 0, w, h);
   ctx.restore();
 
+  // затемнение последней пятёрки процентов
   if (batteryPercent <= 20) {
     const alpha = 1 - (batteryPercent / 20);
     ctx.save();
@@ -393,5 +386,5 @@ function updateUI() {
   }
 }
 
-// — Инициализация —
+// Инициализация
 updateUI();
