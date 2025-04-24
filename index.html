@@ -12,66 +12,49 @@
       font-family: Arial, sans-serif;
       position: relative;
     }
-    /* FULLSCREEN BUTTON */
+    /* FULLSCREEN BUTTON (always visible) */
     #fullscreenButton {
       position: absolute; top: 10px; right: 10px;
-      z-index: 500; padding: 10px 15px;
+      z-index: 1000;
+      padding: 10px 15px;
       background: #7AC0D6; border: none; border-radius: 5px;
       cursor: pointer;
     }
     #fullscreenButton:hover {
       background: #fff; color: #021013;
     }
-    /* TOP NAV */
-    #topNav {
-      position: absolute; top: 0; left: 0; width: 100%;
-      display: flex; justify-content: center; gap: 30px;
-      background: #f5e9d4; padding: 15px 0; z-index: 400;
-    }
-    .navButton {
-      padding: 10px 20px; font-size: 18px;
-      border: none; border-radius: 5px; cursor: pointer;
-      background: #33484f; color: #7AC0D6;
-    }
-    .navActive { background: #7AC0D6; color: #021013; }
-    .navDisabled { opacity: 0.5; cursor: default; }
 
-    /* HUD */
+    /* HUD (hidden on menu, visible in-game) */
     #hud {
       position: absolute;
       top: 10px; left: 10px; right: 10px;
-      display: flex; justify-content: space-between;
-      align-items: center; z-index: 450;
+      display: none; /* СКРЫТО по умолчанию */
+      justify-content: space-between;
+      align-items: center;
+      z-index: 900;
       pointer-events: none;
     }
     #hud div {
       display: flex; align-items: center; gap: 8px;
     }
-    #hud img {
-      width: 32px; height: 32px;
-    }
+    #hud img { width:32px; height:32px; }
     #hud span {
-      font-size: 24px; color: #fff;
-      text-shadow: 0 0 4px rgba(0,0,0,0.7);
+      font-size:24px; color:#fff;
+      text-shadow:0 0 4px rgba(0,0,0,0.7);
     }
 
-    /* GAME MENU BUTTON */
+    /* IN-GAME MENU BUTTON */
     #gameMenuButton {
-      position: absolute;
-      top: 10px; right: 10px;
-      z-index: 460;
+      position: absolute; top: 10px; right: 10px;
+      z-index: 950;
       padding: 8px 12px;
       background: rgba(0,0,0,0.6);
       color: #fff;
-      border: none;
-      border-radius: 4px;
+      border: none; border-radius: 4px;
       cursor: pointer;
-      display: none;
-      pointer-events: auto;
+      display: none; /* по умолчанию скрыта */
     }
-    #gameMenuButton:hover {
-      background: rgba(0,0,0,0.8);
-    }
+    #gameMenuButton:hover { background: rgba(0,0,0,0.8); }
 
     /* IN-GAME MENU OVERLAY */
     #inGameMenuOverlay {
@@ -79,54 +62,37 @@
       width: 100%; height: 100%;
       background: rgba(0,0,0,0.8);
       display: none;
-      z-index: 700;
-      align-items: center;
-      justify-content: center;
+      z-index: 1001;
+      align-items: center; justify-content: center;
     }
     #inGameMenuOverlay .menuBox {
       background: #f5e9d4;
-      padding: 20px;
-      border-radius: 10px;
-      text-align: center;
-      color: #33484f;
+      padding: 20px; border-radius: 10px;
+      text-align: center; color: #33484f;
     }
     #inGameMenuOverlay .menuBox button {
-      width: 200px;
-      margin: 10px 0;
-      padding: 12px;
-      font-size: 18px;
-      background: #7AC0D6;
-      color: #021013;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
+      width: 200px; margin: 10px 0;
+      padding: 12px; font-size: 18px;
+      background: #7AC0D6; color: #021013;
+      border: none; border-radius: 5px; cursor: pointer;
     }
-    #inGameMenuOverlay .menuBox button:hover {
-      background: #fff;
-    }
+    #inGameMenuOverlay .menuBox button:hover { background: #fff; }
 
-    /* LOGIN OVERLAY */
-    #loginContainer { /* ... ваш прошлый CSS ... */ }
-    /* SUMMARY OVERLAY */
-    #summaryOverlay { /* ... */ }
-    /* MENU */
-    #menuContainer { /* ... */ }
-    /* GAME OVER */
-    #gameOverOverlay { /* ... */ }
-    /* RECORDS */
-    #recordsContainer { /* ... */ }
+    /* LOGIN, SUMMARY, MAIN MENU, GAME CANVAS, GAME OVER, RECORDS */
+    /* Ниже — ваш существующий CSS для этих оверлеев/меню */
+    #loginContainer { /* … */ }
+    #summaryOverlay { /* … */ }
+    #menuContainer  { /* … */ }
+    #gameCanvas     { /* … */ }
+    #gameOverOverlay{ /* … */ }
+    #recordsContainer{ /* … */ }
   </style>
 </head>
 <body>
-  <!-- Fullscreen & top nav -->
+  <!-- Всегда видимая кнопка Fullscreen -->
   <button id="fullscreenButton">Fullscreen</button>
-  <div id="topNav">
-    <button class="navButton navActive">ICON HUNT</button>
-    <button class="navButton navDisabled">COMING SOON</button>
-    <button class="navButton navDisabled">COMING SOON</button>
-  </div>
 
-  <!-- HUD -->
+  <!-- HUD (игровой счёт/батарейка) -->
   <div id="hud">
     <div id="hud-left">
       <img id="keyIconHUD" src="icons/key.svg" alt="Key" />
@@ -139,10 +105,10 @@
     <div id="hud-right"></div>
   </div>
 
-  <!-- In-Game Menu Button -->
+  <!-- In-Game MENU Button -->
   <button id="gameMenuButton">MENU</button>
 
-  <!-- In-Game Menu Overlay -->
+  <!-- In-Game MENU Overlay -->
   <div id="inGameMenuOverlay">
     <div class="menuBox">
       <button id="btnFullscreenIG">FULL SCREEN</button><br/>
@@ -153,17 +119,17 @@
 
   <!-- LOGIN OVERLAY -->
   <div id="loginContainer">
-    <!-- ваш существующий HTML -->
+    <!-- ваш код -->
   </div>
 
   <!-- SUMMARY OVERLAY -->
   <div id="summaryOverlay">
-    <!-- ... -->
+    <!-- ваш код -->
   </div>
 
   <!-- MAIN MENU -->
   <div id="menuContainer">
-    <!-- ... -->
+    <!-- ваш код -->
   </div>
 
   <!-- GAME CANVAS -->
@@ -171,12 +137,12 @@
 
   <!-- GAME OVER -->
   <div id="gameOverOverlay">
-    <!-- ... -->
+    <!-- ваш код -->
   </div>
 
   <!-- RECORDS -->
   <div id="recordsContainer">
-    <!-- ... -->
+    <!-- ваш код -->
   </div>
 
   <script type="module" src="main.js"></script>
