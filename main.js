@@ -73,6 +73,24 @@ let gameStartTime = 0;
 let blinkUntil = 0;
 let lastPct    = null;
 
+// в начале файла, рядом с cursorX/cursorY
+const keysPressed = new Set();
+
+window.addEventListener("keydown", e => {
+  switch(e.code) {
+    case "KeyW": case "ArrowUp":
+    case "KeyA": case "ArrowLeft":
+    case "KeyS": case "ArrowDown":
+    case "KeyD": case "ArrowRight":
+      keysPressed.add(e.code);
+      break;
+  }
+});
+window.addEventListener("keyup", e => {
+  keysPressed.delete(e.code);
+});
+
+
 // Spotlight
 let cursorX = 0, cursorY = 0;
 const spotlightRadius = 500;
@@ -267,6 +285,13 @@ function update(dt) {
   const w = gameCanvas.width, h = gameCanvas.height;
   const centerX = w / 2, centerY = h / 2;
 
+  // 0) управление с клавиатуры
+  const keySpeed = panSpeed * 1.2; // чуть побыстрее, чем мышью
+  if (keysPressed.has("KeyW") || keysPressed.has("ArrowUp"))    cameraY += keySpeed * dtSec;
+  if (keysPressed.has("KeyS") || keysPressed.has("ArrowDown"))  cameraY -= keySpeed * dtSec;
+  if (keysPressed.has("KeyA") || keysPressed.has("ArrowLeft"))  cameraX += keySpeed * dtSec;
+  if (keysPressed.has("KeyD") || keysPressed.has("ArrowRight")) cameraX -= keySpeed * dtSec;
+  
   // 1) Панорамирование с «мертвой зоной» в центре и ускорением ближе к краю
   // Половина размеров «мертвой зоны» (px) — подкорректируйте по вкусу
 const dzX = gameCanvas.width * 0.35;
