@@ -27,8 +27,8 @@ export function generateChunk(cx, cy) {
     const slotKey = `${s.x}_${s.y}`;
     const r = Math.random();
     let type;
-    if (r < 0.005) type = "key";
-    else if (r < 0.010) type = "clock";
+    if (r < 0.005)        type = "key";
+    else if (r < 0.010)   type = "clock";
     else {
       const d = [
         "mask","letterS","cd","xicon",
