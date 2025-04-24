@@ -269,8 +269,8 @@ function update(dt) {
 
   // 1) Панорамирование с «мертвой зоной» в центре и ускорением ближе к краю
   // Половина размеров «мертвой зоны» (px) — подкорректируйте по вкусу
-const dzX = gameCanvas.width * 0.4;
-const dzY = gameCanvas.height * 0.4;
+const dzX = gameCanvas.width * 0.35;
+const dzY = gameCanvas.height * 0.35;
 
   // Если курсор вышел за пределы центральной зоны…
   if (
