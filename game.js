@@ -32,7 +32,7 @@ export function generateChunk(cx, cy) {
     else if (r < 0.010) type = "clock";
     else {
       const d = [
-        "mask","letterS","cd","ufo","xicon",
+        "mask","letterS","cd","xicon",
         "ethicon","btcicon","eye","lock",
         "scroll","dna","flask"
       ];
@@ -63,8 +63,10 @@ export function drawCells(ctx, camX, camY, w, h) {
   for (let k in cells) {
     const ic = cells[k];
     const pos = ic.screenPosition(camX, camY, now);
-    if (pos.x < -CELL_SIZE || pos.x > w + CELL_SIZE ||
-        pos.y < -CELL_SIZE || pos.y > h + CELL_SIZE) continue;
+    if (
+      pos.x < -CELL_SIZE || pos.x > w + CELL_SIZE ||
+      pos.y < -CELL_SIZE || pos.y > h + CELL_SIZE
+    ) continue;
     ic.draw(ctx, camX, camY, now);
   }
 }
