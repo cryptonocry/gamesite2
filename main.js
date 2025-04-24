@@ -61,7 +61,7 @@ const closeRecordsButton     = document.getElementById("closeRecordsButton");
 // Game state
 let gameState      = "menu";
 let currentPlayer  = null;
-const START_TIME   = 50;  // 50 секунд при –2%/с
+const START_TIME   = 50;
 let batteryPercent = 100;
 let scoreTotal     = 0;
 let cameraX = 0, cameraY = 0;
@@ -81,7 +81,7 @@ gameCanvas.addEventListener("mousemove", e => {
 
 // FULLSCREEN
 fullscreenButton.addEventListener("click", toggleFullscreen);
-btnFullscreenIG .addEventListener("click", () => {
+btnFullscreenIG   .addEventListener("click", ()=>{
   toggleFullscreen();
   inGameMenuOverlay.style.display = "none";
 });
@@ -90,7 +90,7 @@ function toggleFullscreen(){
   else document.exitFullscreen();
 }
 
-// В-игре: MENU
+// IN-GAME MENU
 gameMenuButton.addEventListener("click", ()=>{
   inGameMenuOverlay.style.display = "flex";
 });
@@ -102,6 +102,11 @@ btnMainIG.addEventListener("click", ()=>{
   inGameMenuOverlay.style.display = "none";
   gameState = "menu";
   updateUI();
+});
+
+// START GAME BUTTON
+btnStart.addEventListener("click", ()=>{
+  loginContainer.style.display = "block";
 });
 
 // LOGIN FLOW
@@ -134,7 +139,7 @@ playWithoutWalletButton.addEventListener("click", ()=>{
   startGame(0);
 });
 
-// SUMMARY
+// PLAY NOW
 btnPlayNow.addEventListener("click", ()=>{
   summaryOverlay.style.display = "none";
   startGame(currentPlayer? parseInt(timeBonusEl.textContent):0);
@@ -150,7 +155,7 @@ closeRecordsButton.addEventListener("click", ()=>{
   updateUI();
 });
 
-// CANVAS RESIZE
+// RESIZE CANVAS
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 function resizeCanvas(){
@@ -205,7 +210,7 @@ gameCanvas.addEventListener("click", e=>{
   updateHUD();
 });
 
-// ОБНОВЛЕНИЕ HUD
+// UPDATE HUD
 function updateHUD(){
   keyCountEl.textContent = scoreTotal;
   const pct = Math.max(0,Math.min(100,Math.floor(batteryPercent)));
@@ -260,8 +265,6 @@ function draw(){
   if (gameState!=="game") return;
   ctx.clearRect(0,0,gameCanvas.width,gameCanvas.height);
   drawCells(ctx,cameraX,cameraY,gameCanvas.width,gameCanvas.height);
-
-  // промахи
   const now=performance.now();
   for (let i=missEvents.length-1;i>=0;i--){
     const ev=missEvents[i];
@@ -275,8 +278,6 @@ function draw(){
       ctx.fillRect(pos.x-S/2,pos.y-S/2,S,S);
     ctx.restore();
   }
-
-  // фонарик
   const w=gameCanvas.width,h=gameCanvas.height;
   ctx.save();
     const grad=ctx.createRadialGradient(
@@ -288,8 +289,6 @@ function draw(){
     ctx.fillStyle=grad;
     ctx.fillRect(0,0,w,h);
   ctx.restore();
-
-  // fade последние 10s
   if (batteryPercent<=20){
     const alpha=1-(batteryPercent/20);
     ctx.save();
@@ -309,12 +308,12 @@ function loop(){
 }
 requestAnimationFrame(loop);
 
-// Показ/скрытие UI
+// SHOW/HIDE UI
 function updateUI(){
-  const isGame=gameState==="game";
-  hud.style.display=isGame?"flex":"none";
-  gameMenuButton.style.display=isGame?"block":"none";
-  fullscreenButton.style.display=(gameState==="menu")?"block":"none";
+  const isGame = gameState==="game";
+  hud.style.display            = isGame?"flex":"none";
+  gameMenuButton.style.display = isGame?"block":"none";
+  fullscreenButton.style.display = (gameState==="menu")?"block":"none";
 
   if (gameState==="menu"){
     menuContainer.style.display     ="flex";
