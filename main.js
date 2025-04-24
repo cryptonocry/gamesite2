@@ -10,8 +10,7 @@ import {
 
 function playSound(src, vol=0.5) {
   const s = new Audio(src);
-  s.volume = vol;
-  s.play().catch(e=>console.error(e));
+  s.volume = vol; s.play().catch(e=>console.error(e));
 }
 
 // HTML elements
@@ -36,7 +35,6 @@ const btnBuy           = document.getElementById("btnBuy");
 
 const gameCanvas       = document.getElementById("gameCanvas");
 const ctx              = gameCanvas.getContext("2d");
-const vignette         = document.getElementById("vignette");
 
 const gameOverOverlay  = document.getElementById("gameOverOverlay");
 const finalScore       = document.getElementById("finalScore");
@@ -74,16 +72,15 @@ gameCanvas.addEventListener("mousemove", e => {
 window.onerror = (msg,url,line,col,err) => {
   errorOverlay.style.display = "block";
   errorOverlay.textContent = `Error: ${msg} at ${line}:${col}`;
-  console.error(err);
   return true;
 };
 window.onunhandledrejection = ev => {
   errorOverlay.style.display = "block";
   errorOverlay.textContent = `Promise rejection: ${ev.reason}`;
-  console.error(ev.reason);
+  return true;
 };
 
-// Fullscreen
+// Fullscreen toggle
 fullscreenButton.addEventListener("click", ()=>{
   if (!document.fullscreenElement) document.documentElement.requestFullscreen();
   else document.exitFullscreen();
@@ -112,11 +109,11 @@ loginOkButton.addEventListener("click", async ()=>{
   refCount.textContent    = me.referals;
 
   let b = 0, n = me.referals;
-  if (n>=1 && n<=3)   b = 5;
-  if (n>=4 && n<=10)  b = 10;
-  if (n>=11&& n<=30)  b = 15;
-  if (n>=31&& n<=100) b = 20;
-  if (n>100)          b = 25;
+  if (n>=1&&n<=3)   b = 5;
+  if (n>=4&&n<=10)  b = 10;
+  if (n>=11&&n<=30) b = 15;
+  if (n>=31&&n<=100)b = 20;
+  if (n>100)        b = 25;
   timeBonusEl.textContent = b;
   currentPlayer.timeBonus = b;
 
@@ -137,13 +134,13 @@ btnPlayNow.addEventListener("click", ()=>{
   startGame(currentPlayer ? currentPlayer.timeBonus : 0);
 });
 
-// Game Over
+// Game over
 btnRestartOver.addEventListener("click", ()=> startGame(0));
 btnMenuOver.addEventListener("click", ()=>{
   gameState = "menu"; updateUI();
 });
 
-// Records close
+// Close records
 closeRecordsButton.addEventListener("click", ()=>{
   recordsContainer.style.display = "none";
   gameState = "menu"; updateUI();
@@ -225,13 +222,6 @@ function update(dt){
       return;
     }
     ensureVisibleChunks(cameraX, cameraY, gameCanvas.width, gameCanvas.height);
-
-    if (timeLeft <= 10) {
-      vignette.style.display = "block";
-      vignette.style.opacity = `${Math.min(1, (1 - timeLeft/10)*2)}`;
-    } else {
-      vignette.style.display = "none";
-    }
   }
 }
 
@@ -239,8 +229,10 @@ function draw(){
   if (gameState === "game") {
     ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
+    // 1) иконки + fade
     drawCells(ctx, cameraX, cameraY, gameCanvas.width, gameCanvas.height);
 
+    // 2) штрафные вспышки
     const now = performance.now();
     for (let i = missEvents.length - 1; i >= 0; i--) {
       const ev = missEvents[i];
@@ -258,29 +250,21 @@ function draw(){
       ctx.restore();
     }
 
-    // ——— СПОТЛАЙТ С ГРАДИЕНТОМ (правильный порядок) ———
+    // 3) Градиентный фонарик (source-over)
     const w = gameCanvas.width, h = gameCanvas.height;
     ctx.save();
-      // затемним весь экран
-      ctx.fillStyle = "rgba(0,0,0,0.85)";
-      ctx.fillRect(0,0,w,h);
-
-      // создаём градиент, КРУГ ИЗ ВИДИМОСТИ
+      // рисуем градиент от центра (прозрачный) к краю (чёрный 85%)
       const grad = ctx.createRadialGradient(
         cursorX, cursorY, 0,
         cursorX, cursorY, spotlightRadius
       );
-      grad.addColorStop(0, "rgba(0,0,0,1)");   // центр — непрозрачно (проверочный «выжигание»)
-      grad.addColorStop(1, "rgba(0,0,0,0)");   // к краю — полностью прозрачно
-
-      ctx.globalCompositeOperation = "destination-out";
+      grad.addColorStop(0, "rgba(0,0,0,0)");
+      grad.addColorStop(1, "rgba(0,0,0,0.85)");
       ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(cursorX, cursorY, spotlightRadius, 0, Math.PI*2);
-      ctx.fill();
+      ctx.fillRect(0, 0, w, h);
     ctx.restore();
-    ctx.globalCompositeOperation = "source-over";
 
+    // 4) UI
     ctx.save();
       ctx.font="24px Arial"; ctx.fillStyle="#33484f"; ctx.textAlign="left";
       ctx.fillText(`Score: ${scoreTotal}`,15,32);
