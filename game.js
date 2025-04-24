@@ -4,7 +4,7 @@ import { Icon } from "./digit.js";
 export const CELL_SIZE  = 80;
 export const CHUNK_SIZE = 20;
 
-export let cells = {};              
+export let cells = {};
 export let generatedChunks = new Set();
 
 export function getChunkCoords(cx, cy) {
@@ -31,8 +31,12 @@ export function generateChunk(cx, cy) {
     if      (r < 0.005) type = "key";
     else if (r < 0.010) type = "clock";
     else {
-      const d = ["mask","letterS","cd","ufo","glitch"];
-      type = d[Math.floor(Math.random()*d.length)];
+      const d = [
+        "mask","letterS","cd","ufo","xicon",
+        "ethicon","btcicon","eye","lock",
+        "scroll","dna","flask"
+      ];
+      type = d[Math.floor(Math.random() * d.length)];
     }
     cells[slotKey] = new Icon(s.x, s.y, type);
   }
