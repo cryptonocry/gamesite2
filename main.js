@@ -8,11 +8,9 @@ import {
   getClickedIcon
 } from "./game.js";
 
-// Звуки
 function playSound(src, vol=0.5) {
   const s = new Audio(src);
-  s.volume = vol;
-  s.play().catch(e=>console.error(e));
+  s.volume = vol; s.play().catch(e=>console.error(e));
 }
 
 // HTML elements
@@ -24,31 +22,31 @@ const loginOkButton    = document.getElementById("loginOkButton");
 const loginCancelButton= document.getElementById("loginCancelButton");
 const playWithoutWalletButton = document.getElementById("playWithoutWalletButton");
 
-const summaryOverlay = document.getElementById("summaryOverlay");
-const lastRecord     = document.getElementById("lastRecord");
-const refCount       = document.getElementById("refCount");
-const timeBonusEl    = document.getElementById("timeBonus");
-const btnPlayNow     = document.getElementById("btnPlayNow");
+const summaryOverlay   = document.getElementById("summaryOverlay");
+const lastRecord       = document.getElementById("lastRecord");
+const refCount         = document.getElementById("refCount");
+const timeBonusEl      = document.getElementById("timeBonus");
+const btnPlayNow       = document.getElementById("btnPlayNow");
 
-const menuContainer = document.getElementById("menuContainer");
-const btnStart      = document.getElementById("btnStart");
-const btnRecords    = document.getElementById("btnRecords");
-const btnBuy        = document.getElementById("btnBuy");
+const menuContainer    = document.getElementById("menuContainer");
+const btnStart         = document.getElementById("btnStart");
+const btnRecords       = document.getElementById("btnRecords");
+const btnBuy           = document.getElementById("btnBuy");
 
-const gameCanvas    = document.getElementById("gameCanvas");
-const ctx           = gameCanvas.getContext("2d");
-const vignette      = document.getElementById("vignette");
+const gameCanvas       = document.getElementById("gameCanvas");
+const ctx              = gameCanvas.getContext("2d");
+const vignette         = document.getElementById("vignette");
 
-const gameOverOverlay = document.getElementById("gameOverOverlay");
-const finalScore      = document.getElementById("finalScore");
-const btnMenuOver     = document.getElementById("btnMenu");
-const btnRestartOver  = document.getElementById("btnRestart");
+const gameOverOverlay  = document.getElementById("gameOverOverlay");
+const finalScore       = document.getElementById("finalScore");
+const btnMenuOver      = document.getElementById("btnMenu");
+const btnRestartOver   = document.getElementById("btnRestart");
 
 const recordsContainer      = document.getElementById("recordsContainer");
 const recordsTableContainer = document.getElementById("recordsTableContainer");
 const closeRecordsButton    = document.getElementById("closeRecordsButton");
 
-const errorOverlay = document.getElementById("errorOverlay");
+const errorOverlay    = document.getElementById("errorOverlay");
 
 // Game state
 let gameState      = "menu";
@@ -64,16 +62,17 @@ let gameStartTime = 0;
 
 // Spotlight (фонарик)
 let cursorX = 0, cursorY = 0;
-const spotlightRadius = 150;
+// увеличили радиус в 2 раза
+const spotlightRadius = 300;
 
-// track mouse
+// Слежение за мышью
 gameCanvas.addEventListener("mousemove", e => {
-  const rect = gameCanvas.getBoundingClientRect();
-  cursorX = e.clientX - rect.left;
-  cursorY = e.clientY - rect.top;
+  const r = gameCanvas.getBoundingClientRect();
+  cursorX = e.clientX - r.left;
+  cursorY = e.clientY - r.top;
 });
 
-// Error handling
+// Error handler
 window.onerror = (msg,url,line,col,err) => {
   errorOverlay.style.display = "block";
   errorOverlay.textContent = `Error: ${msg} at ${line}:${col}`;
@@ -115,9 +114,9 @@ loginOkButton.addEventListener("click", async ()=>{
   refCount.textContent    = me.referals;
 
   let b = 0, n = me.referals;
-  if (n>=1 && n<=3) b = 5;
-  if (n>=4 && n<=10) b = 10;
-  if (n>=11&& n<=30) b = 15;
+  if (n>=1 && n<=3)   b = 5;
+  if (n>=4 && n<=10)  b = 10;
+  if (n>=11&& n<=30)  b = 15;
   if (n>=31&& n<=100) b = 20;
   if (n>100)          b = 25;
   timeBonusEl.textContent = b;
@@ -140,7 +139,7 @@ btnPlayNow.addEventListener("click", ()=>{
   startGame(currentPlayer ? currentPlayer.timeBonus : 0);
 });
 
-// GAME OVER controls
+// GAME OVER
 btnRestartOver.addEventListener("click", ()=> startGame(0));
 btnMenuOver.addEventListener("click", ()=>{
   gameState = "menu"; updateUI();
@@ -183,8 +182,8 @@ gameCanvas.addEventListener("contextmenu", e=> e.preventDefault());
 // Click to collect / penalty
 gameCanvas.addEventListener("click", e=>{
   if (gameState !== "game") return;
-  const r = gameCanvas.getBoundingClientRect();
-  const mx = e.clientX - r.left, my = e.clientY - r.top;
+  const rect = gameCanvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
   const key = getClickedIcon(mx, my, cameraX, cameraY);
   if (!key) return;
   const ic = cells[key];
@@ -213,10 +212,10 @@ function update(dt){
   if (gameState === "game") {
     const now = performance.now();
 
-    // нарастающая дрожь от времени игры
+    // нарастающая дрожь от прошедшего времени
     const elapsed = (now - gameStartTime)/1000;
     const frac = Math.min(elapsed/START_TIME, 1);
-    Icon.shakeFactor = 1 + frac*2; // от 1 до 3
+    Icon.shakeFactor = 1 + frac*2; // от 1× до 3×
 
     timeLeft -= dt/1000;
     if (timeLeft <= 0) {
@@ -231,7 +230,7 @@ function update(dt){
     }
     ensureVisibleChunks(cameraX, cameraY, gameCanvas.width, gameCanvas.height);
 
-    // виньетка
+    // виньетка (при 10 с)
     if (timeLeft <= 10) {
       vignette.style.display = "block";
       vignette.style.opacity = `${Math.min(1, (1 - timeLeft/10)*2)}`;
@@ -245,43 +244,55 @@ function draw(){
   if (gameState === "game") {
     ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
-    // рисуем ячейки и fade-эффект
+    // 1) рисуем все иконки (с fade)
     drawCells(ctx, cameraX, cameraY, gameCanvas.width, gameCanvas.height);
 
-    // подсветка промахов
+    // 2) подсветка промахов
     const now = performance.now();
     for (let i = missEvents.length - 1; i >= 0; i--) {
       const ev = missEvents[i];
       const ic = cells[ev.key];
-      if (!ic) { missEvents.splice(i,1); continue; }
-      const dt = now - ev.time;
-      if (dt > 1000) { missEvents.splice(i,1); continue; }
+      if (!ic || now - ev.time > 1000) {
+        missEvents.splice(i,1);
+        continue;
+      }
       const pos = ic.screenPosition(cameraX, cameraY, now);
       const SIZE = 30;
       ctx.save();
-      ctx.globalAlpha = 0.5 * (1 - dt/1000);
+      ctx.globalAlpha = 0.5 * (1 - (now-ev.time)/1000);
       ctx.fillStyle = "red";
       ctx.fillRect(pos.x - SIZE/2, pos.y - SIZE/2, SIZE, SIZE);
       ctx.restore();
     }
 
-    // **фонарик-эффект**
+    // 3) фонарик (gradient mask)
+    const w = gameCanvas.width, h = gameCanvas.height;
     ctx.save();
-    ctx.fillStyle = "rgba(0,0,0,0.9)";
-    ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+    // затемняем весь экран
+    ctx.fillStyle = "rgba(0,0,0,0.85)";
+    ctx.fillRect(0,0,w,h);
+    // готовим градиентный круг
+    const grad = ctx.createRadialGradient(
+      cursorX, cursorY, spotlightRadius*0.6,
+      cursorX, cursorY, spotlightRadius
+    );
+    grad.addColorStop(0, "rgba(0,0,0,0)");
+    grad.addColorStop(1, "rgba(0,0,0,1)");
+    // выжигаем градиентом
     ctx.globalCompositeOperation = "destination-out";
+    ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.arc(cursorX, cursorY, spotlightRadius, 0, 2*Math.PI);
+    ctx.arc(cursorX, cursorY, spotlightRadius, 0, Math.PI*2);
     ctx.fill();
     ctx.restore();
     ctx.globalCompositeOperation = "source-over";
 
-    // UI: score & timer поверх
+    // 4) UI поверх
     ctx.save();
     ctx.font="24px Arial"; ctx.fillStyle="#33484f"; ctx.textAlign="left";
     ctx.fillText(`Score: ${scoreTotal}`,15,32);
     ctx.textAlign="center";
-    ctx.fillText(`${Math.floor(timeLeft)} s`,gameCanvas.width/2,32);
+    ctx.fillText(`${Math.floor(timeLeft)} s`,w/2,32);
     ctx.restore();
   }
 }
@@ -297,7 +308,7 @@ function loop(){
 requestAnimationFrame(loop);
 
 function startGame(bonus=0){
-  Object.keys(cells).forEach(k=> delete cells[k]);
+  Object.keys(cells).forEach(k=>delete cells[k]);
   generatedChunks.clear();
   scoreTotal   = 0;
   timeLeft     = START_TIME + bonus;
