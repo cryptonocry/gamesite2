@@ -10,8 +10,7 @@ import {
 // Звуки
 function playSound(src, vol=0.5) {
   const s = new Audio(src);
-  s.volume = vol;
-  s.play().catch(e=>console.error(e));
+  s.volume = vol; s.play().catch(e=>console.error(e));
 }
 
 // HTML-elements
@@ -58,6 +57,9 @@ let scoreTotal = 0;
 let cameraX=0, cameraY=0;
 let isDragging=false, dragStart, cameraStart;
 let lastTime = performance.now();
+
+// For highlighting misses
+let missEvents = [];  // { key, time }
 
 // Error handling
 window.onerror = (msg,url,line,col,err) => {
@@ -122,7 +124,6 @@ playWithoutWalletButton.addEventListener("click", ()=>{
 
 // Play now
 btnPlayNow.addEventListener("click", ()=>{
-  console.log("PLAY clicked");
   summaryOverlay.style.display="none";
   const bonus = currentPlayer ? currentPlayer.timeBonus : 0;
   startGame(bonus);
@@ -168,7 +169,7 @@ gameCanvas.addEventListener("mouseup", e=>{
 });
 gameCanvas.addEventListener("contextmenu", e=> e.preventDefault());
 
-// Click to collect
+// Click to collect / penalty
 gameCanvas.addEventListener("click", e=>{
   if(gameState!=="game") return;
   const r=gameCanvas.getBoundingClientRect();
@@ -176,13 +177,21 @@ gameCanvas.addEventListener("click", e=>{
   const key = getClickedIcon(mx,my,cameraX,cameraY);
   if(!key) return;
   const ic = cells[key];
-  delete cells[key];
   if(ic.type==="key"){
+    delete cells[key];
     scoreTotal++;
     playSound("plus.wav",0.4);
-  } else if(ic.type==="clock"){
+  }
+  else if(ic.type==="clock"){
+    delete cells[key];
     timeLeft+=10;
     playSound("time.wav",0.4);
+  }
+  else {
+    // штраф и подсветка
+    timeLeft = Math.max(0, timeLeft - 3);
+    missEvents.push({ key, time: performance.now() });
+    playSound("miss.wav", 0.5);
   }
 });
 
@@ -201,9 +210,10 @@ function update(dt){
       return;
     }
     ensureVisibleChunks(cameraX,cameraY,gameCanvas.width,gameCanvas.height);
+    // vignette ×2 ярче
     if(timeLeft<=10){
       vignette.style.display="block";
-      vignette.style.opacity = `${Math.min(1,(1 - timeLeft/10)*2)}`;
+      vignette.style.opacity = `${Math.min(1, (1 - timeLeft/10)*2)}`;
     } else vignette.style.display="none";
   }
 }
@@ -212,6 +222,27 @@ function draw(){
   if(gameState==="game"){
     ctx.clearRect(0,0,gameCanvas.width,gameCanvas.height);
     drawCells(ctx,cameraX,cameraY,gameCanvas.width,gameCanvas.height);
+
+    // подсветка ошибок
+    const now = performance.now();
+    for(let i=missEvents.length-1; i>=0; i--){
+      const ev = missEvents[i];
+      if(now - ev.time > 1000) missEvents.splice(i,1);
+      else {
+        const ic = cells[ev.key];
+        if(ic){
+          const pos = ic.screenPosition(cameraX,cameraY,now);
+          const SIZE = 30;
+          ctx.save();
+          ctx.globalAlpha = 0.5 * (1 - (now-ev.time)/1000);
+          ctx.fillStyle = "red";
+          ctx.fillRect(pos.x - SIZE/2, pos.y - SIZE/2, SIZE, SIZE);
+          ctx.restore();
+        }
+      }
+    }
+
+    // UI: score & timer
     ctx.save();
     ctx.font="24px Arial"; ctx.fillStyle="#33484f"; ctx.textAlign="left";
     ctx.fillText(`Score: ${scoreTotal}`,15,32);
@@ -232,11 +263,11 @@ function loop(){
 requestAnimationFrame(loop);
 
 function startGame(bonus=0){
-  // очищаем cells без переназначения
   Object.keys(cells).forEach(k=>delete cells[k]);
   generatedChunks.clear();
   scoreTotal=0;
   timeLeft=START_TIME+bonus;
+  missEvents = [];
   cameraX=cameraY=0;
   playSound("start.wav",0.7);
   gameState="game";
@@ -247,14 +278,19 @@ function updateUI(){
   if(gameState==="menu"){
     menuContainer.style.display="flex";
     gameCanvas.style.display="none";
-    loginContainer.style.display=summaryOverlay.style.display=gameOverOverlay.style.display=recordsContainer.style.display="none";
+    loginContainer.style.display=summaryOverlay.style.display=
+      gameOverOverlay.style.display=recordsContainer.style.display="none";
     topNav.style.display=fullscreenButton.style.display="block";
-  } else if(gameState==="game"){
-    menuContainer.style.display=loginContainer.style.display=summaryOverlay.style.display=gameOverOverlay.style.display=recordsContainer.style.display="none";
+  }
+  else if(gameState==="game"){
+    menuContainer.style.display=loginContainer.style.display=summaryOverlay.style.display=
+      gameOverOverlay.style.display=recordsContainer.style.display="none";
     gameCanvas.style.display="block";
     topNav.style.display=fullscreenButton.style.display="none";
-  } else if(gameState==="game_over"){
-    menuContainer.style.display=loginContainer.style.display=summaryOverlay.style.display=recordsContainer.style.display="none";
+  }
+  else if(gameState==="game_over"){
+    menuContainer.style.display=loginContainer.style.display=summaryOverlay.style.display=
+      recordsContainer.style.display="none";
     gameCanvas.style.display=gameOverOverlay.style.display="block";
     finalScore.textContent = `Your score: ${scoreTotal}`;
     topNav.style.display=fullscreenButton.style.display="none";
