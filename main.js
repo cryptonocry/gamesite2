@@ -11,7 +11,7 @@ import {
 function playSound(src, vol=0.5) {
   const s = new Audio(src);
   s.volume = vol;
-  s.play().catch(e => console.error(e));
+  s.play().catch(e=>console.error(e));
 }
 
 // HTML-elements
@@ -49,7 +49,7 @@ const closeRecordsButton    = document.getElementById("closeRecordsButton");
 
 const errorOverlay = document.getElementById("errorOverlay");
 
-// Global state
+// State
 let gameState = "menu";
 let currentPlayer = null;
 const START_TIME = 60;
@@ -60,30 +60,30 @@ let isDragging=false, dragStart, cameraStart;
 let lastTime = performance.now();
 
 // Error handling
-window.onerror = (msg, url, line, col, err) => {
-  errorOverlay.style.display = "block";
+window.onerror = (msg,url,line,col,err) => {
+  errorOverlay.style.display="block";
   errorOverlay.textContent = `Error: ${msg} at ${line}:${col}`;
   console.error(err);
   return true;
 };
 window.onunhandledrejection = ev => {
-  errorOverlay.style.display = "block";
+  errorOverlay.style.display="block";
   errorOverlay.textContent = `Promise rejection: ${ev.reason}`;
   console.error(ev.reason);
 };
 
 // Fullscreen
-fullscreenButton.addEventListener("click", ()=> {
+fullscreenButton.addEventListener("click", ()=>{
   if (!document.fullscreenElement) document.documentElement.requestFullscreen();
   else document.exitFullscreen();
 });
 
-// Menu buttons
-btnStart.addEventListener("click", ()=> {
-  walletInput.value = "";
-  loginContainer.style.display = "block";
+// Menu
+btnStart.addEventListener("click", ()=>{
+  walletInput.value="";
+  loginContainer.style.display="block";
 });
-btnRecords.addEventListener("click", ()=> {
+btnRecords.addEventListener("click", ()=>{
   showRecordsOverlay(recordsTableContainer, recordsContainer, currentPlayer);
 });
 btnBuy.addEventListener("click", ()=> window.open("https://site.com","_blank"));
@@ -93,7 +93,7 @@ loginOkButton.addEventListener("click", async ()=>{
   const w = walletInput.value.trim().toLowerCase();
   if (!w || w.length!==62) return alert("Invalid wallet!");
   currentPlayer = { wallet:w, score:0, timeBonus:0 };
-  loginContainer.style.display = "none";
+  loginContainer.style.display="none";
 
   const all = await fetchAllParticipantsFromXano();
   const me  = all.find(r=>r.wallet===w) || { score:0, referals:0 };
@@ -109,21 +109,21 @@ loginOkButton.addEventListener("click", async ()=>{
   timeBonusEl.textContent = b;
   currentPlayer.timeBonus = b;
 
-  summaryOverlay.style.display = "block";
+  summaryOverlay.style.display="block";
 });
 loginCancelButton.addEventListener("click", ()=>{
-  loginContainer.style.display = "none";
+  loginContainer.style.display="none";
 });
 playWithoutWalletButton.addEventListener("click", ()=>{
   currentPlayer = null;
-  loginContainer.style.display = "none";
+  loginContainer.style.display="none";
   startGame(0);
 });
 
-// Play NOW
+// Play now
 btnPlayNow.addEventListener("click", ()=>{
   console.log("PLAY clicked");
-  summaryOverlay.style.display = "none";
+  summaryOverlay.style.display="none";
   const bonus = currentPlayer ? currentPlayer.timeBonus : 0;
   startGame(bonus);
 });
@@ -203,7 +203,7 @@ function update(dt){
     ensureVisibleChunks(cameraX,cameraY,gameCanvas.width,gameCanvas.height);
     if(timeLeft<=10){
       vignette.style.display="block";
-      vignette.style.opacity = `${1 - timeLeft/10}`;
+      vignette.style.opacity = `${Math.min(1,(1 - timeLeft/10)*2)}`;
     } else vignette.style.display="none";
   }
 }
@@ -232,8 +232,8 @@ function loop(){
 requestAnimationFrame(loop);
 
 function startGame(bonus=0){
-  // вместо `cells = {}` — чистим текущие слоты
-  Object.keys(cells).forEach(k => delete cells[k]);
+  // очищаем cells без переназначения
+  Object.keys(cells).forEach(k=>delete cells[k]);
   generatedChunks.clear();
   scoreTotal=0;
   timeLeft=START_TIME+bonus;
