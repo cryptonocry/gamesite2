@@ -263,13 +263,28 @@ function startGame(bonus = 0) {
 function update(dt) {
   if (gameState !== "game") return;
 
-  // 1) плавный pan по краям
+  // 1) плавный pan по направлению курсора от центра экрана
   const dtSec = dt / 1000;
   const w = gameCanvas.width, h = gameCanvas.height;
-  if (cursorX < edgeThreshold)      cameraX += panSpeed * dtSec;
-  else if (cursorX > w - edgeThreshold) cameraX -= panSpeed * dtSec;
-  if (cursorY < edgeThreshold)      cameraY += panSpeed * dtSec;
-  else if (cursorY > h - edgeThreshold) cameraY -= panSpeed * dtSec;
+  if (
+    cursorX < edgeThreshold ||
+    cursorX > w - edgeThreshold ||
+    cursorY < edgeThreshold ||
+    cursorY > h - edgeThreshold
+  ) {
+    // вектор от центра экрана к курсору, нормализованный
+    const centerX = w / 2, centerY = h / 2;
+    let dx = (cursorX - centerX) / centerX;
+    let dy = (cursorY - centerY) / centerY;
+    const len = Math.hypot(dx, dy);
+    if (len > 1) {
+      dx /= len;
+      dy /= len;
+    }
+    cameraX += dx * panSpeed * dtSec;
+    cameraY += dy * panSpeed * dtSec;
+  }
+
 
   // 2) обновление “тряски” и таймера
   const now     = performance.now();
