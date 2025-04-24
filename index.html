@@ -5,15 +5,15 @@
   <title>ICON HUNT Game</title>
   <style>
     html, body {
-      margin: 0; padding: 0;
-      width: 100vw; height: 100vh;
-      overflow: hidden;
-      background: #f5e9d4;
-      font-family: Arial, sans-serif;
+      margin:0; padding:0;
+      width:100vw; height:100vh;
+      overflow:hidden;
+      background:#f5e9d4;
+      font-family:Arial,sans-serif;
     }
     /* Fullscreen */
     #fullscreenButton {
-      position: absolute; top:10px; right:10px;
+      position:absolute; top:10px; right:10px;
       z-index:300; padding:10px 15px;
       background:#7AC0D6; border:none; border-radius:5px;
       cursor:pointer;
@@ -34,19 +34,30 @@
     }
     .navActive { background:#7AC0D6; color:#021013; }
     .navDisabled { opacity:0.5; cursor:default; }
-    /* Login */
-    #loginContainer, #summaryOverlay, #gameOverOverlay, #recordsContainer {
-      position:absolute; top:0; left:0; width:100%; height:100%;
+    /* Overlays & containers */
+    #loginContainer,
+    #summaryOverlay,
+    #gameOverOverlay,
+    #recordsContainer,
+    #errorOverlay {
+      position:absolute; top:0; left:0;
+      width:100%; height:100%;
       display:none; z-index:500;
     }
     #loginContainer { background:rgba(0,0,0,0.8); }
-    #loginContent, #summaryContent, #gameOverContent, #recordsContent {
+    #recordsContainer { background:rgba(0,0,0,0.9); }
+    #summaryOverlay { background:rgba(0,0,0,0.7); }
+    #gameOverOverlay { background:rgba(0,0,0,0.75); }
+    #errorOverlay { background:rgba(255,0,0,0.9); color:#fff; padding:20px; box-sizing:border-box; }
+    .overlayContent {
       position:absolute; top:50%; left:50%;
       transform:translate(-50%,-50%);
       background:#f5e9d4; padding:20px;
       border-radius:10px; text-align:center;
       color:#33484f;
+      max-width:90%; word-wrap:break-word;
     }
+    /* Menu */
     #menuContainer {
       position:absolute; top:80px; left:0;
       width:100%; height:calc(100% - 80px);
@@ -71,10 +82,9 @@
     }
     .menuButton:hover { background:#fff; }
     .buyButton {
-      background:#b33838 !important;
-      color:#fff !important;
+      background:#b33838!important; color:#fff!important;
     }
-    .buyButton:hover { background:#9f2f2f !important; }
+    .buyButton:hover { background:#9f2f2f!important; }
     #centerRight {
       max-width:30em; font-size:20px; line-height:1.4;
     }
@@ -92,7 +102,7 @@
       display:none; position:absolute;
       top:0; left:0; width:100%; height:100%;
       pointer-events:none;
-      background: radial-gradient(
+      background:radial-gradient(
         ellipse at center,
         transparent 60%,
         rgba(0,0,0,0.6) 100%
@@ -100,24 +110,20 @@
       opacity:0; transition:opacity 0.5s;
       z-index:400;
     }
-    /* Summary overlay */
-    #summaryOverlay { background:rgba(0,0,0,0.7); }
     /* Game Over */
-    #gameOverOverlay { background:rgba(0,0,0,0.75); }
-    #gameOverContent h1 { font-size:36px; margin:0 0 20px; }
-    #gameOverContent p  { font-size:24px; margin:20px 0; }
     .goButton {
       margin:10px; padding:10px 20px;
-      font-size:18px;
-      background:#7AC0D6; color:#021013;
-      border:none; border-radius:5px; cursor:pointer;
+      font-size:18px; background:#7AC0D6;
+      color:#021013; border:none; border-radius:5px;
+      cursor:pointer;
     }
     .goButton:hover { background:#fff; }
-    /* Records */
-    #recordsContainer { background:rgba(0,0,0,0.9); }
+    /* Records table */
     #recordsContent {
-      width:90%; max-height:80%;
-      overflow-y:auto;
+      position:absolute; top:5%; left:50%;
+      transform:translateX(-50%);
+      width:90%; max-height:90%; overflow-y:auto;
+      background:#f5e9d4; padding:20px; border-radius:10px;
     }
     #recordsContent table {
       width:100%; border-collapse:collapse;
@@ -131,6 +137,7 @@
   </style>
 </head>
 <body>
+
   <button id="fullscreenButton">Fullscreen</button>
   <div id="topNav">
     <button class="navButton navActive">ICON HUNT</button>
@@ -138,27 +145,27 @@
     <button class="navButton navDisabled">COMING SOON</button>
   </div>
 
-  <!-- LOGIN -->
+  <!-- LOGIN OVERLAY -->
   <div id="loginContainer">
-    <div id="loginContent">
+    <div class="overlayContent" id="loginContent">
       <h2>Enter your BTC wallet</h2>
       <input id="walletInput" type="text" maxlength="62"
          placeholder="62 chars [a-z0-9]" /><br/><br/>
       <button id="loginOkButton">OK</button>
-      <button id="loginCancelButton">Cancel</button><br/>
+      <button id="loginCancelButton">Cancel</button><br/><br/>
       <button id="playWithoutWalletButton"
          class="menuButton buyButton">Play without wallet</button>
     </div>
   </div>
 
-  <!-- SUMMARY before play -->
+  <!-- SUMMARY BEFORE PLAY -->
   <div id="summaryOverlay">
-    <div id="summaryContent">
+    <div class="overlayContent">
       <h2>Your best score: <span id="lastRecord">0</span></h2>
-      <p>You have <strong><span id="refCount">0</span></strong> referrals — 
+      <p>You have <strong><span id="refCount">0</span></strong> referrals —
          +<strong><span id="timeBonus">0</span></strong> sec bonus</p>
       <button id="btnPlayNow" class="menuButton"
-              style="background:#4CAF50;">PLAY</button>
+         style="background:#4CAF50;">PLAY</button>
     </div>
   </div>
 
@@ -176,8 +183,8 @@
       </div>
       <div id="centerRight">
         <h3>Objective</h3>
-        <p>Collect <strong>keys</strong> for +1 point each and 
-           <strong>clocks</strong> for +10 seconds.  
+        <p>Collect <strong>keys</strong> for +1 point each and
+           <strong>clocks</strong> for +10 seconds.
            Distractor-icons only animate and don’t give rewards.</p>
         <h3>Controls</h3>
         <p>
@@ -193,7 +200,7 @@
 
   <!-- GAME OVER -->
   <div id="gameOverOverlay">
-    <div id="gameOverContent">
+    <div class="overlayContent" id="gameOverContent">
       <h1>Time’s up!</h1>
       <p id="finalScore">Your score: 0</p>
       <button id="btnMenu" class="goButton">MENU</button>
@@ -209,6 +216,9 @@
       <button id="closeRecordsButton" class="goButton">Close</button>
     </div>
   </div>
+
+  <!-- ERROR OVERLAY -->
+  <div id="errorOverlay"></div>
 
   <script type="module" src="main.js"></script>
 </body>
