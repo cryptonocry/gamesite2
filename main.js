@@ -8,6 +8,7 @@ import {
   getClickedIcon
 } from "./game.js";
 
+// Звуки
 function playSound(src, vol=0.5) {
   const s = new Audio(src);
   s.volume = vol;
@@ -61,7 +62,18 @@ let lastTime   = performance.now();
 let missEvents  = [];
 let gameStartTime = 0;
 
-// Error overlay
+// Spotlight (фонарик)
+let cursorX = 0, cursorY = 0;
+const spotlightRadius = 150;
+
+// track mouse
+gameCanvas.addEventListener("mousemove", e => {
+  const rect = gameCanvas.getBoundingClientRect();
+  cursorX = e.clientX - rect.left;
+  cursorY = e.clientY - rect.top;
+});
+
+// Error handling
 window.onerror = (msg,url,line,col,err) => {
   errorOverlay.style.display = "block";
   errorOverlay.textContent = `Error: ${msg} at ${line}:${col}`;
@@ -74,13 +86,13 @@ window.onunhandledrejection = ev => {
   console.error(ev.reason);
 };
 
-// Fullscreen
+// Fullscreen toggle
 fullscreenButton.addEventListener("click", ()=>{
   if (!document.fullscreenElement) document.documentElement.requestFullscreen();
   else document.exitFullscreen();
 });
 
-// Menu
+// MENU buttons
 btnStart.addEventListener("click", ()=>{
   walletInput.value = "";
   loginContainer.style.display = "block";
@@ -90,7 +102,7 @@ btnRecords.addEventListener("click", ()=>{
 });
 btnBuy.addEventListener("click", ()=> window.open("https://site.com","_blank"));
 
-// Login
+// LOGIN flow
 loginOkButton.addEventListener("click", async ()=>{
   const w = walletInput.value.trim().toLowerCase();
   if (!w || w.length !== 62) return alert("Invalid wallet!");
@@ -122,25 +134,25 @@ playWithoutWalletButton.addEventListener("click", ()=>{
   startGame(0);
 });
 
-// Play now
+// PLAY NOW
 btnPlayNow.addEventListener("click", ()=>{
   summaryOverlay.style.display = "none";
   startGame(currentPlayer ? currentPlayer.timeBonus : 0);
 });
 
-// Game over
+// GAME OVER controls
 btnRestartOver.addEventListener("click", ()=> startGame(0));
 btnMenuOver.addEventListener("click", ()=>{
   gameState = "menu"; updateUI();
 });
 
-// Close records
+// RECORDS close
 closeRecordsButton.addEventListener("click", ()=>{
   recordsContainer.style.display = "none";
   gameState = "menu"; updateUI();
 });
 
-// Resize
+// Resize canvas
 function resize(){
   gameCanvas.width = innerWidth;
   gameCanvas.height= innerHeight;
@@ -168,26 +180,28 @@ gameCanvas.addEventListener("mouseup", e=>{
 });
 gameCanvas.addEventListener("contextmenu", e=> e.preventDefault());
 
-// Click handling
+// Click to collect / penalty
 gameCanvas.addEventListener("click", e=>{
   if (gameState !== "game") return;
-  const rect = gameCanvas.getBoundingClientRect();
-  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  const r = gameCanvas.getBoundingClientRect();
+  const mx = e.clientX - r.left, my = e.clientY - r.top;
   const key = getClickedIcon(mx, my, cameraX, cameraY);
   if (!key) return;
   const ic = cells[key];
-  if (ic.removeStart) return; // уже удаляется
+  if (ic.removeStart) return;
 
   const now = performance.now();
   if (ic.type === "key") {
     ic.removeStart = now;
     scoreTotal++;
     playSound("plus.wav", 0.4);
-  } else if (ic.type === "clock") {
+  }
+  else if (ic.type === "clock") {
     ic.removeStart = now;
     timeLeft += 10;
     playSound("time.wav", 0.4);
-  } else {
+  }
+  else {
     timeLeft = Math.max(0, timeLeft - 3);
     missEvents.push({ key, time: now });
     playSound("miss.wav", 0.5);
@@ -199,7 +213,7 @@ function update(dt){
   if (gameState === "game") {
     const now = performance.now();
 
-    // нарастающая shakeFactor от реального времени
+    // нарастающая дрожь от времени игры
     const elapsed = (now - gameStartTime)/1000;
     const frac = Math.min(elapsed/START_TIME, 1);
     Icon.shakeFactor = 1 + frac*2; // от 1 до 3
@@ -231,7 +245,7 @@ function draw(){
   if (gameState === "game") {
     ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
-    // иконки + fade у удаляемых
+    // рисуем ячейки и fade-эффект
     drawCells(ctx, cameraX, cameraY, gameCanvas.width, gameCanvas.height);
 
     // подсветка промахов
@@ -251,7 +265,18 @@ function draw(){
       ctx.restore();
     }
 
-    // UI
+    // **фонарик-эффект**
+    ctx.save();
+    ctx.fillStyle = "rgba(0,0,0,0.9)";
+    ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.beginPath();
+    ctx.arc(cursorX, cursorY, spotlightRadius, 0, 2*Math.PI);
+    ctx.fill();
+    ctx.restore();
+    ctx.globalCompositeOperation = "source-over";
+
+    // UI: score & timer поверх
     ctx.save();
     ctx.font="24px Arial"; ctx.fillStyle="#33484f"; ctx.textAlign="left";
     ctx.fillText(`Score: ${scoreTotal}`,15,32);
@@ -272,7 +297,7 @@ function loop(){
 requestAnimationFrame(loop);
 
 function startGame(bonus=0){
-  Object.keys(cells).forEach(k=>delete cells[k]);
+  Object.keys(cells).forEach(k=> delete cells[k]);
   generatedChunks.clear();
   scoreTotal   = 0;
   timeLeft     = START_TIME + bonus;
