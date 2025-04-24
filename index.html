@@ -50,32 +50,45 @@
       z-index: 900;
       pointer-events: none;
     }
-    #hud div {
+    #hud-left, #hud-right {
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    #hud img {
+    #hud-left img {
       width: 32px;
       height: 32px;
-      transition: opacity 0.2s ease;
     }
-    #hud span {
+    #hud-left span {
       font-size: 24px;
       color: #fff;
       text-shadow: 0 0 4px rgba(0,0,0,0.7);
     }
-    /* чтобы позиционировать «+10» */
+
     #hud-center {
       position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
+    /* группа батарейка + процент в одну строку */
+    #batteryGroup {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #batteryGroup img {
+      width: 32px;
+      height: 32px;
+      transition: opacity 0.2s ease;
+    }
+    #batteryGroup span {
+      font-size: 24px;
+      color: #fff;
+      text-shadow: 0 0 4px rgba(0,0,0,0.7);
+    }
 
-    /* -------------------------------------------------- */
-    /*                ПЛЮС-ТЕКСТ “+10”                   */
-    /* -------------------------------------------------- */
+    /* “+10” под батареей */
     #plusText {
       position: absolute;
       top: 100%;
@@ -119,7 +132,8 @@
     /*                In-Game MENU OVERLAY               */
     /* -------------------------------------------------- */
     #inGameMenuOverlay {
-      position: absolute; top: 0; left: 0;
+      position: absolute;
+      top: 0; left: 0;
       width: 100%; height: 100%;
       background: rgba(0,0,0,0.8);
       display: none;
@@ -390,8 +404,10 @@
       <span id="keyCount">0</span>
     </div>
     <div id="hud-center">
-      <img id="batteryIcon" src="icons/per100.svg" alt="Battery" />
-      <span id="batteryPercent">100%</span>
+      <div id="batteryGroup">
+        <img id="batteryIcon" src="icons/per100.svg" alt="Battery" />
+        <span id="batteryPercent">100%</span>
+      </div>
       <span id="plusText">+10</span>
     </div>
     <div id="hud-right"></div>
