@@ -10,7 +10,8 @@ import {
 
 function playSound(src, vol=0.5) {
   const s = new Audio(src);
-  s.volume = vol; s.play().catch(e=>console.error(e));
+  s.volume = vol;
+  s.play().catch(e=>console.error(e));
 }
 
 // HTML elements
@@ -60,19 +61,16 @@ let lastTime   = performance.now();
 let missEvents  = [];
 let gameStartTime = 0;
 
-// Spotlight (фонарик)
+// Spotlight
 let cursorX = 0, cursorY = 0;
-// увеличили радиус в 2 раза
 const spotlightRadius = 300;
-
-// Слежение за мышью
 gameCanvas.addEventListener("mousemove", e => {
   const r = gameCanvas.getBoundingClientRect();
   cursorX = e.clientX - r.left;
   cursorY = e.clientY - r.top;
 });
 
-// Error handler
+// Error handling
 window.onerror = (msg,url,line,col,err) => {
   errorOverlay.style.display = "block";
   errorOverlay.textContent = `Error: ${msg} at ${line}:${col}`;
@@ -85,13 +83,13 @@ window.onunhandledrejection = ev => {
   console.error(ev.reason);
 };
 
-// Fullscreen toggle
+// Fullscreen
 fullscreenButton.addEventListener("click", ()=>{
   if (!document.fullscreenElement) document.documentElement.requestFullscreen();
   else document.exitFullscreen();
 });
 
-// MENU buttons
+// Menu
 btnStart.addEventListener("click", ()=>{
   walletInput.value = "";
   loginContainer.style.display = "block";
@@ -101,7 +99,7 @@ btnRecords.addEventListener("click", ()=>{
 });
 btnBuy.addEventListener("click", ()=> window.open("https://site.com","_blank"));
 
-// LOGIN flow
+// Login flow
 loginOkButton.addEventListener("click", async ()=>{
   const w = walletInput.value.trim().toLowerCase();
   if (!w || w.length !== 62) return alert("Invalid wallet!");
@@ -133,25 +131,25 @@ playWithoutWalletButton.addEventListener("click", ()=>{
   startGame(0);
 });
 
-// PLAY NOW
+// Play now
 btnPlayNow.addEventListener("click", ()=>{
   summaryOverlay.style.display = "none";
   startGame(currentPlayer ? currentPlayer.timeBonus : 0);
 });
 
-// GAME OVER
+// Game Over
 btnRestartOver.addEventListener("click", ()=> startGame(0));
 btnMenuOver.addEventListener("click", ()=>{
   gameState = "menu"; updateUI();
 });
 
-// RECORDS close
+// Records close
 closeRecordsButton.addEventListener("click", ()=>{
   recordsContainer.style.display = "none";
   gameState = "menu"; updateUI();
 });
 
-// Resize canvas
+// Resize
 function resize(){
   gameCanvas.width = innerWidth;
   gameCanvas.height= innerHeight;
@@ -179,7 +177,7 @@ gameCanvas.addEventListener("mouseup", e=>{
 });
 gameCanvas.addEventListener("contextmenu", e=> e.preventDefault());
 
-// Click to collect / penalty
+// Click handling
 gameCanvas.addEventListener("click", e=>{
   if (gameState !== "game") return;
   const rect = gameCanvas.getBoundingClientRect();
@@ -207,15 +205,13 @@ gameCanvas.addEventListener("click", e=>{
   }
 });
 
-// Game loop
+// Update & Draw
 function update(dt){
   if (gameState === "game") {
     const now = performance.now();
-
-    // нарастающая дрожь от прошедшего времени
     const elapsed = (now - gameStartTime)/1000;
     const frac = Math.min(elapsed/START_TIME, 1);
-    Icon.shakeFactor = 1 + frac*2; // от 1× до 3×
+    Icon.shakeFactor = 1 + frac*2;
 
     timeLeft -= dt/1000;
     if (timeLeft <= 0) {
@@ -230,7 +226,6 @@ function update(dt){
     }
     ensureVisibleChunks(cameraX, cameraY, gameCanvas.width, gameCanvas.height);
 
-    // виньетка (при 10 с)
     if (timeLeft <= 10) {
       vignette.style.display = "block";
       vignette.style.opacity = `${Math.min(1, (1 - timeLeft/10)*2)}`;
@@ -244,10 +239,8 @@ function draw(){
   if (gameState === "game") {
     ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
-    // 1) рисуем все иконки (с fade)
     drawCells(ctx, cameraX, cameraY, gameCanvas.width, gameCanvas.height);
 
-    // 2) подсветка промахов
     const now = performance.now();
     for (let i = missEvents.length - 1; i >= 0; i--) {
       const ev = missEvents[i];
@@ -265,34 +258,34 @@ function draw(){
       ctx.restore();
     }
 
-    // 3) фонарик (gradient mask)
+    // ——— СПОТЛАЙТ С ГРАДИЕНТОМ (правильный порядок) ———
     const w = gameCanvas.width, h = gameCanvas.height;
     ctx.save();
-    // затемняем весь экран
-    ctx.fillStyle = "rgba(0,0,0,0.85)";
-    ctx.fillRect(0,0,w,h);
-    // готовим градиентный круг
-    const grad = ctx.createRadialGradient(
-      cursorX, cursorY, spotlightRadius*0.6,
-      cursorX, cursorY, spotlightRadius
-    );
-    grad.addColorStop(0, "rgba(0,0,0,0)");
-    grad.addColorStop(1, "rgba(0,0,0,1)");
-    // выжигаем градиентом
-    ctx.globalCompositeOperation = "destination-out";
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(cursorX, cursorY, spotlightRadius, 0, Math.PI*2);
-    ctx.fill();
+      // затемним весь экран
+      ctx.fillStyle = "rgba(0,0,0,0.85)";
+      ctx.fillRect(0,0,w,h);
+
+      // создаём градиент, КРУГ ИЗ ВИДИМОСТИ
+      const grad = ctx.createRadialGradient(
+        cursorX, cursorY, 0,
+        cursorX, cursorY, spotlightRadius
+      );
+      grad.addColorStop(0, "rgba(0,0,0,1)");   // центр — непрозрачно (проверочный «выжигание»)
+      grad.addColorStop(1, "rgba(0,0,0,0)");   // к краю — полностью прозрачно
+
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(cursorX, cursorY, spotlightRadius, 0, Math.PI*2);
+      ctx.fill();
     ctx.restore();
     ctx.globalCompositeOperation = "source-over";
 
-    // 4) UI поверх
     ctx.save();
-    ctx.font="24px Arial"; ctx.fillStyle="#33484f"; ctx.textAlign="left";
-    ctx.fillText(`Score: ${scoreTotal}`,15,32);
-    ctx.textAlign="center";
-    ctx.fillText(`${Math.floor(timeLeft)} s`,w/2,32);
+      ctx.font="24px Arial"; ctx.fillStyle="#33484f"; ctx.textAlign="left";
+      ctx.fillText(`Score: ${scoreTotal}`,15,32);
+      ctx.textAlign="center";
+      ctx.fillText(`${Math.floor(timeLeft)} s`,w/2,32);
     ctx.restore();
   }
 }
