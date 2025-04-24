@@ -10,7 +10,8 @@ import {
 // Звуки
 function playSound(src, vol=0.5) {
   const s = new Audio(src);
-  s.volume = vol; s.play().catch(e=>console.error(e));
+  s.volume = vol;
+  s.play().catch(e => console.error(e));
 }
 
 // HTML-elements
@@ -231,11 +232,15 @@ function loop(){
 requestAnimationFrame(loop);
 
 function startGame(bonus=0){
-  cells={}; generatedChunks.clear();
-  scoreTotal=0; timeLeft=START_TIME+bonus;
+  // вместо `cells = {}` — чистим текущие слоты
+  Object.keys(cells).forEach(k => delete cells[k]);
+  generatedChunks.clear();
+  scoreTotal=0;
+  timeLeft=START_TIME+bonus;
   cameraX=cameraY=0;
   playSound("start.wav",0.7);
-  gameState="game"; updateUI();
+  gameState="game";
+  updateUI();
 }
 
 function updateUI(){
