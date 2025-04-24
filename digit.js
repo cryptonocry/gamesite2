@@ -3,15 +3,15 @@ export class Icon {
   constructor(gx, gy, type, spawnTime = performance.now()) {
     this.gx = gx;
     this.gy = gy;
-    this.type = type; // mask, letterS, cd, ufo, xicon, clock, key, ethicon, btcicon, eye, lock, scroll, dna, flask
+    this.type = type; // mask, letterS, cd, xicon, clock, key, ethicon, btcicon, eye, lock, scroll, dna, flask
     this.spawnTime = spawnTime;
     this.phaseOffset = Math.random() * Math.PI * 2;
 
-    // базовые параметры анимации * усилитель
+    // усиленная анимация: амплитуда×1.5, скорость×1.2
     const baseAmp = (type === "key" || type === "clock") ? 5 : 3;
     const baseSpd = (type === "key" || type === "clock") ? 1 : 0.5;
-    this.baseAmplitude = baseAmp * 1.5;  // +50%
-    this.baseSpeed     = baseSpd * 1.2;  // +20%
+    this.baseAmplitude = baseAmp * 1.5;
+    this.baseSpeed     = baseSpd * 1.2;
 
     if (!Icon.images) Icon._loadImages();
   }
@@ -19,7 +19,7 @@ export class Icon {
   static _loadImages() {
     Icon.images = {};
     [
-      "mask","letterS","cd","ufo","xicon",
+      "mask","letterS","cd","xicon",
       "clock","key","ethicon","btcicon",
       "eye","lock","scroll","dna","flask"
     ].forEach(name => {
