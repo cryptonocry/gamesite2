@@ -1,59 +1,344 @@
-// digit.js
-export class Icon {
-  // уровень дрожи (растёт от 1 до 3 в main.js)
-  static shakeFactor = 1;
+// main.js
+import { addParticipantToXano, fetchAllParticipantsFromXano } from "./api.js";
+import { showRecordsOverlay } from "./ui.js";
+import { Icon } from "./digit.js";
+import {
+  cells, generatedChunks,
+  ensureVisibleChunks, drawCells,
+  getClickedIcon
+} from "./game.js";
 
-  constructor(gx, gy, type, spawnTime = performance.now()) {
-    this.gx = gx;
-    this.gy = gy;
-    this.type = type; // mask, letterS, cd, xicon, clock, key, ethicon, btcicon, eye, lock, scroll, dna, flask
-    this.spawnTime = spawnTime;
-    this.phaseOffset = Math.random() * Math.PI * 2;
+// Звуки
+function playSound(src, vol=0.5) {
+  const s = new Audio(src);
+  s.volume = vol;
+  s.play().catch(e=>console.error(e));
+}
 
-    // единые параметры для всех иконок:
-    const baseAmp = 3;    // амплитуда
-    const baseSpd = 0.5;  // скорость
-    // усиливаем с учётом прежнего фактора
-    this.baseAmplitude = baseAmp * 1.5;
-    this.baseSpeed     = baseSpd * 1.2;
+// HTML elements
+const fullscreenButton = document.getElementById("fullscreenButton");
+const topNav           = document.getElementById("topNav");
+const loginContainer   = document.getElementById("loginContainer");
+const walletInput      = document.getElementById("walletInput");
+const loginOkButton    = document.getElementById("loginOkButton");
+const loginCancelButton= document.getElementById("loginCancelButton");
+const playWithoutWalletButton = document.getElementById("playWithoutWalletButton");
 
-    if (!Icon.images) Icon._loadImages();
+const summaryOverlay = document.getElementById("summaryOverlay");
+const lastRecord     = document.getElementById("lastRecord");
+const refCount       = document.getElementById("refCount");
+const timeBonusEl    = document.getElementById("timeBonus");
+const btnPlayNow     = document.getElementById("btnPlayNow");
+
+const menuContainer = document.getElementById("menuContainer");
+const btnStart      = document.getElementById("btnStart");
+const btnRecords    = document.getElementById("btnRecords");
+const btnBuy        = document.getElementById("btnBuy");
+
+const gameCanvas    = document.getElementById("gameCanvas");
+const ctx           = gameCanvas.getContext("2d");
+const vignette      = document.getElementById("vignette");
+
+const gameOverOverlay = document.getElementById("gameOverOverlay");
+const finalScore      = document.getElementById("finalScore");
+const btnMenuOver     = document.getElementById("btnMenu");
+const btnRestartOver  = document.getElementById("btnRestart");
+
+const recordsContainer      = document.getElementById("recordsContainer");
+const recordsTableContainer = document.getElementById("recordsTableContainer");
+const closeRecordsButton    = document.getElementById("closeRecordsButton");
+
+const errorOverlay = document.getElementById("errorOverlay");
+
+// Game state
+let gameState      = "menu";
+let currentPlayer  = null;
+const START_TIME   = 60;
+let timeLeft       = 0;
+let scoreTotal     = 0;
+let cameraX = 0, cameraY = 0;
+let isDragging = false, dragStart, cameraStart;
+let lastTime   = performance.now();
+let missEvents  = [];
+let gameStartTime = 0;
+
+// Spotlight (фонарик)
+let cursorX = 0, cursorY = 0;
+const spotlightRadius = 150;
+
+// track mouse
+gameCanvas.addEventListener("mousemove", e => {
+  const rect = gameCanvas.getBoundingClientRect();
+  cursorX = e.clientX - rect.left;
+  cursorY = e.clientY - rect.top;
+});
+
+// Error handling
+window.onerror = (msg,url,line,col,err) => {
+  errorOverlay.style.display = "block";
+  errorOverlay.textContent = `Error: ${msg} at ${line}:${col}`;
+  console.error(err);
+  return true;
+};
+window.onunhandledrejection = ev => {
+  errorOverlay.style.display = "block";
+  errorOverlay.textContent = `Promise rejection: ${ev.reason}`;
+  console.error(ev.reason);
+};
+
+// Fullscreen toggle
+fullscreenButton.addEventListener("click", ()=>{
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+});
+
+// MENU buttons
+btnStart.addEventListener("click", ()=>{
+  walletInput.value = "";
+  loginContainer.style.display = "block";
+});
+btnRecords.addEventListener("click", ()=>{
+  showRecordsOverlay(recordsTableContainer, recordsContainer, currentPlayer);
+});
+btnBuy.addEventListener("click", ()=> window.open("https://site.com","_blank"));
+
+// LOGIN flow
+loginOkButton.addEventListener("click", async ()=>{
+  const w = walletInput.value.trim().toLowerCase();
+  if (!w || w.length !== 62) return alert("Invalid wallet!");
+  currentPlayer = { wallet: w, score: 0, timeBonus: 0 };
+  loginContainer.style.display = "none";
+
+  const all = await fetchAllParticipantsFromXano();
+  const me  = all.find(r=>r.wallet===w) || { score:0, referals:0 };
+  lastRecord.textContent = me.score;
+  refCount.textContent    = me.referals;
+
+  let b = 0, n = me.referals;
+  if (n>=1 && n<=3) b = 5;
+  if (n>=4 && n<=10) b = 10;
+  if (n>=11&& n<=30) b = 15;
+  if (n>=31&& n<=100) b = 20;
+  if (n>100)          b = 25;
+  timeBonusEl.textContent = b;
+  currentPlayer.timeBonus = b;
+
+  summaryOverlay.style.display = "block";
+});
+loginCancelButton.addEventListener("click", ()=>{
+  loginContainer.style.display = "none";
+});
+playWithoutWalletButton.addEventListener("click", ()=>{
+  currentPlayer = null;
+  loginContainer.style.display = "none";
+  startGame(0);
+});
+
+// PLAY NOW
+btnPlayNow.addEventListener("click", ()=>{
+  summaryOverlay.style.display = "none";
+  startGame(currentPlayer ? currentPlayer.timeBonus : 0);
+});
+
+// GAME OVER controls
+btnRestartOver.addEventListener("click", ()=> startGame(0));
+btnMenuOver.addEventListener("click", ()=>{
+  gameState = "menu"; updateUI();
+});
+
+// RECORDS close
+closeRecordsButton.addEventListener("click", ()=>{
+  recordsContainer.style.display = "none";
+  gameState = "menu"; updateUI();
+});
+
+// Resize canvas
+function resize(){
+  gameCanvas.width = innerWidth;
+  gameCanvas.height= innerHeight;
+}
+window.addEventListener("resize", resize);
+resize();
+
+// Camera drag
+gameCanvas.addEventListener("mousedown", e=>{
+  if (e.button === 2) {
+    isDragging = true;
+    dragStart = { x: e.clientX, y: e.clientY };
+    cameraStart = { x: cameraX, y: cameraY };
+    playSound("move.wav", 0.2);
   }
-
-  static _loadImages() {
-    Icon.images = {};
-    [
-      "mask","letterS","cd","xicon",
-      "clock","key","ethicon","btcicon",
-      "eye","lock","scroll","dna","flask"
-    ].forEach(name => {
-      const img = new Image();
-      img.src = `icons/${name}.svg`;
-      img.onerror = () => console.error(`Failed to load icon: ${name}.svg`);
-      Icon.images[name] = img;
-    });
+});
+gameCanvas.addEventListener("mousemove", e=>{
+  if (isDragging) {
+    cameraX = cameraStart.x + (e.clientX - dragStart.x);
+    cameraY = cameraStart.y + (e.clientY - dragStart.y);
   }
+});
+gameCanvas.addEventListener("mouseup", e=>{
+  if (e.button === 2) isDragging = false;
+});
+gameCanvas.addEventListener("contextmenu", e=> e.preventDefault());
 
-  screenPosition(camX, camY, now) {
-    const CELL = 80;
-    const baseX = this.gx * CELL + camX;
-    const baseY = this.gy * CELL + camY;
-    const dt = (now - this.spawnTime) / 1000;
-    // теперь все иконки используют один и тот же shakeFactor
-    const amp = this.baseAmplitude * Icon.shakeFactor;
-    const dx = amp * Math.cos(this.baseSpeed * dt + this.phaseOffset);
-    const dy = amp * Math.sin(this.baseSpeed * dt + this.phaseOffset);
-    return { x: baseX + dx, y: baseY + dy };
+// Click to collect / penalty
+gameCanvas.addEventListener("click", e=>{
+  if (gameState !== "game") return;
+  const r = gameCanvas.getBoundingClientRect();
+  const mx = e.clientX - r.left, my = e.clientY - r.top;
+  const key = getClickedIcon(mx, my, cameraX, cameraY);
+  if (!key) return;
+  const ic = cells[key];
+  if (ic.removeStart) return;
+
+  const now = performance.now();
+  if (ic.type === "key") {
+    ic.removeStart = now;
+    scoreTotal++;
+    playSound("plus.wav", 0.4);
   }
+  else if (ic.type === "clock") {
+    ic.removeStart = now;
+    timeLeft += 10;
+    playSound("time.wav", 0.4);
+  }
+  else {
+    timeLeft = Math.max(0, timeLeft - 3);
+    missEvents.push({ key, time: now });
+    playSound("miss.wav", 0.5);
+  }
+});
 
-  draw(ctx, camX, camY, now, alpha = 1) {
-    const pos = this.screenPosition(camX, camY, now);
-    const img = Icon.images[this.type];
-    if (!img || !img.complete) return;
-    const SIZE = 30; // –40% от исходного
+// Game loop
+function update(dt){
+  if (gameState === "game") {
+    const now = performance.now();
+
+    // нарастающая дрожь от времени игры
+    const elapsed = (now - gameStartTime)/1000;
+    const frac = Math.min(elapsed/START_TIME, 1);
+    Icon.shakeFactor = 1 + frac*2; // от 1 до 3
+
+    timeLeft -= dt/1000;
+    if (timeLeft <= 0) {
+      gameState = "game_over";
+      if (currentPlayer) {
+        currentPlayer.score = scoreTotal;
+        addParticipantToXano(currentPlayer.wallet, scoreTotal);
+      }
+      playSound("end.wav", 0.5);
+      updateUI();
+      return;
+    }
+    ensureVisibleChunks(cameraX, cameraY, gameCanvas.width, gameCanvas.height);
+
+    // виньетка
+    if (timeLeft <= 10) {
+      vignette.style.display = "block";
+      vignette.style.opacity = `${Math.min(1, (1 - timeLeft/10)*2)}`;
+    } else {
+      vignette.style.display = "none";
+    }
+  }
+}
+
+function draw(){
+  if (gameState === "game") {
+    ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+    // рисуем ячейки и fade-эффект
+    drawCells(ctx, cameraX, cameraY, gameCanvas.width, gameCanvas.height);
+
+    // подсветка промахов
+    const now = performance.now();
+    for (let i = missEvents.length - 1; i >= 0; i--) {
+      const ev = missEvents[i];
+      const ic = cells[ev.key];
+      if (!ic) { missEvents.splice(i,1); continue; }
+      const dt = now - ev.time;
+      if (dt > 1000) { missEvents.splice(i,1); continue; }
+      const pos = ic.screenPosition(cameraX, cameraY, now);
+      const SIZE = 30;
+      ctx.save();
+      ctx.globalAlpha = 0.5 * (1 - dt/1000);
+      ctx.fillStyle = "red";
+      ctx.fillRect(pos.x - SIZE/2, pos.y - SIZE/2, SIZE, SIZE);
+      ctx.restore();
+    }
+
+    // **фонарик-эффект**
     ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.drawImage(img, pos.x - SIZE/2, pos.y - SIZE/2, SIZE, SIZE);
+    ctx.fillStyle = "rgba(0,0,0,0.9)";
+    ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.beginPath();
+    ctx.arc(cursorX, cursorY, spotlightRadius, 0, 2*Math.PI);
+    ctx.fill();
+    ctx.restore();
+    ctx.globalCompositeOperation = "source-over";
+
+    // UI: score & timer поверх
+    ctx.save();
+    ctx.font="24px Arial"; ctx.fillStyle="#33484f"; ctx.textAlign="left";
+    ctx.fillText(`Score: ${scoreTotal}`,15,32);
+    ctx.textAlign="center";
+    ctx.fillText(`${Math.floor(timeLeft)} s`,gameCanvas.width/2,32);
     ctx.restore();
   }
 }
+
+function loop(){
+  const now = performance.now();
+  const dt = now - lastTime;
+  lastTime = now;
+  update(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+function startGame(bonus=0){
+  Object.keys(cells).forEach(k=> delete cells[k]);
+  generatedChunks.clear();
+  scoreTotal   = 0;
+  timeLeft     = START_TIME + bonus;
+  missEvents   = [];
+  Icon.shakeFactor = 1;
+  cameraX = cameraY = 0;
+  gameStartTime = performance.now();
+  playSound("start.wav", 0.7);
+  gameState = "game";
+  updateUI();
+}
+
+function updateUI(){
+  if (gameState === "menu") {
+    menuContainer.style.display = "flex";
+    gameCanvas.style.display    = "none";
+    loginContainer.style.display =
+    summaryOverlay.style.display =
+    gameOverOverlay.style.display =
+    recordsContainer.style.display = "none";
+    topNav.style.display =
+    fullscreenButton.style.display = "block";
+  } else if (gameState === "game") {
+    menuContainer.style.display =
+    loginContainer.style.display =
+    summaryOverlay.style.display =
+    gameOverOverlay.style.display =
+    recordsContainer.style.display = "none";
+    gameCanvas.style.display = "block";
+    topNav.style.display =
+    fullscreenButton.style.display = "none";
+  } else if (gameState === "game_over") {
+    menuContainer.style.display =
+    loginContainer.style.display =
+    summaryOverlay.style.display =
+    recordsContainer.style.display = "none";
+    gameCanvas.style.display =
+    gameOverOverlay.style.display = "block";
+    finalScore.textContent = `Your score: ${scoreTotal}`;
+    topNav.style.display =
+    fullscreenButton.style.display = "none";
+  }
+}
+updateUI();
