@@ -1,4 +1,5 @@
 // main.js
+
 import { addParticipantToXano, fetchAllParticipantsFromXano } from "./api.js";
 import { showRecordsOverlay } from "./ui.js";
 import { Icon } from "./digit.js";
@@ -11,20 +12,20 @@ import {
 } from "./game.js";
 
 // — CONSTANTS —
-const START_TIME = 50;           // игра длится 50 секунд (100% батареи)
-const panSpeed   = 300;          // базовая скорость панорамирования (px/sec)
-const spotlightRadius = 500;     // радиус света фонарика
+const START_TIME      = 50;   // сек, 100% батареи
+const panSpeed        = 300;  // базовая скорость панорамирования (px/с)
+const spotlightRadius = 500;  // радиус «фонарика»
 
-// — CONTROL TOGGLES (по умолчанию все включены) —
+// — CONTROL TOGGLES (включены по умолчанию) —
 let enableEdgePan      = true;
 let enableKeyboardPan  = true;
 let enableRightDragPan = true;
 
-// — CAMERA & GAME STATE —
+// — GAME STATE —
 let cameraX = 0, cameraY = 0;
 let scoreTotal     = 0;
-let batteryPercent = 100;        // 100% → 0% в течение START_TIME
-let gameState      = "menu";     // "menu" | "game" | "game_over"
+let batteryPercent = 100;
+let gameState      = "menu";   // "menu" | "game" | "game_over"
 let currentPlayer  = null;
 let gameStartTime  = 0;
 let lastPct        = null;
@@ -40,8 +41,8 @@ let isRightDragging = false;
 let dragStartRM     = { x: 0, y: 0 };
 let cameraStartRM   = { x: 0, y: 0 };
 
-// — UI ELEMENT REFERENCES —
-// Fullscreen & in-game menu
+// — UI ELEMENTS —
+// Fullscreen & menu
 const fullscreenButton  = document.getElementById("fullscreenButton");
 const gameMenuButton    = document.getElementById("gameMenuButton");
 const inGameMenuOverlay = document.getElementById("inGameMenuOverlay");
@@ -49,7 +50,7 @@ const btnFullscreenIG   = document.getElementById("btnFullscreenIG");
 const btnRestartIG      = document.getElementById("btnRestartIG");
 const btnMainIG         = document.getElementById("btnMainIG");
 
-// Settings checkboxes inside inGameMenuOverlay
+// Settings checkboxes
 const cbEdge      = document.getElementById("cbEdgePan");
 const cbKeyboard  = document.getElementById("cbKeyboardPan");
 const cbRightDrag = document.getElementById("cbRightDragPan");
@@ -88,13 +89,14 @@ const recordsContainer      = document.getElementById("recordsContainer");
 const recordsTableContainer = document.getElementById("recordsTableContainer");
 const closeRecordsButton    = document.getElementById("closeRecordsButton");
 
-// HUD elements
+// HUD
+const hud           = document.getElementById("hud");
 const keyCountEl    = document.getElementById("keyCount");
 const batteryIconEl = document.getElementById("batteryIcon");
 const batteryPctEl  = document.getElementById("batteryPercent");
 const plusTextEl    = document.getElementById("plusText");
 
-// — SOUND HELPER —
+// — UTILS —
 function playSound(src, vol = 0.5) {
   const s = new Audio(src);
   s.volume = vol;
@@ -117,14 +119,11 @@ window.addEventListener("keyup", e => {
   keysPressed.delete(e.code);
 });
 
-// — MOUSE MOVE FOR CURSOR TRACKING & SPOTLIGHT & EDGE-PAN —
+// — MOUSE MOVE (для курсора и «фонарика») —
 gameCanvas.addEventListener("mousemove", e => {
   const r = gameCanvas.getBoundingClientRect();
   cursorX = e.clientX - r.left;
   cursorY = e.clientY - r.top;
-  if (isRightDragging) {
-    // handled in mousedown/mousemove below
-  }
 });
 
 // — RIGHT-CLICK DRAG PAN LISTENERS —
@@ -133,7 +132,7 @@ gameCanvas.addEventListener("mousedown", e => {
     isRightDragging = true;
     dragStartRM     = { x: e.clientX, y: e.clientY };
     cameraStartRM   = { x: cameraX,    y: cameraY };
-    playSound("move.wav",0.2);
+    playSound("move.wav", 0.2);
   }
 });
 gameCanvas.addEventListener("mousemove", e => {
@@ -203,14 +202,14 @@ loginOkButton.addEventListener("click", async () => {
   const me  = all.find(r => r.wallet === w) || { score:0, referals:0 };
   lastRecord.textContent = me.score;
   refCount.textContent   = me.referals;
-  let b = 0, n = me.referals;
-  if      (n>=1 && n<=3)  b = 5;
-  else if (n<=10)         b = 10;
-  else if (n<=30)         b = 15;
-  else if (n<=100)        b = 20;
-  else                    b = 25;
-  timeBonusEl.textContent = b;
-  btnPlayNow.textContent  = `PLAY (+${b}%)`;
+  let bonus = 0, n = me.referals;
+  if      (n >= 1 && n <= 3)  bonus = 5;
+  else if (n <= 10)           bonus = 10;
+  else if (n <= 30)           bonus = 15;
+  else if (n <= 100)          bonus = 20;
+  else                         bonus = 25;
+  timeBonusEl.textContent = bonus;
+  btnPlayNow.textContent  = `PLAY (+${bonus}%)`;
   summaryOverlay.style.display = "flex";
 });
 loginCancelButton.addEventListener("click", () => {
@@ -257,14 +256,14 @@ gameCanvas.addEventListener("click", e => {
   if (ic.type === "key") {
     ic.removeStart = now;
     scoreTotal++;
-    playSound("plus.wav",0.4);
+    playSound("plus.wav", 0.4);
     updateHUD();
   }
   else if (ic.type === "clock") {
     ic.removeStart = now;
     batteryPercent = Math.min(100, batteryPercent + 10);
-    playSound("time.wav",0.4);
-    blinkUntil = now + 1000; // 1s для синхронности с +10 анимацией
+    playSound("time.wav", 0.4);
+    blinkUntil = now + 1000; // 1 с для синхронности с анимацией "+10"
     batteryPctEl.textContent = `${Math.floor(batteryPercent)}%`;
     batteryIconEl.src        = "icons/perplus.svg";
     plusTextEl.classList.remove("play");
@@ -272,9 +271,9 @@ gameCanvas.addEventListener("click", e => {
     plusTextEl.classList.add("play");
   }
   else {
-    batteryPercent = Math.max(0,batteryPercent - 6);
+    batteryPercent = Math.max(0, batteryPercent - 6);
     missEvents.push({ key, time: now });
-    playSound("miss.wav",0.5);
+    playSound("miss.wav", 0.5);
     updateHUD();
   }
 });
@@ -286,16 +285,16 @@ function updateHUD() {
   batteryPctEl.textContent = `${pct}%`;
   if (performance.now() < blinkUntil) return;
   let iconName = "per0";
-  if      (pct>80) iconName = "per100";
-  else if (pct>60) iconName = "per80";
-  else if (pct>40) iconName = "per60";
-  else if (pct>20) iconName = "per40";
-  else if (pct>0)  iconName = "per20";
+  if      (pct > 80) iconName = "per100";
+  else if (pct > 60) iconName = "per80";
+  else if (pct > 40) iconName = "per60";
+  else if (pct > 20) iconName = "per40";
+  else if (pct > 0)  iconName = "per20";
   batteryIconEl.src = `icons/${iconName}.svg`;
 }
 
 // — START GAME —
-function startGame(bonus=0) {
+function startGame(bonus = 0) {
   Object.keys(cells).forEach(k => delete cells[k]);
   generatedChunks.clear();
   scoreTotal     = 0;
@@ -307,7 +306,7 @@ function startGame(bonus=0) {
   cameraX = cameraY = 0;
   gameStartTime = performance.now();
 
-  playSound("start.wav",0.7);
+  playSound("start.wav", 0.7);
   updateHUD();
   gameState = "game";
   updateUI();
@@ -441,32 +440,34 @@ requestAnimationFrame(loop);
 // — SHOW/HIDE UI —
 function updateUI() {
   const isGame = (gameState === "game");
-  gameCanvas.style.display      = isGame ? "block" : "none";
-  hud.style.display             = isGame ? "flex"  : "none";
-  gameMenuButton.style.display  = isGame ? "block" : "none";
-  fullscreenButton.style.display = (gameState==="menu") ? "block" : "none";
+  gameCanvas.style.display       = isGame ? "block" : "none";
+  hud.style.display              = isGame ? "flex"  : "none";
+  gameMenuButton.style.display   = isGame ? "block" : "none";
+  fullscreenButton.style.display = (gameState === "menu") ? "block" : "none";
 
-  if (gameState==="menu") {
-    menuContainer.style.display     = "flex";
-    loginContainer.style.display    = "none";
-    summaryOverlay.style.display    = "none";
-    gameOverOverlay.style.display   = "none";
-    recordsContainer.style.display  = "none";
-  } else if (gameState==="game") {
-    menuContainer.style.display     = "none";
-    loginContainer.style.display    = "none";
-    summaryOverlay.style.display    = "none";
-    gameOverOverlay.style.display   = "none";
-    recordsContainer.style.display  = "none";
-  } else if (gameState==="game_over") {
-    menuContainer.style.display     = "none";
-    loginContainer.style.display    = "none";
-    summaryOverlay.style.display    = "none";
-    gameOverOverlay.style.display   = "block";
-    recordsContainer.style.display  = "none";
-    finalScore.textContent          = `Your score: ${scoreTotal}`;
+  if (gameState === "menu") {
+    menuContainer.style.display    = "flex";
+    loginContainer.style.display   = "none";
+    summaryOverlay.style.display   = "none";
+    gameOverOverlay.style.display  = "none";
+    recordsContainer.style.display = "none";
+  }
+  else if (gameState === "game") {
+    menuContainer.style.display    = "none";
+    loginContainer.style.display   = "none";
+    summaryOverlay.style.display   = "none";
+    gameOverOverlay.style.display  = "none";
+    recordsContainer.style.display = "none";
+  }
+  else if (gameState === "game_over") {
+    menuContainer.style.display    = "none";
+    loginContainer.style.display   = "none";
+    summaryOverlay.style.display   = "none";
+    gameOverOverlay.style.display  = "block";
+    recordsContainer.style.display = "none";
+    finalScore.textContent         = `Your score: ${scoreTotal}`;
   }
 }
 
-// — INITIALIZE —
+// — ИНИЦИАЛИЗАЦИЯ —
 updateUI();
