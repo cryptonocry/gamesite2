@@ -5,59 +5,67 @@
   <title>ICON HUNT Game</title>
   <style>
     html, body {
-      margin:0; padding:0;
-      width:100vw; height:100vh;
-      overflow:hidden;
-      background:#f5e9d4;
-      font-family:Arial,sans-serif;
+      margin: 0; padding: 0;
+      width: 100vw; height: 100vh;
+      overflow: hidden;
+      background: #f5e9d4;
+      font-family: Arial, sans-serif;
       position: relative;
     }
+    /* FULLSCREEN BUTTON */
     #fullscreenButton {
-      position:absolute; top:10px; right:10px;
-      z-index:500; padding:10px 15px;
-      background:#7AC0D6; border:none; border-radius:5px;
-      cursor:pointer;
+      position: absolute; top: 10px; right: 10px;
+      z-index: 500; padding: 10px 15px;
+      background: #7AC0D6; border: none; border-radius: 5px;
+      cursor: pointer;
     }
     #fullscreenButton:hover {
-      background:#fff; color:#021013;
+      background: #fff; color: #021013;
     }
+    /* TOP NAV */
     #topNav {
-      position:absolute; top:0; left:0; width:100%;
-      display:flex; justify-content:center; gap:30px;
-      background:#f5e9d4; padding:15px 0; z-index:400;
+      position: absolute; top: 0; left: 0; width: 100%;
+      display: flex; justify-content: center; gap: 30px;
+      background: #f5e9d4; padding: 15px 0; z-index: 400;
     }
     .navButton {
-      padding:10px 20px; font-size:18px;
-      border:none; border-radius:5px; cursor:pointer;
-      background:#33484f; color:#7AC0D6;
+      padding: 10px 20px; font-size: 18px;
+      border: none; border-radius: 5px; cursor: pointer;
+      background: #33484f; color: #7AC0D6;
     }
-    .navActive { background:#7AC0D6; color:#021013; }
-    .navDisabled { opacity:0.5; cursor:default; }
+    .navActive { background: #7AC0D6; color: #021013; }
+    .navDisabled { opacity: 0.5; cursor: default; }
 
     /* HUD */
     #hud {
-      position:absolute; top:10px; left:10px; right:10px;
-      display:flex; justify-content:space-between;
-      align-items:center; z-index:450;
-      pointer-events:none;
+      position: absolute;
+      top: 10px; left: 10px; right: 10px;
+      display: flex; justify-content: space-between;
+      align-items: center; z-index: 450;
+      pointer-events: none;
     }
     #hud div {
-      display:flex; align-items:center; gap:8px;
+      display: flex; align-items: center; gap: 8px;
     }
     #hud img {
-      width:32px; height:32px;
+      width: 32px; height: 32px;
     }
     #hud span {
-      font-size:24px; color:#fff;
-      text-shadow:0 0 4px rgba(0,0,0,0.7);
+      font-size: 24px; color: #fff;
+      text-shadow: 0 0 4px rgba(0,0,0,0.7);
     }
 
-    /* rest of your existing styles… */
+    /* CANVAS */
     #gameCanvas {
-      position:absolute; top:0; left:0;
-      width:100vw; height:100vh; display:none;
+      position: absolute; top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      display: none; background: #f5e9d4;
     }
-    /* … */
+    /* VIGNETTE (unused now) */
+    #vignette { display: none; }
+
+    /* OVERLAYS & MENUS — оставляем без изменений или скроем */
+    /* … ваш существующий CSS для login/menu/overlays … */
   </style>
 </head>
 <body>
@@ -81,10 +89,10 @@
     <div id="hud-right"></div>
   </div>
 
-  <!-- LOGIN, MENU, CANVAS, OVERLAYS -->
-  <!-- (остальной HTML без изменений) -->
+  <!-- LOGIN OVERLAY, MENU, GAME OVER, RECORDS (ваш прежний HTML) -->
+  <!-- … сюда вставляется ваш существующий HTML меню/оверлеев … -->
+
   <canvas id="gameCanvas"></canvas>
-  <!-- … -->
 
   <script type="module" src="main.js"></script>
 </body>
