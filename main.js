@@ -73,7 +73,38 @@ let gameStartTime = 0;
 let blinkUntil = 0;
 let lastPct    = null;
 
-// в начале файла, рядом с cursorX/cursorY
+// — RIGHT‐CLICK DRAG PAN —
+// флаг и точки старта
+let isRightDragging = false;
+let dragStartRM     = { x: 0, y: 0 };
+let cameraStartRM   = { x: 0, y: 0 };
+
+gameCanvas.addEventListener("mousedown", e => {
+  if (e.button === 2) {
+    isRightDragging = true;
+    dragStartRM     = { x: e.clientX, y: e.clientY };
+    cameraStartRM   = { x: cameraX,    y: cameraY };
+    playSound("move.wav", 0.2);
+  }
+});
+
+gameCanvas.addEventListener("mousemove", e => {
+  if (isRightDragging) {
+    const dx = e.clientX - dragStartRM.x;
+    const dy = e.clientY - dragStartRM.y;
+    cameraX = cameraStartRM.x + dx;
+    cameraY = cameraStartRM.y + dy;
+  }
+});
+
+gameCanvas.addEventListener("mouseup", e => {
+  if (e.button === 2) isRightDragging = false;
+});
+
+gameCanvas.addEventListener("contextmenu", e => e.preventDefault());
+
+
+// клавиатура управление
 const keysPressed = new Set();
 
 window.addEventListener("keydown", e => {
@@ -282,50 +313,54 @@ function update(dt) {
   if (gameState !== "game") return;
 
   const dtSec = dt / 1000;
-  const w = gameCanvas.width, h = gameCanvas.height;
-  const centerX = w / 2, centerY = h / 2;
+  const w     = gameCanvas.width;
+  const h     = gameCanvas.height;
+  const centerX = w / 2;
+  const centerY = h / 2;
 
-  // 0) управление с клавиатуры
-  const keySpeed = panSpeed * 1.2; // чуть побыстрее, чем мышью
-  if (keysPressed.has("KeyW") || keysPressed.has("ArrowUp"))    cameraY += keySpeed * dtSec;
-  if (keysPressed.has("KeyS") || keysPressed.has("ArrowDown"))  cameraY -= keySpeed * dtSec;
-  if (keysPressed.has("KeyA") || keysPressed.has("ArrowLeft"))  cameraX += keySpeed * dtSec;
-  if (keysPressed.has("KeyD") || keysPressed.has("ArrowRight")) cameraX -= keySpeed * dtSec;
-  
-  // 1) Панорамирование с «мертвой зоной» в центре и ускорением ближе к краю
-  // Половина размеров «мертвой зоны» (px) — подкорректируйте по вкусу
-const dzX = gameCanvas.width * 0.35;
-const dzY = gameCanvas.height * 0.35;
+  // 0) RIGHT-CLICK DRAG PAN
+  if (isRightDragging) {
+    // cameraX/Y уже обновляются в mousemove при isRightDragging
+  } else {
+    // 0a) KEYBOARD PAN (WASD + arrows)
+    const keySpeed = panSpeed * 1.2;
+    if (keysPressed.has("KeyW") || keysPressed.has("ArrowUp"))    cameraY += keySpeed * dtSec;
+    if (keysPressed.has("KeyS") || keysPressed.has("ArrowDown"))  cameraY -= keySpeed * dtSec;
+    if (keysPressed.has("KeyA") || keysPressed.has("ArrowLeft"))  cameraX += keySpeed * dtSec;
+    if (keysPressed.has("KeyD") || keysPressed.has("ArrowRight")) cameraX -= keySpeed * dtSec;
 
-  // Если курсор вышел за пределы центральной зоны…
-  if (
-    cursorX < centerX - dzX ||
-    cursorX > centerX + dzX ||
-    cursorY < centerY - dzY ||
-    cursorY > centerY + dzY
-  ) {
-    // Направление от центра к курсору (нормализуем)
-    let dx = (cursorX - centerX) / centerX;
-    let dy = (cursorY - centerY) / centerY;
-    const len = Math.hypot(dx, dy);
-    if (len > 1) {
-      dx /= len;
-      dy /= len;
+    // 0b) EDGE PAN with dead‐zone and eased speed
+    // dead-zone half-sizes
+    const dzX = gameCanvas.width  * 0.35;
+    const dzY = gameCanvas.height * 0.35;
+    // only pan if cursor leaves central rectangle
+    if (
+      cursorX < centerX - dzX ||
+      cursorX > centerX + dzX ||
+      cursorY < centerY - dzY ||
+      cursorY > centerY + dzY
+    ) {
+      // direction vector from center to cursor
+      let dx = (cursorX - centerX) / centerX;
+      let dy = (cursorY - centerY) / centerY;
+      const len = Math.hypot(dx, dy);
+      if (len > 1) {
+        dx /= len;
+        dy /= len;
+      }
+      // how far past dead-zone (0…1)
+      let fx = 0, fy = 0;
+      if (cursorX < centerX - dzX)     fx = ((centerX - dzX) - cursorX) / (centerX - dzX);
+      else if (cursorX > centerX + dzX)fx = (cursorX - (centerX + dzX)) / (centerX - dzX);
+      if (cursorY < centerY - dzY)     fy = ((centerY - dzY) - cursorY) / (centerY - dzY);
+      else if (cursorY > centerY + dzY)fy = (cursorY - (centerY + dzY)) / (centerY - dzY);
+      const factor = Math.min(1, Math.max(fx, fy));         // 0…1
+      const speed  = panSpeed * (1 + factor);               // panSpeed…2×panSpeed
+
+      // invert so world moves with cursor
+      cameraX -= dx * speed * dtSec;
+      cameraY -= dy * speed * dtSec;
     }
-
-    // Насколько далеко зашел курсор за «мертвую зону» по X и Y (0…1)
-    let fx = 0, fy = 0;
-    if (cursorX < centerX - dzX) fx = ((centerX - dzX) - cursorX) / (centerX - dzX);
-    else if (cursorX > centerX + dzX) fx = (cursorX - (centerX + dzX)) / (centerX - dzX);
-    if (cursorY < centerY - dzY) fy = ((centerY - dzY) - cursorY) / (centerY - dzY);
-    else if (cursorY > centerY + dzY) fy = (cursorY - (centerY + dzY)) / (centerY - dzY);
-
-    const factor = Math.min(1, Math.max(fx, fy));    // 0…1
-    const speed  = panSpeed * (1 + factor);          // от panSpeed до 2×panSpeed
-
-    // Инвертируем знак, чтобы мир двигался в ожидании (мышь вправо → камера вправо)
-    cameraX -= dx * speed * dtSec;
-    cameraY -= dy * speed * dtSec;
   }
 
   // 2) Усиливающаяся тряска и уменьшение батареи
