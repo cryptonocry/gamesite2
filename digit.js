@@ -1,6 +1,6 @@
 // digit.js
 export class Icon {
-  // shakeFactor: 1 → 3
+  // уровень дрожи, меняется из main.js
   static shakeFactor = 1;
 
   constructor(gx, gy, type, spawnTime = performance.now()) {
@@ -10,7 +10,7 @@ export class Icon {
     this.spawnTime = spawnTime;
     this.phaseOffset = Math.random() * Math.PI * 2;
 
-    // усиленная из предыдущей версии
+    // базовая анимация
     const baseAmp = (type === "key" || type === "clock") ? 5 : 3;
     const baseSpd = (type === "key" || type === "clock") ? 1 : 0.5;
     this.baseAmplitude = baseAmp * 1.5;
