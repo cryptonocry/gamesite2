@@ -392,15 +392,17 @@
     }
 /* небольшая красная кнопка вверху меню */
 .closeMenuButton {
-  display: block;
-  margin: 0 auto 15px;
-  padding: 4px 10px;
-  font-size: 12px;
-  background: #b33838;
-  color: white;
+  display: block;            /* блочный элемент */
+  width: 150px;              /* уже, чем остальные */
+  margin: 0 auto 15px;       /* по центру + отступ снизу */
+  padding: 6px 0;            /* меньше вертикальный padding */
+  font-size: 14px;           /* чуть меньше шрифт */
+  background: #b33838;        /* красный фон */
+  color: #fff;               /* белый текст */
   border: none;
-  border-radius: 3px;
+  border-radius: 4px;
   cursor: pointer;
+  box-shadow: none;          /* убираем тень, если была */
 }
 .closeMenuButton:hover {
   background: #912a2a;
