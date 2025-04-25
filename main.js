@@ -28,7 +28,6 @@ const inGameMenuOverlay = document.getElementById("inGameMenuOverlay");
 const btnFullscreenIG   = document.getElementById("btnFullscreenIG");
 const btnRestartIG      = document.getElementById("btnRestartIG");
 const btnMainIG         = document.getElementById("btnMainIG");
-const closeMenuButton   = document.getElementById("closeMenuButton");
 
 // — CAMERA MODE TOGGLES —
 let enableEdgePan      = true;
@@ -89,6 +88,7 @@ let blinkUntil = 0;
 let lastPct    = null;
 
 // — RIGHT‐CLICK DRAG PAN —
+// флаг и точки старта
 let isRightDragging = false;
 let dragStartRM     = { x: 0, y: 0 };
 let cameraStartRM   = { x: 0, y: 0 };
@@ -117,6 +117,7 @@ gameCanvas.addEventListener("mouseup", e => {
 
 gameCanvas.addEventListener("contextmenu", e => e.preventDefault());
 
+
 // клавиатура управление
 const keysPressed = new Set();
 
@@ -134,9 +135,10 @@ window.addEventListener("keyup", e => {
   keysPressed.delete(e.code);
 });
 
+
 // Spotlight
 let cursorX = 0, cursorY = 0;
-const SpotlightRadius = 500;
+const spotlightRadius = 500;
 
 // Настройки паннинга
 const edgeThreshold = 500;  // px от края, после которых начинается движение
@@ -165,9 +167,6 @@ function toggleFullscreen() {
 // — In-game MENU —
 gameMenuButton.addEventListener("click", () => {
   inGameMenuOverlay.style.display = "flex";
-});
-closeMenuButton.addEventListener("click", () => {
-  inGameMenuOverlay.style.display = "none";
 });
 btnRestartIG.addEventListener("click", () => {
   inGameMenuOverlay.style.display = "none";
@@ -461,6 +460,7 @@ function loop() {
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
+
 
 // — SHOW/HIDE UI —
 function updateUI() {
