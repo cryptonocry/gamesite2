@@ -23,8 +23,7 @@
     /* -------------------------------------------------- */
     #fullscreenButton {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 10px; right: 10px;
       z-index: 1000;
       padding: 10px 15px;
       background: #7AC0D6;
@@ -56,30 +55,26 @@
       gap: 8px;
     }
     #hud-left img {
-      width: 32px;
-      height: 32px;
+      width: 32px; height: 32px;
     }
     #hud-left span {
       font-size: 24px;
       color: #fff;
       text-shadow: 0 0 4px rgba(0,0,0,0.7);
     }
-
     #hud-center {
       position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-    /* группа батарейка + процент в одну строку */
     #batteryGroup {
       display: flex;
       align-items: center;
       gap: 8px;
     }
     #batteryGroup img {
-      width: 32px;
-      height: 32px;
+      width: 32px; height: 32px;
       transition: opacity 0.2s ease;
     }
     #batteryGroup span {
@@ -87,12 +82,9 @@
       color: #fff;
       text-shadow: 0 0 4px rgba(0,0,0,0.7);
     }
-
-    /* “+10” под батареей */
     #plusText {
       position: absolute;
-      top: 100%;
-      left: 50%;
+      top: 100%; left: 50%;
       transform: translateX(-50%);
       color: #71FF61;
       font-size: 18px;
@@ -142,14 +134,17 @@
       justify-content: center;
     }
     #inGameMenuOverlay .menuBox {
+      position: relative;
+      z-index: 1002;
       background: #f5e9d4;
-      padding: 20px;
+      padding: 20px 30px;
       border-radius: 10px;
       text-align: center;
       color: #33484f;
+      width: 260px;
     }
     #inGameMenuOverlay .menuBox button {
-      width: 200px;
+      width: 100%;
       margin: 10px 0;
       padding: 12px;
       font-size: 18px;
@@ -229,12 +224,6 @@
       border-radius: 10px;
       text-align: center;
       color: #33484f;
-    }
-    #summaryOverlay .overlayContent h2 {
-      margin: 0 0 10px;
-    }
-    #summaryOverlay .overlayContent p {
-      margin: 0 0 20px;
     }
 
     /* -------------------------------------------------- */
@@ -390,70 +379,6 @@
     #recordsContent button:hover {
       background: #fff;
     }
-    /* крестик в уголке меню */
-.closeButton {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: transparent;
-  border: none;
-  font-size: 24px;
-  line-height: 1;
-  cursor: pointer;
-  color: #33484f;
-}
-.closeButton:hover {
-  color: #b33838;
-}
-
-/* побольше чекбоксы и текст */
-.bigCheckbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 18px;
-  user-select: none;
-}
-.bigCheckbox input {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-}
-    /* теперь .menuBox сам по себе будет относительным контейнером */
-#inGameMenuOverlay .menuBox {
-  position: relative;
-}
-
-/* крестик закрытия */
-#inGameMenuOverlay .menuBox .closeButton {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: transparent;
-  border: none;
-  font-size: 24px;
-  line-height: 1;
-  cursor: pointer;
-  color: #33484f;
-}
-#inGameMenuOverlay .menuBox .closeButton:hover {
-  color: #b33838;
-}
-
-/* чуть увеличенные чекбоксы */
-#inGameMenuOverlay .menuBox .bigCheckbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 18px;
-  user-select: none;
-  margin-bottom: 8px;
-}
-#inGameMenuOverlay .menuBox .bigCheckbox input {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-}
   </style>
 </head>
 <body>
@@ -464,12 +389,12 @@
   <!-- HUD -->
   <div id="hud">
     <div id="hud-left">
-      <img id="keyIconHUD" src="icons/key.svg" alt="Key" />
+      <img id="keyIconHUD" src="icons/key.svg" alt="Key">
       <span id="keyCount">0</span>
     </div>
     <div id="hud-center">
       <div id="batteryGroup">
-        <img id="batteryIcon" src="icons/per100.svg" alt="Battery" />
+        <img id="batteryIcon" src="icons/per100.svg" alt="Battery">
         <span id="batteryPercent">100%</span>
       </div>
       <span id="plusText">+10</span>
@@ -480,35 +405,29 @@
   <!-- IN-GAME MENU BUTTON -->
   <button id="gameMenuButton">MENU</button>
 
-<!-- IN-GAME MENU OVERLAY -->
-<div id="inGameMenuOverlay">
+  <!-- IN-GAME MENU OVERLAY -->
+  <div id="inGameMenuOverlay">
     <div class="menuBox">
-    <!-- Крестик закрытия -->
-    <button id="btnCloseIG" class="closeButton">×</button>
-
-    <button id="btnFullscreenIG">FULL SCREEN</button><br/>
-    <button id="btnRestartIG">RESTART</button><br/>
-    <button id="btnMainIG">MAIN PAGE</button>
-
-    <hr style="margin:20px 0;"/>
-
-    <h3 style="margin-bottom:10px;">Control Settings</h3>
-    <label class="bigCheckbox">
-      <input type="checkbox" id="cbEdgePan" checked>
-      From edge to edge
-    </label><br/>
-    <label class="bigCheckbox">
-      <input type="checkbox" id="cbKeyboardPan" checked>
-      WASD , ↑↓→←
-    </label><br/>
-    <label class="bigCheckbox">
-      <input type="checkbox" id="cbRightDragPan" checked>
-      Drag with Right-click
-    </label>
+      <button id="btnCloseIG" class="closeButton">×</button>
+      <button id="btnFullscreenIG">FULL SCREEN</button><br/>
+      <button id="btnRestartIG">RESTART</button><br/>
+      <button id="btnMainIG">MAIN PAGE</button>
+      <hr style="margin:20px 0;"/>
+      <h3>Control Settings</h3>
+      <label class="bigCheckbox">
+        <input type="checkbox" id="cbEdgePan" checked>
+        From edge to edge
+      </label><br/>
+      <label class="bigCheckbox">
+        <input type="checkbox" id="cbKeyboardPan" checked>
+        WASD , ↑↓→←
+      </label><br/>
+      <label class="bigCheckbox">
+        <input type="checkbox" id="cbRightDragPan" checked>
+        Drag with Right-click
+      </label>
+    </div>
   </div>
-</div>
-
-
 
   <!-- LOGIN OVERLAY -->
   <div id="loginContainer">
