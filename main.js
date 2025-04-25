@@ -28,6 +28,10 @@ const inGameMenuOverlay = document.getElementById("inGameMenuOverlay");
 const btnFullscreenIG   = document.getElementById("btnFullscreenIG");
 const btnRestartIG      = document.getElementById("btnRestartIG");
 const btnMainIG         = document.getElementById("btnMainIG");
+const btnCloseMenu = document.getElementById("btnCloseMenu");
+btnCloseMenu.addEventListener("click", () => {
+  inGameMenuOverlay.style.display = "none";
+});
 
 // — CAMERA MODE TOGGLES —
 let enableEdgePan      = true;
