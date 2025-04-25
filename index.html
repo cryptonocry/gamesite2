@@ -390,6 +390,21 @@
     #recordsContent button:hover {
       background: #fff;
     }
+/* небольшая красная кнопка вверху меню */
+.closeMenuButton {
+  display: block;
+  margin: 0 auto 15px;
+  padding: 4px 10px;
+  font-size: 12px;
+  background: #b33838;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.closeMenuButton:hover {
+  background: #912a2a;
+}
   </style>
 </head>
 <body>
@@ -419,6 +434,7 @@
 <!-- IN-GAME MENU OVERLAY -->
 <div id="inGameMenuOverlay">
   <div class="menuBox">
+    <button id="btnCloseMenu" class="closeMenuButton">Close Menu</button>
     <button id="btnFullscreenIG">FULL SCREEN</button><br/>
     <button id="btnRestartIG">RESTART</button><br/>
     <button id="btnMainIG">MAIN PAGE</button>
