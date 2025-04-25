@@ -7,28 +7,13 @@ import {
   getClickedIcon
 } from "./game.js";
 
-// — Звуки —
-function playSound(src, vol = 0.5) {
-  const s = new Audio(src);
-  s.volume = vol;
-  s.play().catch(() => {});
-}
+// … все ваши прежние переменные и обработчики …
 
-// HUD
-const hud           = document.getElementById("hud");
-const keyCountEl    = document.getElementById("keyCount");
-const batteryIconEl = document.getElementById("batteryIcon");
-const batteryPctEl  = document.getElementById("batteryPercent");
-const plusTextEl    = document.getElementById("plusText");
-
-// In-game menu UI
-const fullscreenButton  = document.getElementById("fullscreenButton");
-const gameMenuButton    = document.getElementById("gameMenuButton");
-const inGameMenuOverlay = document.getElementById("inGameMenuOverlay");
-const btnFullscreenIG   = document.getElementById("btnFullscreenIG");
-const btnRestartIG      = document.getElementById("btnRestartIG");
-const btnMainIG         = document.getElementById("btnMainIG");
-const btnCloseIG        = document.getElementById("btnCloseIG");
+// найдём новую кнопку и повесим onClick
+const btnCloseIG = document.getElementById('btnCloseIG');
+btnCloseIG.addEventListener('click', () => {
+  inGameMenuOverlay.style.display = 'none';
+});
 
 // — CAMERA MODE TOGGLES —
 let enableEdgePan      = true;
@@ -40,6 +25,7 @@ const cbRightDragPan = document.getElementById("cbRightDragPan");
 cbEdgePan.addEventListener("change",    () => enableEdgePan      = cbEdgePan.checked);
 cbKeyboardPan.addEventListener("change",() => enableKeyboardPan  = cbKeyboardPan.checked);
 cbRightDragPan.addEventListener("change",() => enableRightDragPan = cbRightDragPan.checked);
+
 
 // Login & overlays
 const loginContainer          = document.getElementById("loginContainer");
@@ -74,47 +60,75 @@ const closeRecordsButton    = document.getElementById("closeRecordsButton");
 // Game state
 let gameState      = "menu";
 let currentPlayer  = null;
-const START_TIME   = 50;    // секунд (100% батареи)
-let batteryPercent = 100;   // проценты
+const START_TIME   = 50;    // продолжительность игры в секундах
+let batteryPercent = 100;   // таймер в процентах
 let scoreTotal     = 0;
 let cameraX = 0, cameraY = 0;
 let missEvents = [];
 let gameStartTime = 0;
-let blinkUntil = 0, lastPct = null;
 
-// — DRAG PAN —
+// Для “мигания” иконки и текста +10
+let blinkUntil = 0;
+let lastPct    = null;
+
+// — RIGHT‐CLICK DRAG PAN —
+// флаг и точки старта
 let isRightDragging = false;
-let dragStartRM     = { x:0,y:0 };
-let cameraStartRM   = { x:0,y:0 };
+let dragStartRM     = { x: 0, y: 0 };
+let cameraStartRM   = { x: 0, y: 0 };
 
 gameCanvas.addEventListener("mousedown", e => {
-  if (enableRightDragPan && e.button === 2) {
+  if (e.button === 2) {
     isRightDragging = true;
-    dragStartRM = { x:e.clientX, y:e.clientY };
-    cameraStartRM = { x:cameraX,  y:cameraY };
+    dragStartRM     = { x: e.clientX, y: e.clientY };
+    cameraStartRM   = { x: cameraX,    y: cameraY };
     playSound("move.wav", 0.2);
   }
 });
+
 gameCanvas.addEventListener("mousemove", e => {
   if (isRightDragging) {
-    cameraX = cameraStartRM.x + (e.clientX - dragStartRM.x);
-    cameraY = cameraStartRM.y + (e.clientY - dragStartRM.y);
+    const dx = e.clientX - dragStartRM.x;
+    const dy = e.clientY - dragStartRM.y;
+    cameraX = cameraStartRM.x + dx;
+    cameraY = cameraStartRM.y + dy;
   }
 });
-gameCanvas.addEventListener("mouseup",   e => { if (e.button===2) isRightDragging=false; });
+
+gameCanvas.addEventListener("mouseup", e => {
+  if (e.button === 2) isRightDragging = false;
+});
+
 gameCanvas.addEventListener("contextmenu", e => e.preventDefault());
 
-// — KEYBOARD PAN —
-const keysPressed = new Set();
-window.addEventListener("keydown", e => {
-  if (/^(KeyW|KeyA|KeyS|KeyD|ArrowUp|ArrowDown|ArrowLeft|ArrowRight)$/.test(e.code))
-    keysPressed.add(e.code);
-});
-window.addEventListener("keyup", e => keysPressed.delete(e.code));
 
-// — SPOTLIGHT TRACKER —
-let cursorX=0, cursorY=0;
+// клавиатура управление
+const keysPressed = new Set();
+
+window.addEventListener("keydown", e => {
+  switch(e.code) {
+    case "KeyW": case "ArrowUp":
+    case "KeyA": case "ArrowLeft":
+    case "KeyS": case "ArrowDown":
+    case "KeyD": case "ArrowRight":
+      keysPressed.add(e.code);
+      break;
+  }
+});
+window.addEventListener("keyup", e => {
+  keysPressed.delete(e.code);
+});
+
+
+// Spotlight
+let cursorX = 0, cursorY = 0;
 const spotlightRadius = 500;
+
+// Настройки паннинга
+const edgeThreshold = 500;  // px от края, после которых начинается движение
+const panSpeed      = 400;  // px/sec
+
+// Слежение за курсором для фонарика и паннинга
 gameCanvas.addEventListener("mousemove", e => {
   const r = gameCanvas.getBoundingClientRect();
   cursorX = e.clientX - r.left;
@@ -123,85 +137,103 @@ gameCanvas.addEventListener("mousemove", e => {
 
 // — FULLSCREEN —
 fullscreenButton.addEventListener("click", toggleFullscreen);
-btnFullscreenIG.addEventListener("click",  toggleFullscreen);
+btnFullscreenIG.addEventListener("click", () => {
+  toggleFullscreen();
+  inGameMenuOverlay.style.display = "none";
+});
 function toggleFullscreen() {
-  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-  else                              document.exitFullscreen();
+  if (!document.fullscreenElement)
+    document.documentElement.requestFullscreen();
+  else
+    document.exitFullscreen();
 }
 
 // — In-game MENU —
-gameMenuButton.addEventListener("click", () => inGameMenuOverlay.style.display = "flex");
-btnRestartIG .addEventListener("click", ()=>{
+gameMenuButton.addEventListener("click", () => {
+  inGameMenuOverlay.style.display = "flex";
+});
+btnRestartIG.addEventListener("click", () => {
   inGameMenuOverlay.style.display = "none";
   startGame(0);
 });
-btnMainIG .addEventListener("click", ()=>{
+btnMainIG.addEventListener("click", () => {
   inGameMenuOverlay.style.display = "none";
   gameState = "menu";
   updateUI();
 });
-btnCloseIG .addEventListener("click", ()=> inGameMenuOverlay.style.display = "none");
 
 // — GAME OVER buttons —
-btnMenuOver   .addEventListener("click", ()=>{
-  gameState = "menu"; updateUI();
+btnMenuOver.addEventListener("click", () => {
+  gameState = "menu";
+  updateUI();
 });
-btnRestartOver.addEventListener("click", ()=> startGame(0));
+btnRestartOver.addEventListener("click", () => {
+  startGame(0);
+});
 
-// — MAIN MENU buttons —
-btnStart  .addEventListener("click", ()=> loginContainer.style.display = "block");
-btnRecords.addEventListener("click", ()=> showRecordsOverlay(recordsTableContainer, recordsContainer, currentPlayer));
-btnBuy    .addEventListener("click", ()=> window.open("https://www.numerix.cc/", "_blank"));
+// — START GAME button —
+btnStart.addEventListener("click", () => {
+  loginContainer.style.display = "block";
+});
 
 // — LOGIN FLOW —
-loginOkButton   .addEventListener("click", async ()=>{
+loginOkButton.addEventListener("click", async () => {
   const w = walletInput.value.trim().toLowerCase();
-  if (!w||w.length!==62) return alert("Invalid wallet!");
-  currentPlayer = { wallet:w, score:0 };
+  if (!w || w.length !== 62) return alert("Invalid wallet!");
+  currentPlayer = { wallet: w, score: 0 };
   loginContainer.style.display = "none";
+
   const all = await fetchAllParticipantsFromXano();
-  const me  = all.find(r=>r.wallet===w) || { score:0, referals:0 };
+  const me = all.find(r => r.wallet === w) || { score: 0, referals: 0 };
   lastRecord.textContent = me.score;
   refCount.textContent   = me.referals;
-  let bonus=0, n=me.referals;
-  if      (n<=3)   bonus=5;
-  else if (n<=10)  bonus=10;
-  else if (n<=30)  bonus=15;
-  else if (n<=100) bonus=20;
-  else             bonus=25;
-  timeBonusEl.textContent = bonus;
-  btnPlayNow.textContent  = `PLAY (+${bonus}%)`;
+  let b = 0, n = me.referals;
+  if      (n >= 1 && n <= 3) b = 5;
+  else if (n <= 10)          b = 10;
+  else if (n <= 30)          b = 15;
+  else if (n <= 100)         b = 20;
+  else                        b = 25;
+  timeBonusEl.textContent = b;
+  btnPlayNow.textContent  = `PLAY (+${b}%)`;
   summaryOverlay.style.display = "flex";
 });
-loginCancelButton.addEventListener("click", ()=> loginContainer.style.display = "none");
+loginCancelButton.addEventListener("click", () => {
+  loginContainer.style.display = "none";
+});
 playWithoutWalletButton.addEventListener("click", () => {
-  currentPlayer = null; startGame(0);
+  currentPlayer = null;
+  loginContainer.style.display = "none";
+  startGame(0);
 });
 
 // — PLAY NOW —
-btnPlayNow.addEventListener("click", ()=>{
+btnPlayNow.addEventListener("click", () => {
   summaryOverlay.style.display = "none";
   startGame(currentPlayer ? parseInt(timeBonusEl.textContent) : 0);
 });
 
-// — RECORDS OVERLAY —
-closeRecordsButton.addEventListener("click", ()=>{
-  recordsContainer.style.display="none";
-  gameState="menu"; updateUI();
+// — RECORDS —
+btnRecords.addEventListener("click", () => {
+  showRecordsOverlay(recordsTableContainer, recordsContainer, currentPlayer);
+});
+closeRecordsButton.addEventListener("click", () => {
+  recordsContainer.style.display = "none";
+  gameState = "menu";
+  updateUI();
 });
 
-// — RESIZE CANVAS —
+// — CANVAS RESIZE —
 window.addEventListener("resize", resizeCanvas);
-function resizeCanvas(){
+resizeCanvas();
+function resizeCanvas() {
   gameCanvas.width  = window.innerWidth;
   gameCanvas.height = window.innerHeight;
 }
-resizeCanvas();
 
-// — CLICK TO COLLECT Icons —
-gameCanvas.addEventListener("click", e=>{
-  if (gameState!=="game") return;
-  const r = gameCanvas.getBoundingClientRect();
+// — CLICK TO COLLECT —
+gameCanvas.addEventListener("click", e => {
+  if (gameState !== "game") return;
+  const r  = gameCanvas.getBoundingClientRect();
   const mx = e.clientX - r.left, my = e.clientY - r.top;
   const key = getClickedIcon(mx, my, cameraX, cameraY);
   if (!key) return;
@@ -209,17 +241,18 @@ gameCanvas.addEventListener("click", e=>{
   if (ic.removeStart) return;
   const now = performance.now();
 
-  if (ic.type==="key") {
+  if (ic.type === "key") {
     ic.removeStart = now;
     scoreTotal++;
     playSound("plus.wav", 0.4);
     updateHUD();
   }
-  else if (ic.type==="clock") {
+  else if (ic.type === "clock") {
     ic.removeStart = now;
     batteryPercent = Math.min(100, batteryPercent + 10);
     playSound("time.wav", 0.4);
-    blinkUntil = now + 1000;
+    // мигание перезарядки + “+10”
+    blinkUntil = now + 1000;  // 1 сек, чтобы синхронизировать с plusAnim
     batteryPctEl.textContent = `${Math.floor(batteryPercent)}%`;
     batteryIconEl.src        = "icons/perplus.svg";
     plusTextEl.classList.remove("play");
@@ -235,23 +268,28 @@ gameCanvas.addEventListener("click", e=>{
 });
 
 // — UPDATE HUD —
-function updateHUD(){
+function updateHUD() {
   keyCountEl.textContent = scoreTotal;
-  const pct = Math.max(0,Math.min(100,Math.floor(batteryPercent)));
+
+  const pct = Math.max(0, Math.min(100, Math.floor(batteryPercent)));
   batteryPctEl.textContent = `${pct}%`;
+
+  // если ещё мигаем perplus — пропускаем
   if (performance.now() < blinkUntil) return;
-  let icon="per0";
-  if      (pct>80) icon="per100";
-  else if (pct>60) icon="per80";
-  else if (pct>40) icon="per60";
-  else if (pct>20) icon="per40";
-  else if (pct>0)  icon="per20";
-  batteryIconEl.src = `icons/${icon}.svg`;
+
+  let iconName = "per0";
+  if      (pct > 80) iconName = "per100";
+  else if (pct > 60) iconName = "per80";
+  else if (pct > 40) iconName = "per60";
+  else if (pct > 20) iconName = "per40";
+  else if (pct > 0)  iconName = "per20";
+
+  batteryIconEl.src = `icons/${iconName}.svg`;
 }
 
 // — START GAME —
-function startGame(bonus=0){
-  Object.keys(cells).forEach(k=>delete cells[k]);
+function startGame(bonus = 0) {
+  Object.keys(cells).forEach(k => delete cells[k]);
   generatedChunks.clear();
   scoreTotal     = 0;
   batteryPercent = 100 + bonus;
@@ -269,49 +307,62 @@ function startGame(bonus=0){
 }
 
 // — UPDATE & DRAW —
-function update(dt){
+function update(dt) {
   if (gameState !== "game") return;
+
   const dtSec   = dt / 1000;
   const w       = gameCanvas.width;
   const h       = gameCanvas.height;
-  const cx      = w / 2;
-  const cy      = h / 2;
+  const centerX = w / 2;
+  const centerY = h / 2;
 
+  // 0) RIGHT-CLICK DRAG PAN (только если режим включён)
   if (enableRightDragPan && isRightDragging) {
-    // drag handled in mousemove
+    // cameraX/Y уже обновляются в mousemove при isRightDragging
   } else {
+    // 0a) KEYBOARD PAN (WASD + arrows), только если включено
     if (enableKeyboardPan) {
-      const ks = panSpeed * 1.2;
-      if (keysPressed.has("KeyW") || keysPressed.has("ArrowUp"))    cameraY += ks * dtSec;
-      if (keysPressed.has("KeyS") || keysPressed.has("ArrowDown"))  cameraY -= ks * dtSec;
-      if (keysPressed.has("KeyA") || keysPressed.has("ArrowLeft"))  cameraX += ks * dtSec;
-      if (keysPressed.has("KeyD") || keysPressed.has("ArrowRight")) cameraX -= ks * dtSec;
+      const keySpeed = panSpeed * 1.2;
+      if (keysPressed.has("KeyW")   || keysPressed.has("ArrowUp"))    cameraY += keySpeed * dtSec;
+      if (keysPressed.has("KeyS")   || keysPressed.has("ArrowDown"))  cameraY -= keySpeed * dtSec;
+      if (keysPressed.has("KeyA")   || keysPressed.has("ArrowLeft"))  cameraX += keySpeed * dtSec;
+      if (keysPressed.has("KeyD")   || keysPressed.has("ArrowRight")) cameraX -= keySpeed * dtSec;
     }
+
+    // 0b) EDGE PAN with dead-zone and eased speed, только если включено
     if (enableEdgePan) {
-      const dzX = w * 0.35, dzY = h * 0.35;
+      const dzX = w * 0.35;
+      const dzY = h * 0.35;
       if (
-        cursorX < cx - dzX ||
-        cursorX > cx + dzX ||
-        cursorY < cy - dzY ||
-        cursorY > cy + dzY
+        cursorX <  centerX - dzX ||
+        cursorX >  centerX + dzX ||
+        cursorY <  centerY - dzY ||
+        cursorY >  centerY + dzY
       ) {
-        let dx = (cursorX - cx) / cx;
-        let dy = (cursorY - cy) / cy;
+        // direction vector from center to cursor
+        let dx = (cursorX - centerX) / centerX;
+        let dy = (cursorY - centerY) / centerY;
         const len = Math.hypot(dx, dy);
         if (len > 1) { dx /= len; dy /= len; }
+
+        // how far past dead-zone (0…1)
         let fx = 0, fy = 0;
-        if (cursorX < cx - dzX)      fx = ((cx - dzX) - cursorX) / (cx - dzX);
-        else if (cursorX > cx + dzX) fx = (cursorX - (cx + dzX)) / (cx - dzX);
-        if (cursorY < cy - dzY)      fy = ((cy - dzY) - cursorY) / (cy - dzY);
-        else if (cursorY > cy + dzY) fy = (cursorY - (cy + dzY)) / (cy - dzY);
-        const f = Math.min(1, Math.max(fx, fy));
-        const speed = panSpeed * (1 + f);
+        if (cursorX <  centerX - dzX) fx = ((centerX - dzX) - cursorX) / (centerX - dzX);
+        else if (cursorX > centerX + dzX) fx = (cursorX - (centerX + dzX)) / (centerX - dzX);
+        if (cursorY <  centerY - dzY) fy = ((centerY - dzY) - cursorY) / (centerY - dzY);
+        else if (cursorY > centerY + dzY) fy = (cursorY - (centerY + dzY)) / (centerY - dzY);
+
+        const factor = Math.min(1, Math.max(fx, fy));     // 0…1
+        const speed  = panSpeed * (1 + factor);           // panSpeed…2×panSpeed
+
+        // invert so world moves with cursor
         cameraX -= dx * speed * dtSec;
         cameraY -= dy * speed * dtSec;
       }
     }
   }
 
+  // 2) Усиливающаяся тряска и уменьшение батареи
   const now     = performance.now();
   const elapsed = (now - gameStartTime) / 1000;
   Icon.shakeFactor = 1 + Math.min(elapsed / START_TIME, 1) * 2;
@@ -322,6 +373,7 @@ function update(dt){
     lastPct = pct;
     updateHUD();
   }
+
   if (batteryPercent <= 0) {
     gameState = "game_over";
     if (currentPlayer) {
@@ -332,28 +384,35 @@ function update(dt){
     updateUI();
     return;
   }
+
   ensureVisibleChunks(cameraX, cameraY, w, h);
 }
 
-function draw(){
+function draw() {
   if (gameState !== "game") return;
+
   ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
   drawCells(ctx, cameraX, cameraY, gameCanvas.width, gameCanvas.height);
 
   const now = performance.now();
+  // Подсветка красным при промахах
   for (let i = missEvents.length - 1; i >= 0; i--) {
     const ev = missEvents[i];
     const ic = cells[ev.key];
-    if (!ic || now - ev.time > 1000) { missEvents.splice(i, 1); continue; }
+    if (!ic || now - ev.time > 1000) {
+      missEvents.splice(i, 1);
+      continue;
+    }
     const pos = ic.screenPosition(cameraX, cameraY, now);
     const S = 30;
     ctx.save();
       ctx.globalAlpha = 0.5 * (1 - (now - ev.time) / 1000);
-      ctx.fillStyle   = "red";
+      ctx.fillStyle = "red";
       ctx.fillRect(pos.x - S/2, pos.y - S/2, S, S);
     ctx.restore();
   }
 
+  // Рисуем «фонарик»
   const w = gameCanvas.width, h = gameCanvas.height;
   ctx.save();
     const grad = ctx.createRadialGradient(
@@ -366,6 +425,7 @@ function draw(){
     ctx.fillRect(0, 0, w, h);
   ctx.restore();
 
+  // Затемнение последних 20%
   if (batteryPercent <= 20) {
     const alpha = 1 - (batteryPercent / 20);
     ctx.save();
@@ -376,7 +436,7 @@ function draw(){
 }
 
 let last = performance.now();
-function loop(){
+function loop() {
   const now = performance.now();
   update(now - last);
   draw();
@@ -385,21 +445,40 @@ function loop(){
 }
 requestAnimationFrame(loop);
 
+
 // — SHOW/HIDE UI —
-function updateUI(){
+function updateUI() {
   const isGame = (gameState === "game");
-  hud.style.display             = isGame ? "flex"  : "none";
-  gameMenuButton.style.display  = isGame ? "block" : "none";
+  hud.style.display            = isGame ? "flex"   : "none";
+  gameMenuButton.style.display = isGame ? "block"  : "none";
   fullscreenButton.style.display = (gameState === "menu") ? "block" : "none";
-  menuContainer.style.display    = (gameState === "menu") ? "flex"  : "none";
-  loginContainer.style.display   = "none";
-  summaryOverlay.style.display   = "none";
-  gameCanvas.style.display       = isGame ? "block" : "none";
-  gameOverOverlay.style.display  = (gameState === "game_over") ? "block" : "none";
-  recordsContainer.style.display = "none";
-  if (gameState === "game_over"){
-    finalScore.textContent = `Your score: ${scoreTotal}`;
+
+  if (gameState === "menu") {
+    menuContainer.style.display     = "flex";
+    loginContainer.style.display    = "none";
+    summaryOverlay.style.display    = "none";
+    gameCanvas.style.display        = "none";
+    gameOverOverlay.style.display   = "none";
+    recordsContainer.style.display  = "none";
+  }
+  else if (gameState === "game") {
+    menuContainer.style.display     = "none";
+    loginContainer.style.display    = "none";
+    summaryOverlay.style.display    = "none";
+    gameCanvas.style.display        = "block";
+    gameOverOverlay.style.display   = "none";
+    recordsContainer.style.display  = "none";
+  }
+  else if (gameState === "game_over") {
+    menuContainer.style.display     = "none";
+    loginContainer.style.display    = "none";
+    summaryOverlay.style.display    = "none";
+    gameCanvas.style.display        = "block";
+    gameOverOverlay.style.display   = "block";
+    recordsContainer.style.display  = "none";
+    finalScore.textContent          = `Your score: ${scoreTotal}`;
   }
 }
 
+// Инициализация
 updateUI();
