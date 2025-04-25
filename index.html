@@ -390,6 +390,35 @@
     #recordsContent button:hover {
       background: #fff;
     }
+    /* крестик в уголке меню */
+.closeButton {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  color: #33484f;
+}
+.closeButton:hover {
+  color: #b33838;
+}
+
+/* побольше чекбоксы и текст */
+.bigCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  user-select: none;
+}
+.bigCheckbox input {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
   </style>
 </head>
 <body>
@@ -418,29 +447,32 @@
 
 <!-- IN-GAME MENU OVERLAY -->
 <div id="inGameMenuOverlay">
-  <div class="menuBox">
+  <div class="menuBox" style="position: relative;">
+    <!-- Крестик закрытия -->
+    <button id="btnCloseIG" class="closeButton">×</button>
+
     <button id="btnFullscreenIG">FULL SCREEN</button><br/>
     <button id="btnRestartIG">RESTART</button><br/>
     <button id="btnMainIG">MAIN PAGE</button>
-    
-    <!-- вот эти строки нужно добавить сразу после трёх кнопок: -->
+
     <hr style="margin:20px 0;"/>
-    <h3 style="margin-bottom:10px;">Настройки управления</h3>
-    <label style="display:block; text-align:left;">
+
+    <h3 style="margin-bottom:10px;">Control Settings</h3>
+    <label class="bigCheckbox">
       <input type="checkbox" id="cbEdgePan" checked>
-      Панорамирование от края экрана
-    </label>
-    <label style="display:block; text-align:left;">
+      From edge to edge
+    </label><br/>
+    <label class="bigCheckbox">
       <input type="checkbox" id="cbKeyboardPan" checked>
-      Управление WASD/стрелки
-    </label>
-    <label style="display:block; text-align:left;">
+      WASD , ↑↓→←
+    </label><br/>
+    <label class="bigCheckbox">
       <input type="checkbox" id="cbRightDragPan" checked>
-      Перетаскивание ПКМ
+      Drag with Right-click
     </label>
-    <!-- конец добавления -->
   </div>
 </div>
+
 
 
   <!-- LOGIN OVERLAY -->
