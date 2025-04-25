@@ -419,6 +419,41 @@
   height: 20px;
   cursor: pointer;
 }
+    /* теперь .menuBox сам по себе будет относительным контейнером */
+#inGameMenuOverlay .menuBox {
+  position: relative;
+}
+
+/* крестик закрытия */
+#inGameMenuOverlay .menuBox .closeButton {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  color: #33484f;
+}
+#inGameMenuOverlay .menuBox .closeButton:hover {
+  color: #b33838;
+}
+
+/* чуть увеличенные чекбоксы */
+#inGameMenuOverlay .menuBox .bigCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  user-select: none;
+  margin-bottom: 8px;
+}
+#inGameMenuOverlay .menuBox .bigCheckbox input {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
   </style>
 </head>
 <body>
@@ -447,7 +482,7 @@
 
 <!-- IN-GAME MENU OVERLAY -->
 <div id="inGameMenuOverlay">
-  <div class="menuBox" style="position: relative;">
+    <div class="menuBox">
     <!-- Крестик закрытия -->
     <button id="btnCloseIG" class="closeButton">×</button>
 
