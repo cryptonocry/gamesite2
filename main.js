@@ -29,20 +29,6 @@ const btnFullscreenIG   = document.getElementById("btnFullscreenIG");
 const btnRestartIG      = document.getElementById("btnRestartIG");
 const btnMainIG         = document.getElementById("btnMainIG");
 
-// — CAMERA MODE TOGGLES —
-let enableEdgePan      = true;
-let enableKeyboardPan  = true;
-let enableRightDragPan = true;
-
-// Найдём чекбоксы, повесим на них слушатели
-const cbEdgePan      = document.getElementById("cbEdgePan");
-const cbKeyboardPan  = document.getElementById("cbKeyboardPan");
-const cbRightDragPan = document.getElementById("cbRightDragPan");
-
-cbEdgePan.addEventListener("change",    () => enableEdgePan      = cbEdgePan.checked);
-cbKeyboardPan.addEventListener("change",() => enableKeyboardPan  = cbKeyboardPan.checked);
-cbRightDragPan.addEventListener("change",() => enableRightDragPan = cbRightDragPan.checked);
-
 // Login & overlays
 const loginContainer          = document.getElementById("loginContainer");
 const walletInput             = document.getElementById("walletInput");
@@ -326,55 +312,54 @@ function startGame(bonus = 0) {
 function update(dt) {
   if (gameState !== "game") return;
 
-  const dtSec   = dt / 1000;
-  const w       = gameCanvas.width;
-  const h       = gameCanvas.height;
+  const dtSec = dt / 1000;
+  const w     = gameCanvas.width;
+  const h     = gameCanvas.height;
   const centerX = w / 2;
   const centerY = h / 2;
 
-  // 0) RIGHT-CLICK DRAG PAN (только если режим включён)
-  if (enableRightDragPan && isRightDragging) {
+  // 0) RIGHT-CLICK DRAG PAN
+  if (isRightDragging) {
     // cameraX/Y уже обновляются в mousemove при isRightDragging
   } else {
-    // 0a) KEYBOARD PAN (WASD + arrows), только если включено
-    if (enableKeyboardPan) {
-      const keySpeed = panSpeed * 1.2;
-      if (keysPressed.has("KeyW")   || keysPressed.has("ArrowUp"))    cameraY += keySpeed * dtSec;
-      if (keysPressed.has("KeyS")   || keysPressed.has("ArrowDown"))  cameraY -= keySpeed * dtSec;
-      if (keysPressed.has("KeyA")   || keysPressed.has("ArrowLeft"))  cameraX += keySpeed * dtSec;
-      if (keysPressed.has("KeyD")   || keysPressed.has("ArrowRight")) cameraX -= keySpeed * dtSec;
-    }
+    // 0a) KEYBOARD PAN (WASD + arrows)
+    const keySpeed = panSpeed * 1.2;
+    if (keysPressed.has("KeyW") || keysPressed.has("ArrowUp"))    cameraY += keySpeed * dtSec;
+    if (keysPressed.has("KeyS") || keysPressed.has("ArrowDown"))  cameraY -= keySpeed * dtSec;
+    if (keysPressed.has("KeyA") || keysPressed.has("ArrowLeft"))  cameraX += keySpeed * dtSec;
+    if (keysPressed.has("KeyD") || keysPressed.has("ArrowRight")) cameraX -= keySpeed * dtSec;
 
-    // 0b) EDGE PAN with dead-zone and eased speed, только если включено
-    if (enableEdgePan) {
-      const dzX = w * 0.35;
-      const dzY = h * 0.35;
-      if (
-        cursorX <  centerX - dzX ||
-        cursorX >  centerX + dzX ||
-        cursorY <  centerY - dzY ||
-        cursorY >  centerY + dzY
-      ) {
-        // direction vector from center to cursor
-        let dx = (cursorX - centerX) / centerX;
-        let dy = (cursorY - centerY) / centerY;
-        const len = Math.hypot(dx, dy);
-        if (len > 1) { dx /= len; dy /= len; }
-
-        // how far past dead-zone (0…1)
-        let fx = 0, fy = 0;
-        if (cursorX <  centerX - dzX) fx = ((centerX - dzX) - cursorX) / (centerX - dzX);
-        else if (cursorX > centerX + dzX) fx = (cursorX - (centerX + dzX)) / (centerX - dzX);
-        if (cursorY <  centerY - dzY) fy = ((centerY - dzY) - cursorY) / (centerY - dzY);
-        else if (cursorY > centerY + dzY) fy = (cursorY - (centerY + dzY)) / (centerY - dzY);
-
-        const factor = Math.min(1, Math.max(fx, fy));     // 0…1
-        const speed  = panSpeed * (1 + factor);           // panSpeed…2×panSpeed
-
-        // invert so world moves with cursor
-        cameraX -= dx * speed * dtSec;
-        cameraY -= dy * speed * dtSec;
+    // 0b) EDGE PAN with dead‐zone and eased speed
+    // dead-zone half-sizes
+    const dzX = gameCanvas.width  * 0.35;
+    const dzY = gameCanvas.height * 0.35;
+    // only pan if cursor leaves central rectangle
+    if (
+      cursorX < centerX - dzX ||
+      cursorX > centerX + dzX ||
+      cursorY < centerY - dzY ||
+      cursorY > centerY + dzY
+    ) {
+      // direction vector from center to cursor
+      let dx = (cursorX - centerX) / centerX;
+      let dy = (cursorY - centerY) / centerY;
+      const len = Math.hypot(dx, dy);
+      if (len > 1) {
+        dx /= len;
+        dy /= len;
       }
+      // how far past dead-zone (0…1)
+      let fx = 0, fy = 0;
+      if (cursorX < centerX - dzX)     fx = ((centerX - dzX) - cursorX) / (centerX - dzX);
+      else if (cursorX > centerX + dzX)fx = (cursorX - (centerX + dzX)) / (centerX - dzX);
+      if (cursorY < centerY - dzY)     fy = ((centerY - dzY) - cursorY) / (centerY - dzY);
+      else if (cursorY > centerY + dzY)fy = (cursorY - (centerY + dzY)) / (centerY - dzY);
+      const factor = Math.min(1, Math.max(fx, fy));         // 0…1
+      const speed  = panSpeed * (1 + factor);               // panSpeed…2×panSpeed
+
+      // invert so world moves with cursor
+      cameraX -= dx * speed * dtSec;
+      cameraY -= dy * speed * dtSec;
     }
   }
 
