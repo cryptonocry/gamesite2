@@ -27,8 +27,7 @@
       right: 10px;
       z-index: 1000;
       padding: 10px 15px;
-      background: #3A2D26;
-      color: #fff;
+      background: #7AC0D6;
       border: none;
       border-radius: 5px;
       cursor: pointer;
@@ -40,6 +39,7 @@
 
     /* -------------------------------------------------- */
     /*                        HUD                         */
+    /* (появляется только в игре — скрыт на главной)     */
     /* -------------------------------------------------- */
     #hud {
       position: absolute;
@@ -71,6 +71,7 @@
       flex-direction: column;
       align-items: center;
     }
+    /* группа батарейка + процент в одну строку */
     #batteryGroup {
       display: flex;
       align-items: center;
@@ -87,6 +88,7 @@
       text-shadow: 0 0 4px rgba(0,0,0,0.7);
     }
 
+    /* “+10” под батареей */
     #plusText {
       position: absolute;
       top: 100%;
@@ -145,47 +147,20 @@
       border-radius: 10px;
       text-align: center;
       color: #33484f;
-      position: relative;
     }
     #inGameMenuOverlay .menuBox button {
       width: 200px;
       margin: 10px 0;
       padding: 12px;
       font-size: 18px;
-      background: #3A2D26;
-      color: #fff;
+      background: #7AC0D6;
+      color: #021013;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
     #inGameMenuOverlay .menuBox button:hover {
       background: #fff;
-      color: #021013;
-    }
-    #closeMenuButton {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      width: auto;
-      padding: 5px 10px;
-      font-size: 14px;
-      background: #b33838;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    #inGameMenuOverlay .menuBox label {
-      display: block;
-      text-align: left;
-      font-size: 18px;
-      margin: 8px 0;
-    }
-    #inGameMenuOverlay .menuBox input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-      margin-right: 10px;
-      vertical-align: middle;
     }
 
     /* -------------------------------------------------- */
@@ -205,7 +180,7 @@
       background: #021013;
       padding: 20px;
       border-radius: 10px;
-      color: #fff;
+      color: #7AC0D6;
       text-align: center;
       width: 300px;
     }
@@ -219,15 +194,14 @@
       width: 220px;
       padding: 18px;
       font-size: 20px;
-      background: #3A2D26;
-      color: #fff;
+      background: #7AC0D6;
+      color: #021013;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
     .menuButton:hover {
       background: #fff;
-      color: #021013;
     }
     .buyButton {
       background: #b33838 !important;
@@ -338,7 +312,7 @@
       background: rgba(0,0,0,0.75);
       display: none;
       z-index: 600;
-      color: #fff;
+      color: #7AC0D6;
     }
     #gameOverContent {
       position: absolute;
@@ -358,15 +332,14 @@
       margin: 10px;
       padding: 10px 20px;
       font-size: 18px;
-      background: #3A2D26;
-      color: #fff;
+      background: #7AC0D6;
+      color: #021013;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
     .goButton:hover {
       background: #fff;
-      color: #021013;
     }
 
     /* -------------------------------------------------- */
@@ -379,7 +352,7 @@
       background: rgba(0,0,0,0.9);
       display: none;
       z-index: 600;
-      color: #fff;
+      color: #7AC0D6;
     }
     #recordsContent {
       position: absolute;
@@ -402,21 +375,20 @@
       text-align: left;
     }
     #recordsContent th {
-      background: #3A2D26;
-      color: #fff;
+      background: #7AC0D6;
+      color: #021013;
     }
     #recordsContent button {
       padding: 8px 16px;
       font-size: 16px;
-      background: #3A2D26;
-      color: #fff;
+      background: #7AC0D6;
+      color: #021013;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
     #recordsContent button:hover {
       background: #fff;
-      color: #021013;
     }
   </style>
 </head>
@@ -444,29 +416,32 @@
   <!-- IN-GAME MENU BUTTON -->
   <button id="gameMenuButton">MENU</button>
 
-  <!-- IN-GAME MENU OVERLAY -->
-  <div id="inGameMenuOverlay">
-    <div class="menuBox">
-      <button id="closeMenuButton">Close Menu</button>
-      <button id="btnFullscreenIG">FULL SCREEN</button><br/>
-      <button id="btnRestartIG">RESTART</button><br/>
-      <button id="btnMainIG" style="background: #291118;">MAIN MENU</button>
-      <hr style="margin:20px 0;"/>
-      <h3 style="margin-bottom:10px;">Control Settings</h3>
-      <label style="display:block; text-align:left;">
-        <input type="checkbox" id="cbEdgePan" checked>
-        From edge to edge
-      </label>
-      <label style="display:block; text-align:left;">
-        <input type="checkbox" id="cbKeyboardPan" checked>
-        WASD , ↑↓→←
-      </label>
-      <label style="display:block; text-align:left;">
-        <input type="checkbox" id="cbRightDragPan" checked>
-        Drag with Right-click
-      </label>
-    </div>
+<!-- IN-GAME MENU OVERLAY -->
+<div id="inGameMenuOverlay">
+  <div class="menuBox">
+    <button id="btnFullscreenIG">FULL SCREEN</button><br/>
+    <button id="btnRestartIG">RESTART</button><br/>
+    <button id="btnMainIG">MAIN PAGE</button>
+    
+    <!-- вот эти строки нужно добавить сразу после трёх кнопок: -->
+    <hr style="margin:20px 0;"/>
+    <h3 style="margin-bottom:10px;">Настройки управления</h3>
+    <label style="display:block; text-align:left;">
+      <input type="checkbox" id="cbEdgePan" checked>
+      Панорамирование от края экрана
+    </label>
+    <label style="display:block; text-align:left;">
+      <input type="checkbox" id="cbKeyboardPan" checked>
+      Управление WASD/стрелки
+    </label>
+    <label style="display:block; text-align:left;">
+      <input type="checkbox" id="cbRightDragPan" checked>
+      Перетаскивание ПКМ
+    </label>
+    <!-- конец добавления -->
   </div>
+</div>
+
 
   <!-- LOGIN OVERLAY -->
   <div id="loginContainer">
