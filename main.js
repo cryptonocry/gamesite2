@@ -155,7 +155,6 @@ gameCanvas.addEventListener("mousemove", e => {
 fullscreenButton.addEventListener("click", toggleFullscreen);
 btnFullscreenIG.addEventListener("click", () => {
   toggleFullscreen();
-  inGameMenuOverlay.style.display = "none";
 });
 function toggleFullscreen() {
   if (!document.fullscreenElement)
@@ -176,6 +175,10 @@ btnMainIG.addEventListener("click", () => {
   inGameMenuOverlay.style.display = "none";
   gameState = "menu";
   updateUI();
+});
+const btnCloseIG = document.getElementById("btnCloseIG");
+btnCloseIG.addEventListener("click", () => {
+  inGameMenuOverlay.style.display = "none";
 });
 
 // — GAME OVER buttons —
