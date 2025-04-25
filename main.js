@@ -155,7 +155,6 @@ gameCanvas.addEventListener("mousemove", e => {
 fullscreenButton.addEventListener("click", toggleFullscreen);
 btnFullscreenIG.addEventListener("click", () => {
   toggleFullscreen();
-  inGameMenuOverlay.style.display = "none";
 });
 function toggleFullscreen() {
   if (!document.fullscreenElement)
