@@ -57,21 +57,52 @@ export function ensureVisibleChunks(camX, camY, w, h) {
   }
 }
 
+// Оптимизированная отрисовка ячеек:
+// 1) Быстрый чек по базовым координатам — отсекаем оффскрин.
+// 2) Только для оставшихся считаем анимацию и рисуем.
 export function drawCells(ctx, camX, camY, w, h) {
   const now = performance.now();
-  for (const k of Object.keys(cells)) {
-    const ic = cells[k];
+  const padding = CELL_SIZE;  // дополнительная зона за границами экрана
+
+  for (const key in cells) {
+    const ic = cells[key];
+
+    // Быстрая базовая проверка без тригонометрии и drawImage
+    const baseX = ic.gx * CELL_SIZE + camX;
+    const baseY = ic.gy * CELL_SIZE + camY;
+    if (
+      baseX < -padding || baseX > w + padding ||
+      baseY < -padding || baseY > h + padding
+    ) {
+      continue;
+    }
+
+    // Иконка потенциально на экране — считаем анимацию и альфу
     const pos = ic.screenPosition(camX, camY, now);
-    if (pos.x < -CELL_SIZE || pos.x > w + CELL_SIZE ||
-        pos.y < -CELL_SIZE || pos.y > h + CELL_SIZE) continue;
+    if (pos.x < -padding || pos.x > w + padding ||
+        pos.y < -padding || pos.y > h + padding) {
+      continue;
+    }
+
+    // Если начата анимация удаления — вычисляем альфу
+    let alpha = 1;
     if (ic.removeStart) {
       const dt = now - ic.removeStart;
-      const alpha = 1 - dt / 500;
-      if (alpha <= 0) { delete cells[k]; continue; }
-      ic.draw(ctx, camX, camY, now, alpha);
-    } else {
-      ic.draw(ctx, camX, camY, now, 1);
+      alpha = 1 - dt / 500;
+      if (alpha <= 0) {
+        delete cells[key];
+        continue;
+      }
     }
+
+    // Рисуем иконку
+    const img = Icon.images[ic.type];
+    if (!img || !img.complete) continue;
+    const SIZE = 30;
+    ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.drawImage(img, pos.x - SIZE/2, pos.y - SIZE/2, SIZE, SIZE);
+    ctx.restore();
   }
 }
 
@@ -83,7 +114,10 @@ export function getClickedIcon(mx, my, camX, camY) {
     const pos = ic.screenPosition(camX, camY, now);
     const dx = mx - pos.x, dy = my - pos.y;
     const d = Math.hypot(dx, dy);
-    if (d < 32 && d < dmin) { dmin = d; best = k; }
+    if (d < 32 && d < dmin) {
+      dmin = d;
+      best = k;
+    }
   }
   return best;
 }
