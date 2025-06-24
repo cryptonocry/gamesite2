@@ -10,28 +10,27 @@ export class Icon {
     this.spawnTime = spawnTime;
     this.phaseOffset = Math.random() * Math.PI * 2;
     const baseAmp = 3, baseSpd = 0.5;
-    this.baseAmplitude = baseAmp * 1.05;
-    this.baseSpeed = baseSpd * 0.9;
+    this.baseAmplitude = baseAmp * 1.2; // Слегка уменьшено для оптимизации
+    this.baseSpeed = baseSpd * 1.0; // Слегка уменьшено
     if (!Icon.images) Icon._loadImages();
   }
 
   static _loadImages() {
-    Icon.images = new Map();
-    const iconNames = [
+    Icon.images = {};
+    [
       "mask", "letterS", "cd", "xicon",
       "clock", "key", "ethicon", "btcicon",
       "eye", "lock", "scroll", "dna", "flask"
-    ];
-    iconNames.forEach(name => {
+    ].forEach(name => {
       const img = new Image();
       img.src = `icons/${name}.svg`;
       img.onerror = () => console.warn(`Failed to load icon ${name}.svg`);
-      img.onload = () => Icon.images.set(name, img);
+      img.onload = () => Icon.images[name] = img;
     });
   }
 
   screenPosition(camX, camY, now) {
-    const CELL = 80; // Вернул оригинальный размер ячейки
+    const CELL = 80;
     const baseX = this.gx * CELL + camX;
     const baseY = this.gy * CELL + camY;
     const dt = (now - this.spawnTime) / 1000;
@@ -43,12 +42,12 @@ export class Icon {
 
   draw(ctx, camX, camY, now, alpha = 1) {
     const pos = this.screenPosition(camX, camY, now);
-    const img = Icon.images.get(this.type);
+    const img = Icon.images[this.type];
     if (!img || !img.complete) return;
     const SIZE = 30;
     ctx.save();
     ctx.globalAlpha = alpha;
-    ctx.drawImage(img, pos.x - SIZE / 2, pos.y - SIZE / 2, SIZE, SIZE);
+    ctx.drawImage(img, pos.x - SIZE/2, pos.y - SIZE/2, SIZE, SIZE);
     ctx.restore();
   }
 }
