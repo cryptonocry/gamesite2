@@ -144,6 +144,13 @@ window.addEventListener("keyup", e => {
 let cursorX = 0, cursorY = 0;
 const spotlightRadius = 500;
 
+// ─── Троттлинг градиента фонарика ───
+let flashlightGradient = null;
+let lastGradX = 0, lastGradY = 0;
+let lastGradTime = 0;
+const GRAD_TTL = 100;  // мс между пересозданиями
+// ────────────────────────────────────
+
 // Настройки паннинга
 const edgeThreshold = 500;  // px от края, после которых начинается движение
 const panSpeed      = 400;  // px/sec
@@ -431,16 +438,26 @@ function draw() {
     ctx.restore();
   }
 
-  // Рисуем «фонарик»
+   // Рисуем «фонарик» с троттлингом градиента
   const w = gameCanvas.width, h = gameCanvas.height;
-  ctx.save();
-    const grad = ctx.createRadialGradient(
+  const now = performance.now();
+  if (
+    !flashlightGradient ||
+    now - lastGradTime > GRAD_TTL ||
+    Math.hypot(cursorX - lastGradX, cursorY - lastGradY) > 20
+  ) {
+    flashlightGradient = ctx.createRadialGradient(
       cursorX, cursorY, 0,
       cursorX, cursorY, spotlightRadius
     );
-    grad.addColorStop(0, "rgba(0,0,0,0)");
-    grad.addColorStop(1, "rgba(0,0,0,1)");
-    ctx.fillStyle = grad;
+    flashlightGradient.addColorStop(0, "rgba(0,0,0,0)");
+    flashlightGradient.addColorStop(1, "rgba(0,0,0,1)");
+    lastGradTime = now;
+    lastGradX = cursorX;
+    lastGradY = cursorY;
+  }
+  ctx.save();
+    ctx.fillStyle = flashlightGradient;
     ctx.fillRect(0, 0, w, h);
   ctx.restore();
 
