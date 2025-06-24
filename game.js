@@ -1,20 +1,19 @@
 // game.js
 import { Icon } from "./digit.js";
 
-export const CELL_SIZE  = 80;
-export const CHUNK_SIZE = 20;
+export const CELL_SIZE = 50;
+export const CHUNK_SIZE = 16; // Уменьшен для меньшей загрузки
+export const MAX_CHUNKS = 25; // Ограничение на активные члены
 
-// Структура: ключ чанка -> массив Icon
-export let cellsByChunk = {};
+export let cells = new Map();
 export let generatedChunks = new Set();
 
-function getChunkKey(cx, cy) {
-  return `${cx}_${cy}`;
-}
+let chunkToCells = new Map();
 
 export function getChunkCoords(cx, cy) {
   const arr = [];
-  const bx = cx * CHUNK_SIZE, by = cy * CHUNK_SIZE;
+  const bx = cx * CHUNK_SIZE;
+  const by = cy * CHUNK_SIZE;
   for (let x = 0; x < CHUNK_SIZE; x++) {
     for (let y = 0; y < CHUNK_SIZE; y++) {
       arr.push({ x: bx + x, y: by + y });
@@ -24,45 +23,73 @@ export function getChunkCoords(cx, cy) {
 }
 
 export function generateChunk(cx, cy) {
-  const chunkKey = getChunkKey(cx, cy);
-  if (generatedChunks.has(chunkKey)) return;
-  generatedChunks.add(chunkKey);
-  cellsByChunk[chunkKey] = [];
-
+  const key = `${cx}_${cy}`;
+  if (generatedChunks.has(key)) return;
+  generatedChunks.add(key);
   const slots = getChunkCoords(cx, cy);
-  for (let s of slots) {
+  const chunkCells = new Set();
+  let idCounter = 0;
+
+  for (const { x, y } of slots) {
+    const slotKey = `${x}_${y}`;
     const r = Math.random();
     let type;
-    if (r < 0.005)        type = "key";
-    else if (r < 0.010)   type = "clock";
+    if (r < 0.01) type = "key"; // Увеличен шанс ключей
+    else if (r < 0.015) type = "clock"; // Увеличен шанс часов
     else {
-      const d = [
-        "mask","letterS","cd","xicon",
-        "ethicon","btcicon","eye","lock",
-        "scroll","dna","flask"
+      const types = [
+        "mask", "letterS", "cd", "compass",
+        "photon", "xicon", "eye", "hat",
+        "scroll", "compass", "flask"
       ];
-      type = d[Math.floor(Math.random() * d.length)];
+      type = types[Math.floor(Math.random() * types.length)];
     }
-    const icon = new Icon(s.x, s.y, type);
-    cellsByChunk[chunkKey].push(icon);
+    const icon = new Icon(x, y, type, `${slotKey}_${idCounter++}`);
+    cells.set(slotKey, icon);
+    chunkCells.add(slotKey);
+  }
+  chunkToCells.set(key, chunkCells);
+}
+
+export function cleanupChunks(cx, cy) {
+  // Удаляем чанки дальше 5 от текущей позиции камеры
+  const maxDist = 5;
+  const chunksToRemove = [];
+  for (const chunk of generatedChunks) {
+    const [x, y] = chunk.split('_').map(Number);
+    if (Math.abs(cx - cx) > maxDist || Math.abs(cy - y) > maxDist) {
+      chunksToRemove.push(chunk);
+    }
+  }
+
+  for (const chunk of chunksToRemove) {
+    const chunkCells = chunkToCells.get(chunk);
+    if (chunkCells) {
+      for (const cellKey of chunkCells) {
+        cells.delete(cellKey);
+      }
+      chunkToCells.delete(chunk);
+    }
+    generatedChunks.delete(chunk);
   }
 }
 
-// Обновление видимых чанков (вызывать периодически)
-let lastChunkCheck = 0;
 export function ensureVisibleChunks(camX, camY, w, h) {
-  const now = performance.now();
-  if (now - lastChunkCheck < 200) return;
-  lastChunkCheck = now;
-
-  const left   = -camX / CELL_SIZE;
-  const top    = -camY / CELL_SIZE;
-  const right  = (w - camX) / CELL_SIZE;
+  const left = -camX / CELL_SIZE;
+  const top = -camY / CELL_SIZE;
+  const right = (w - camX) / CELL_SIZE;
   const bottom = (h - camY) / CELL_SIZE;
   const cxMin = Math.floor(left / CHUNK_SIZE) - 1;
   const cxMax = Math.floor(right / CHUNK_SIZE) + 1;
   const cyMin = Math.floor(top / CHUNK_SIZE) - 1;
   const cyMax = Math.floor(bottom / CHUNK_SIZE) + 1;
+
+  const currentCx = Math.floor((-camX / CELL_SIZE) / CHUNK_SIZE);
+  const currentCy = Math.floor((-camY / CELL_SIZE) / CHUNK_SIZE);
+
+  if (generatedChunks.size > MAX_CHUNKS) {
+    cleanupChunks(currentCx, currentCy);
+  }
 
   for (let cx = cxMin; cx <= cxMax; cx++) {
     for (let cy = cyMin; cy <= cyMax; cy++) {
@@ -71,100 +98,45 @@ export function ensureVisibleChunks(camX, camY, w, h) {
   }
 }
 
-// Оптимизированная отрисовка: пробегаем только по видимым чанкам и их иконкам
 export function drawCells(ctx, camX, camY, w, h) {
   const now = performance.now();
-  const padding = CELL_SIZE;  // запас за границами экрана
+  const margin = CELL_SIZE * 2; // Запас для рендеринга
+  for (const [key, ic] of cells) {
+    const pos = ic.screenPosition(camX, camY, now);
+    if (
+      pos.x < -margin || pos.x > w + margin ||
+      pos.y < -margin || pos.y > h + margin
+    ) continue;
 
-  // Рассчитываем диапазон чанков, которые потенциально видны
-  const left   = -camX / CELL_SIZE;
-  const top    = -camY / CELL_SIZE;
-  const right  = (w - camX) / CELL_SIZE;
-  const bottom = (h - camY) / CELL_SIZE;
-  const cxMin = Math.floor(left / CHUNK_SIZE) - 1;
-  const cxMax = Math.floor(right / CHUNK_SIZE) + 1;
-  const cyMin = Math.floor(top / CHUNK_SIZE) - 1;
-  const cyMax = Math.floor(bottom / CHUNK_SIZE) + 1;
-
-  for (let cx = cxMin; cx <= cxMax; cx++) {
-    for (let cy = cyMin; cy <= cyMax; cy++) {
-      const chunkKey = getChunkKey(cx, cy);
-      const list = cellsByChunk[chunkKey];
-      if (!list) continue;
-      for (let i = 0; i < list.length; i++) {
-        const ic = list[i];
-
-        // Быстрая проверка базового положения
-        const baseX = ic.gx * CELL_SIZE + camX;
-        const baseY = ic.gy * CELL_SIZE + camY;
-        if (
-          baseX < -padding || baseX > w + padding ||
-          baseY < -padding || baseY > h + padding
-        ) continue;
-
-        // Позиция с анимацией
-        const pos = ic.screenPosition(camX, camY, now);
-        if (
-          pos.x < -padding || pos.x > w + padding ||
-          pos.y < -padding || pos.y > h + padding
-        ) continue;
-
-        // Альфа для удаления
-        let alpha = 1;
-        if (ic.removeStart) {
-          const dt = now - ic.removeStart;
-          alpha = 1 - dt / 500;
-          if (alpha <= 0) {
-            list.splice(i, 1);
-            i--;
-            continue;
-          }
-        }
-
-        const img = Icon.images[ic.type];
-        if (!img || !img.complete) continue;
-        const SIZE = 30;
-
-        ctx.save();
-        ctx.globalAlpha = alpha;
-        ctx.drawImage(img, pos.x - SIZE/2, pos.y - SIZE/2, SIZE, SIZE);
-        ctx.restore();
+    if (ic.removeStart) {
+      const dt = now - ic.removeStart;
+      const alpha = 1 - dt / 500;
+      if (alpha <= 0) {
+        cells.delete(key);
+        continue;
       }
+      ic.draw(ctx, camX, camY, now, alpha);
+    } else {
+      ic.draw(ctx, camX, camY, now);
     }
   }
 }
 
-// Поиск клика по иконкам — тоже только по видимым чанкам
 export function getClickedIcon(mx, my, camX, camY) {
   const now = performance.now();
-  let best = null, dmin = Infinity;
+  let bestKey = null;
+  let dmin = Infinity;
+  const clickRadius = 32;
 
-  // Перебираем только видимые чанки
-  const left   = -camX / CELL_SIZE;
-  const top    = -camY / CELL_SIZE;
-  const right  = (ctx.canvas.width  - camX) / CELL_SIZE;
-  const bottom = (ctx.canvas.height - camY) / CELL_SIZE;
-  const cxMin = Math.floor(left / CHUNK_SIZE) - 1;
-  const cxMax = Math.floor(right / CHUNK_SIZE) + 1;
-  const cyMin = Math.floor(top / CHUNK_SIZE) - 1;
-  const cyMax = Math.floor(bottom / CHUNK_SIZE) + 1;
-
-  for (let cx = cxMin; cx <= cxMax; cx++) {
-    for (let cy = cyMin; cy <= cyMax; cy++) {
-      const chunkKey = getChunkKey(cx, cy);
-      const list = cellsByChunk[chunkKey];
-      if (!list) continue;
-      for (const ic of list) {
-        const pos = ic.screenPosition(camX, camY, now);
-        const dx = mx - pos.x;
-        const dy = my - pos.y;
-        const d = Math.hypot(dx, dy);
-        if (d < 32 && d < dmin) {
-          dmin = d;
-          best = ic;
-        }
-      }
+  for (const [key, ic] of cells) {
+    const pos = ic.screenPosition(camX, camY, now);
+    const dx = mx - pos.x;
+    const dy = my - pos.y;
+    const d = Math.hypot(dx, dy);
+    if (d < clickRadius && d < dmin) {
+      dmin = d;
+      bestKey = key;
     }
   }
-  return best;
+  return bestKey;
 }
