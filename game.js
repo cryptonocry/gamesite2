@@ -1,7 +1,7 @@
 // game.js
 import { Icon } from "./digit.js";
 
-export const CELL_SIZE  = 80;
+export const CELL_SIZE = 80;
 export const CHUNK_SIZE = 20;
 
 export let cells = {};
@@ -27,13 +27,13 @@ export function generateChunk(cx, cy) {
     const slotKey = `${s.x}_${s.y}`;
     const r = Math.random();
     let type;
-    if (r < 0.005)        type = "key";
-    else if (r < 0.010)   type = "clock";
+    if (r < 0.0075) type = "key"; // Увеличено с 0.005 до 0.0075 (0.75%)
+    else if (r < 0.0175) type = "clock"; // Увеличено с 0.010 до 0.0175 (1%)
     else {
       const d = [
-        "mask","letterS","cd","xicon",
-        "ethicon","btcicon","eye","lock",
-        "scroll","dna","flask"
+        "mask", "letterS", "cd", "xicon",
+        "ethicon", "btcicon", "eye", "lock",
+        "scroll", "dna", "flask"
       ];
       type = d[Math.floor(Math.random() * d.length)];
     }
@@ -42,9 +42,9 @@ export function generateChunk(cx, cy) {
 }
 
 export function ensureVisibleChunks(camX, camY, w, h) {
-  const left   = -camX / CELL_SIZE;
-  const top    = -camY / CELL_SIZE;
-  const right  = (w - camX) / CELL_SIZE;
+  const left = -camX / CELL_SIZE;
+  const top = -camY / CELL_SIZE;
+  const right = (w - camX) / CELL_SIZE;
   const bottom = (h - camY) / CELL_SIZE;
   const cxMin = Math.floor(left/CHUNK_SIZE) - 1;
   const cxMax = Math.floor(right/CHUNK_SIZE) + 1;
@@ -59,11 +59,14 @@ export function ensureVisibleChunks(camX, camY, w, h) {
 
 export function drawCells(ctx, camX, camY, w, h) {
   const now = performance.now();
+  const margin = CELL_SIZE * 2; // Запас для плавного рендеринга
   for (const k of Object.keys(cells)) {
     const ic = cells[k];
     const pos = ic.screenPosition(camX, camY, now);
-    if (pos.x < -CELL_SIZE || pos.x > w + CELL_SIZE ||
-        pos.y < -CELL_SIZE || pos.y > h + CELL_SIZE) continue;
+    if (
+      pos.x < -margin || pos.x > w + margin ||
+      pos.y < -margin || pos.y > h + margin
+    ) continue;
     if (ic.removeStart) {
       const dt = now - ic.removeStart;
       const alpha = 1 - dt / 500;
