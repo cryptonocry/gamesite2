@@ -37,7 +37,7 @@ export function generateChunk(cx, cy) {
       ];
       type = d[Math.floor(Math.random() * d.length)];
     }
-    cells[slotKey] = new Icon(s.x, s.y, type);
+    cells[slotKey] = new Icon(s.x, s.y, type, performance.now());
   }
 }
 
