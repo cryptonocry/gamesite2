@@ -410,10 +410,12 @@ function update(dt) {
 function draw() {
   if (gameState !== "game") return;
 
-  ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-  drawCells(ctx, cameraX, cameraY, gameCanvas.width, gameCanvas.height);
+  const now = performance.now(); // ❗ 1. Сразу наверх
 
-  const now = performance.now();
+  ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+  drawCells(ctx, cameraX, cameraY, gameCanvas.width, gameCanvas.height, now); // ❗ 2. Передать
+
   // Подсветка красным при промахах
   for (let i = missEvents.length - 1; i >= 0; i--) {
     const ev = missEvents[i];
@@ -422,7 +424,7 @@ function draw() {
       missEvents.splice(i, 1);
       continue;
     }
-    const pos = ic.screenPosition(cameraX, cameraY, now);
+    const pos = ic.screenPosition(cameraX, cameraY, now); // ❗ уже есть now
     const S = 30;
     ctx.save();
       ctx.globalAlpha = 0.5 * (1 - (now - ev.time) / 1000);
