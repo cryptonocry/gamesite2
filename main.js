@@ -456,9 +456,6 @@ function draw() {
   }
 }
 
-import { Icon } from "./digit.js"; // если ещё не импортирован
-Icon._loadImages(); // ❗ предзагрузка всех иконок
-
 let last = performance.now();
 function loop() {
   const now = performance.now();
@@ -506,3 +503,4 @@ function updateUI() {
 
 // Инициализация
 updateUI();
+Icon._loadImages(); // загружаем все иконки заранее, чтобы не было лагов при генерации
