@@ -57,8 +57,7 @@ export function ensureVisibleChunks(camX, camY, w, h) {
   }
 }
 
-export function drawCells(ctx, camX, camY, w, h) {
-  const now = performance.now();
+export function drawCells(ctx, camX, camY, w, h, now) {
   for (const k of Object.keys(cells)) {
     const ic = cells[k];
     const pos = ic.screenPosition(camX, camY, now);
