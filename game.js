@@ -37,7 +37,7 @@ export function generateChunk(cx, cy) {
       ];
       type = d[Math.floor(Math.random() * d.length)];
     }
-    cells[slotKey] = new Icon(s.x, s.y, type, performance.now());
+    cells[slotKey] = new Icon(s.x, s.y, type);
   }
 }
 
@@ -57,29 +57,20 @@ export function ensureVisibleChunks(camX, camY, w, h) {
   }
 }
 
-export function drawCells(ctx, camX, camY, w, h, now) {
-  const left   = Math.floor(-camX / CELL_SIZE) - 1;
-  const right  = Math.ceil((w - camX) / CELL_SIZE) + 1;
-  const top    = Math.floor(-camY / CELL_SIZE) - 1;
-  const bottom = Math.ceil((h - camY) / CELL_SIZE) + 1;
-
-  for (let gx = left; gx <= right; gx++) {
-    for (let gy = top; gy <= bottom; gy++) {
-      const key = `${gx}_${gy}`;
-      const ic = cells[key];
-      if (!ic) continue;
-
-      if (ic.removeStart) {
-        const dt = now - ic.removeStart;
-        const alpha = 1 - dt / 500;
-        if (alpha <= 0) {
-          delete cells[key];
-          continue;
-        }
-        ic.draw(ctx, camX, camY, now, alpha);
-      } else {
-        ic.draw(ctx, camX, camY, now, 1);
-      }
+export function drawCells(ctx, camX, camY, w, h) {
+  const now = performance.now();
+  for (const k of Object.keys(cells)) {
+    const ic = cells[k];
+    const pos = ic.screenPosition(camX, camY, now);
+    if (pos.x < -CELL_SIZE || pos.x > w + CELL_SIZE ||
+        pos.y < -CELL_SIZE || pos.y > h + CELL_SIZE) continue;
+    if (ic.removeStart) {
+      const dt = now - ic.removeStart;
+      const alpha = 1 - dt / 500;
+      if (alpha <= 0) { delete cells[k]; continue; }
+      ic.draw(ctx, camX, camY, now, alpha);
+    } else {
+      ic.draw(ctx, camX, camY, now, 1);
     }
   }
 }
