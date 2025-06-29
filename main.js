@@ -457,14 +457,24 @@ function draw() {
 }
 
 let last = performance.now();
-function loop() {
-  const now = performance.now();
-  update(now - last);
-  draw();
-  last = now;
+let lastFrameTime = 0;
+const TARGET_FPS = 45;
+
+function loop(now) {
+  const elapsed = now - lastFrameTime;
+  const frameInterval = 1000 / TARGET_FPS;
+
+  if (elapsed >= frameInterval) {
+    update(now - last);
+    draw();
+    last = now;
+    lastFrameTime = now;
+  }
+
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
+
 
 
 // — SHOW/HIDE UI —
