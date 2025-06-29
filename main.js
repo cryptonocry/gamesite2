@@ -434,17 +434,17 @@ function draw() {
   }
 
   // Рисуем «фонарик»
-//  const w = gameCanvas.width, h = gameCanvas.height;
-//  ctx.save();
-//    const grad = ctx.createRadialGradient(
-//      cursorX, cursorY, 0,
-//      cursorX, cursorY, spotlightRadius
-//    );
-//    grad.addColorStop(0, "rgba(0,0,0,0)");
-//    grad.addColorStop(1, "rgba(0,0,0,1)");
-//    ctx.fillStyle = grad;
-//    ctx.fillRect(0, 0, w, h);
-//  ctx.restore();
+  const w = gameCanvas.width, h = gameCanvas.height;
+  ctx.save();
+    const grad = ctx.createRadialGradient(
+      cursorX, cursorY, 0,
+      cursorX, cursorY, spotlightRadius
+    );
+    grad.addColorStop(0, "rgba(0,0,0,0)");
+    grad.addColorStop(1, "rgba(0,0,0,1)");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+  ctx.restore();
 
   // Затемнение последних 20%
   if (batteryPercent <= 20) {
