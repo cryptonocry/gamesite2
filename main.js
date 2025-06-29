@@ -456,6 +456,9 @@ function draw() {
   }
 }
 
+import { Icon } from "./digit.js"; // если ещё не импортирован
+Icon._loadImages(); // ❗ предзагрузка всех иконок
+
 let last = performance.now();
 function loop() {
   const now = performance.now();
