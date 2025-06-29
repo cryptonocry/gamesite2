@@ -2,7 +2,7 @@
 export class Icon {
   static shakeFactor = 1;
 
-  constructor(gx, gy, type, spawnTime = performance.now()) {
+constructor(gx, gy, type, spawnTime) {
     this.gx = gx;
     this.gy = gy;
     this.type = type;
