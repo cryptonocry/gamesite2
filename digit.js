@@ -1,7 +1,6 @@
 // digit.js
 export class Icon {
   static shakeFactor = 1;
-  static images = null;
 
   constructor(gx, gy, type, spawnTime = performance.now()) {
     this.gx = gx;
@@ -10,22 +9,21 @@ export class Icon {
     this.spawnTime = spawnTime;
     this.phaseOffset = Math.random() * Math.PI * 2;
     const baseAmp = 3, baseSpd = 0.5;
-    this.baseAmplitude = baseAmp * 1.2; // Слегка уменьшено для оптимизации
-    this.baseSpeed = baseSpd * 1.0; // Слегка уменьшено
+    this.baseAmplitude = baseAmp * 1.5;
+    this.baseSpeed     = baseSpd * 1.2;
     if (!Icon.images) Icon._loadImages();
   }
 
   static _loadImages() {
     Icon.images = {};
     [
-      "mask", "letterS", "cd", "xicon",
-      "clock", "key", "ethicon", "btcicon",
-      "eye", "lock", "scroll", "dna", "flask"
+      "mask","letterS","cd","xicon",
+      "clock","key","ethicon","btcicon",
+      "eye","lock","scroll","dna","flask"
     ].forEach(name => {
       const img = new Image();
       img.src = `icons/${name}.svg`;
-      img.onerror = () => console.warn(`Failed to load icon ${name}.svg`);
-      img.onload = () => Icon.images[name] = img;
+      Icon.images[name] = img;
     });
   }
 
