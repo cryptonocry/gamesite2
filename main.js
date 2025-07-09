@@ -28,7 +28,7 @@ const inGameMenuOverlay = document.getElementById("inGameMenuOverlay");
 const btnFullscreenIG   = document.getElementById("btnFullscreenIG");
 const btnRestartIG      = document.getElementById("btnRestartIG");
 const btnMainIG         = document.getElementById("btnMainIG");
-const btnCloseMenu = document.getElementById("btnCloseMenu");
+const btnCloseMenu      = document.getElementById("btnCloseMenu");
 btnCloseMenu.addEventListener("click", () => {
   inGameMenuOverlay.style.display = "none";
 });
@@ -38,11 +38,9 @@ let enableEdgePan      = true;
 let enableKeyboardPan  = true;
 let enableRightDragPan = true;
 
-// Найдём чекбоксы, повесим на них слушатели
 const cbEdgePan      = document.getElementById("cbEdgePan");
 const cbKeyboardPan  = document.getElementById("cbKeyboardPan");
 const cbRightDragPan = document.getElementById("cbRightDragPan");
-
 cbEdgePan.addEventListener("change",    () => enableEdgePan      = cbEdgePan.checked);
 cbKeyboardPan.addEventListener("change",() => enableKeyboardPan  = cbKeyboardPan.checked);
 cbRightDragPan.addEventListener("change",() => enableRightDragPan = cbRightDragPan.checked);
@@ -121,7 +119,6 @@ gameCanvas.addEventListener("mouseup", e => {
 
 gameCanvas.addEventListener("contextmenu", e => e.preventDefault());
 
-
 // клавиатура управление
 const keysPressed = new Set();
 
@@ -138,7 +135,6 @@ window.addEventListener("keydown", e => {
 window.addEventListener("keyup", e => {
   keysPressed.delete(e.code);
 });
-
 
 // Spotlight
 let cursorX = 0, cursorY = 0;
@@ -157,9 +153,7 @@ gameCanvas.addEventListener("mousemove", e => {
 
 // — FULLSCREEN —
 fullscreenButton.addEventListener("click", toggleFullscreen);
-btnFullscreenIG.addEventListener("click", () => {
-  toggleFullscreen();
-});
+btnFullscreenIG.addEventListener("click", () => toggleFullscreen());
 function toggleFullscreen() {
   if (!document.fullscreenElement)
     document.documentElement.requestFullscreen();
@@ -255,7 +249,11 @@ gameCanvas.addEventListener("click", e => {
   const r  = gameCanvas.getBoundingClientRect();
   const mx = e.clientX - r.left, my = e.clientY - r.top;
   const key = getClickedIcon(mx, my, cameraX, cameraY);
-  if (!key) return;
+  if (!key) {
+    // клик не по иконке
+    playSound("error.wav", 0.5);
+    return;
+  }
   const ic = cells[key];
   if (ic.removeStart) return;
   const now = performance.now();
@@ -271,7 +269,7 @@ gameCanvas.addEventListener("click", e => {
     batteryPercent = Math.min(100, batteryPercent + 10);
     playSound("time.wav", 0.4);
     // мигание перезарядки + “+10”
-    blinkUntil = now + 1000;  // 1 сек, чтобы синхронизировать с plusAnim
+    blinkUntil = now + 1000;  
     batteryPctEl.textContent = `${Math.floor(batteryPercent)}%`;
     batteryIconEl.src        = "icons/perplus.svg";
     plusTextEl.classList.remove("play");
@@ -281,7 +279,8 @@ gameCanvas.addEventListener("click", e => {
   else {
     batteryPercent = Math.max(0, batteryPercent - 6);
     missEvents.push({ key, time: now });
-    playSound("miss.wav", 0.5);
+    // неправильная иконка
+    playSound("error.wav", 0.5);
     updateHUD();
   }
 });
@@ -293,7 +292,6 @@ function updateHUD() {
   const pct = Math.max(0, Math.min(100, Math.floor(batteryPercent)));
   batteryPctEl.textContent = `${pct}%`;
 
-  // если ещё мигаем perplus — пропускаем
   if (performance.now() < blinkUntil) return;
 
   let iconName = "per0";
@@ -335,11 +333,9 @@ function update(dt) {
   const centerX = w / 2;
   const centerY = h / 2;
 
-  // 0) RIGHT-CLICK DRAG PAN (только если режим включён)
   if (enableRightDragPan && isRightDragging) {
-    // cameraX/Y уже обновляются в mousemove при isRightDragging
+    // cameraX/Y уже обновляются в mousemove
   } else {
-    // 0a) KEYBOARD PAN (WASD + arrows), только если включено
     if (enableKeyboardPan) {
       const keySpeed = panSpeed * 1.2;
       if (keysPressed.has("KeyW")   || keysPressed.has("ArrowUp"))    cameraY += keySpeed * dtSec;
@@ -347,89 +343,74 @@ function update(dt) {
       if (keysPressed.has("KeyA")   || keysPressed.has("ArrowLeft"))  cameraX += keySpeed * dtSec;
       if (keysPressed.has("KeyD")   || keysPressed.has("ArrowRight")) cameraX -= keySpeed * dtSec;
     }
-
-    // 0b) EDGE PAN with dead-zone and eased speed, только если включено
     if (enableEdgePan) {
-      const dzX = w * 0.35;
-      const dzY = h * 0.35;
+      const dzX = w * 0.35, dzY = h * 0.35;
       if (
-        cursorX <  centerX - dzX ||
-        cursorX >  centerX + dzX ||
-        cursorY <  centerY - dzY ||
-        cursorY >  centerY + dzY
+        cursorX < centerX - dzX ||
+        cursorX > centerX + dzX ||
+        cursorY < centerY - dzY ||
+        cursorY > centerY + dzY
       ) {
-        // direction vector from center to cursor
-        let dx = (cursorX - centerX) / centerX;
-        let dy = (cursorY - centerY) / centerY;
+        let dx = (cursorX - centerX)/centerX, dy = (cursorY - centerY)/centerY;
         const len = Math.hypot(dx, dy);
         if (len > 1) { dx /= len; dy /= len; }
-
-        // how far past dead-zone (0…1)
         let fx = 0, fy = 0;
-        if (cursorX <  centerX - dzX) fx = ((centerX - dzX) - cursorX) / (centerX - dzX);
-        else if (cursorX > centerX + dzX) fx = (cursorX - (centerX + dzX)) / (centerX - dzX);
-        if (cursorY <  centerY - dzY) fy = ((centerY - dzY) - cursorY) / (centerY - dzY);
-        else if (cursorY > centerY + dzY) fy = (cursorY - (centerY + dzY)) / (centerY - dzY);
-
-        const factor = Math.min(1, Math.max(fx, fy));     // 0…1
-        const speed  = panSpeed * (1 + factor);           // panSpeed…2×panSpeed
-
-        // invert so world moves with cursor
+        if (cursorX < centerX - dzX) fx = ((centerX - dzX) - cursorX)/ (centerX - dzX);
+        else if (cursorX > centerX + dzX) fx = (cursorX - (centerX + dzX))/ (centerX - dzX);
+        if (cursorY < centerY - dzY) fy = ((centerY - dzY) - cursorY)/ (centerY - dzY);
+        else if (cursorY > centerY + dzY) fy = (cursorY - (centerY + dzY))/ (centerY - dzY);
+        const factor = Math.min(1, Math.max(fx, fy));
+        const speed  = panSpeed * (1 + factor);
         cameraX -= dx * speed * dtSec;
         cameraY -= dy * speed * dtSec;
       }
     }
   }
 
-  // 2) Усиливающаяся тряска и уменьшение батареи
-  const now     = performance.now();
-  const elapsed = (now - gameStartTime) / 1000;
-  Icon.shakeFactor = 1 + Math.min(elapsed / START_TIME, 1) * 2;
+  const now = performance.now();
+  const elapsed = (now - gameStartTime)/1000;
+  Icon.shakeFactor = 1 + Math.min(elapsed/START_TIME,1)*2;
 
-  batteryPercent -= 2 * dtSec;
-  const pct = Math.max(0, Math.min(100, Math.floor(batteryPercent)));
-  if (pct !== lastPct && now >= blinkUntil) {
+  batteryPercent -= 2*dtSec;
+  const pct = Math.max(0,Math.min(100,Math.floor(batteryPercent)));
+  if (pct!==lastPct && now>=blinkUntil) {
     lastPct = pct;
     updateHUD();
   }
-
-  if (batteryPercent <= 0) {
+  if (batteryPercent<=0) {
     gameState = "game_over";
     if (currentPlayer) {
       currentPlayer.score = scoreTotal;
       addParticipantToXano(currentPlayer.wallet, scoreTotal);
     }
-    playSound("end.wav", 0.5);
+    playSound("end.wav",0.5);
     updateUI();
     return;
   }
-
-  ensureVisibleChunks(cameraX, cameraY, w, h);
+  ensureVisibleChunks(cameraX,cameraY,w,h);
 }
 
 function draw() {
   if (gameState !== "game") return;
 
-  const now = performance.now(); // ❗ 1. Сразу наверх
+  ctx.clearRect(0,0,gameCanvas.width,gameCanvas.height);
+  drawCells(ctx,cameraX,cameraY,gameCanvas.width,gameCanvas.height);
 
-  ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-
-  drawCells(ctx, cameraX, cameraY, gameCanvas.width, gameCanvas.height, now); // ❗ 2. Передать
-
+  const now = performance.now();
   // Подсветка красным при промахах
-  for (let i = missEvents.length - 1; i >= 0; i--) {
+  for (let i=missEvents.length-1;i>=0;i--) {
     const ev = missEvents[i];
     const ic = cells[ev.key];
-    if (!ic || now - ev.time > 1000) {
-      missEvents.splice(i, 1);
+    if (!ic || now-ev.time>1000) {
+      missEvents.splice(i,1);
       continue;
     }
-    const pos = ic.screenPosition(cameraX, cameraY, now); // ❗ уже есть now
+    const pos = ic.screenPosition(cameraX,cameraY,now);
     const S = 30;
     ctx.save();
-      ctx.globalAlpha = 0.5 * (1 - (now - ev.time) / 1000);
+      ctx.globalAlpha = 0.5*(1-(now-ev.time)/1000);
       ctx.fillStyle = "red";
-      ctx.fillRect(pos.x - S/2, pos.y - S/2, S, S);
+      ctx.fillRect(pos.x-S/2,pos.y-S/2,S,S);
     ctx.restore();
   }
 
@@ -443,15 +424,15 @@ function draw() {
     grad.addColorStop(0, "rgba(0,0,0,0)");
     grad.addColorStop(1, "rgba(0,0,0,1)");
     ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, w, h);
+    ctx.fillRect(0,0,w,h);
   ctx.restore();
 
   // Затемнение последних 20%
-  if (batteryPercent <= 20) {
-    const alpha = 1 - (batteryPercent / 20);
+  if (batteryPercent<=20) {
+    const alpha = 1 - (batteryPercent/20);
     ctx.save();
       ctx.fillStyle = `rgba(0,0,0,${alpha})`;
-      ctx.fillRect(0, 0, w, h);
+      ctx.fillRect(0,0,w,h);
     ctx.restore();
   }
 }
@@ -459,48 +440,44 @@ function draw() {
 let last = performance.now();
 function loop() {
   const now = performance.now();
-  update(now - last);
+  update(now-last);
   draw();
   last = now;
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
 
-
 // — SHOW/HIDE UI —
 function updateUI() {
-  const isGame = (gameState === "game");
-  hud.style.display            = isGame ? "flex"   : "none";
-  gameMenuButton.style.display = isGame ? "block"  : "none";
-  fullscreenButton.style.display = (gameState === "menu") ? "block" : "none";
+  const isGame = (gameState==="game");
+  hud.style.display            = isGame ? "flex":"none";
+  gameMenuButton.style.display = isGame ? "block":"none";
+  fullscreenButton.style.display = (gameState==="menu") ? "block":"none";
 
-  if (gameState === "menu") {
-    menuContainer.style.display     = "flex";
-    loginContainer.style.display    = "none";
-    summaryOverlay.style.display    = "none";
-    gameCanvas.style.display        = "none";
-    gameOverOverlay.style.display   = "none";
-    recordsContainer.style.display  = "none";
-  }
-  else if (gameState === "game") {
-    menuContainer.style.display     = "none";
-    loginContainer.style.display    = "none";
-    summaryOverlay.style.display    = "none";
-    gameCanvas.style.display        = "block";
-    gameOverOverlay.style.display   = "none";
-    recordsContainer.style.display  = "none";
-  }
-  else if (gameState === "game_over") {
-    menuContainer.style.display     = "none";
-    loginContainer.style.display    = "none";
-    summaryOverlay.style.display    = "none";
-    gameCanvas.style.display        = "block";
-    gameOverOverlay.style.display   = "block";
-    recordsContainer.style.display  = "none";
-    finalScore.textContent          = `Your score: ${scoreTotal}`;
+  if (gameState==="menu") {
+    menuContainer.style.display="flex";
+    loginContainer.style.display="none";
+    summaryOverlay.style.display="none";
+    gameCanvas.style.display="none";
+    gameOverOverlay.style.display="none";
+    recordsContainer.style.display="none";
+  } else if (gameState==="game") {
+    menuContainer.style.display="none";
+    loginContainer.style.display="none";
+    summaryOverlay.style.display="none";
+    gameCanvas.style.display="block";
+    gameOverOverlay.style.display="none";
+    recordsContainer.style.display="none";
+  } else if (gameState==="game_over") {
+    menuContainer.style.display="none";
+    loginContainer.style.display="none";
+    summaryOverlay.style.display="none";
+    gameCanvas.style.display="block";
+    gameOverOverlay.style.display="block";
+    recordsContainer.style.display="none";
+    finalScore.textContent=`Your score: ${scoreTotal}`;
   }
 }
 
 // Инициализация
 updateUI();
-Icon._loadImages(); // загружаем все иконки заранее, чтобы не было лагов при генерации
