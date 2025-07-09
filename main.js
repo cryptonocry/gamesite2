@@ -86,6 +86,7 @@ let scoreTotal     = 0;
 let cameraX = 0, cameraY = 0;
 let missEvents = [];
 let gameStartTime = 0;
+let backgroundMusic = null; // Добавляем переменную для фоновой музыки
 
 // Для “мигания” иконки и текста +10
 let blinkUntil = 0;
@@ -183,10 +184,17 @@ btnMainIG.addEventListener("click", () => {
 
 // — GAME OVER buttons —
 btnMenuOver.addEventListener("click", () => {
+  // Останавливаем музыку при возврате в меню
+  if (backgroundMusic) {
+    backgroundMusic.pause();
+    backgroundMusic.currentTime = 0;
+    backgroundMusic = null;
+  }
   gameState = "menu";
   updateUI();
 });
 btnRestartOver.addEventListener("click", () => {
+  // Музыка будет остановлена в startGame, так как она уже там обрабатывается
   startGame(0);
 });
 
@@ -308,6 +316,13 @@ function updateHUD() {
 
 // — START GAME —
 function startGame(bonus = 0) {
+  // Останавливаем текущую музыку, если она играет
+  if (backgroundMusic) {
+    backgroundMusic.pause();
+    backgroundMusic.currentTime = 0; // Сбрасываем на начало
+    backgroundMusic = null;
+  }
+
   Object.keys(cells).forEach(k => delete cells[k]);
   generatedChunks.clear();
   scoreTotal     = 0;
@@ -319,11 +334,24 @@ function startGame(bonus = 0) {
   cameraX = cameraY = 0;
   gameStartTime = performance.now();
 
+  // Запускаем фоновую музыку
+  backgroundMusic = new Audio("music.wav");
+  backgroundMusic.volume = 0.3; // Громкость можно настроить (0.0–1.0)
+  backgroundMusic.play().catch(e => console.error("Music playback failed:", e));
+  // Останавливаем музыку, когда она заканчивается
+  backgroundMusic.addEventListener("ended", () => {
+    if (backgroundMusic) {
+      backgroundMusic = null;
+    }
+  });
+
   playSound("start.wav", 0.7);
   updateHUD();
   gameState = "game";
   updateUI();
 }
+
+
 
 // — UPDATE & DRAW —
 function update(dt) {
