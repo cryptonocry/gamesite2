@@ -55,12 +55,13 @@ cbRightDragPanMain.addEventListener("change",() => { enableRightDragPan = cbRigh
 
 // Initialize settings from main menu at game start
 function initializeSettings() {
-  enableEdgePan      = cbEdgePanMain.checked;
-  enableKeyboardPan  = cbKeyboardPanMain.checked;
-  enableRightDragPan = cbRightDragPanMain.checked;
-  // Sync in-game menu checkboxes with main menu settings
-  cbEdgePan.checked      = enableEdgePan;
-  cbKeyboardPan.checked  = enableKeyboardPan;
+  // Берем значения с главной страницы
+  enableEdgePan = document.getElementById("cbEdgePan").checked;      // Или cbEdgePanMain, если ID разные
+  enableKeyboardPan = document.getElementById("cbKeyboardPan").checked;  // Или cbKeyboardPanMain
+  enableRightDragPan = document.getElementById("cbRightDragPan").checked; // Или cbRightDragPanMain
+  // Обновляем галочки в игре
+  cbEdgePan.checked = enableEdgePan;
+  cbKeyboardPan.checked = enableKeyboardPan;
   cbRightDragPan.checked = enableRightDragPan;
 }
 
@@ -350,19 +351,19 @@ function startGame(bonus = 0) {
     backgroundMusic = null;
   }
 
+  // Берем настройки с главной страницы и обновляем их в игре
+  initializeSettings();
+
   Object.keys(cells).forEach(k => delete cells[k]);
   generatedChunks.clear();
-  scoreTotal     = 0;
+  scoreTotal = 0;
   batteryPercent = 100 + bonus;
-  missEvents     = [];
-  blinkUntil     = 0;
-  lastPct        = null;
+  missEvents = [];
+  blinkUntil = 0;
+  lastPct = null;
   Icon.shakeFactor = 1;
   cameraX = cameraY = 0;
   gameStartTime = performance.now();
-
-  // Initialize settings from main menu
-  initializeSettings();
 
   // Запускаем фоновую музыку
   backgroundMusic = new Audio("music.wav");
@@ -373,6 +374,12 @@ function startGame(bonus = 0) {
       backgroundMusic = null;
     }
   });
+
+  playSound("start.wav", 0.7);
+  updateHUD();
+  gameState = "game";
+  updateUI();
+}
 
   playSound("start.wav", 0.7);
   updateHUD();
