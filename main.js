@@ -21,6 +21,18 @@ const batteryIconEl = document.getElementById("batteryIcon");
 const batteryPctEl  = document.getElementById("batteryPercent");
 const plusTextEl    = document.getElementById("plusText");
 
+// Динамическая корректировка иконок батареи
+function updateBatteryIcon() {
+  const pct = Math.max(0, Math.min(100, Math.floor(batteryPercent)));
+  let iconName = "per0";
+  if (pct > 80) iconName = "per100";
+  else if (pct > 60) iconName = "per80";
+  else if (pct > 40) iconName = "per60";
+  else if (pct > 20) iconName = "per40";
+  else if (pct > 0) iconName = "per20";
+  batteryIconEl.src = `icons/${iconName}.svg?v=${Date.now()}`; // Добавляем timestamp для предотвращения кэша
+}
+
 // In-game menu UI
 const fullscreenButton  = document.getElementById("fullscreenButton");
 const gameMenuButton    = document.getElementById("gameMenuButton");
@@ -285,8 +297,9 @@ gameCanvas.addEventListener("click", e => {
     batteryPercent = Math.min(100, batteryPercent + 10);
     playSound("time.wav", 0.4);
     blinkUntil = now + 1000;
+    updateBatteryIcon(); // Обновляем иконку батареи
     batteryPctEl.textContent = `${Math.floor(batteryPercent)}%`;
-    batteryIconEl.src        = "icons/perplus.svg";
+    batteryIconEl.src        = "icons/perplus.svg?v=" + Date.now();
     plusTextEl.classList.remove("play");
     void plusTextEl.offsetWidth;
     plusTextEl.classList.add("play");
@@ -307,14 +320,7 @@ function updateHUD() {
 
   if (performance.now() < blinkUntil) return;
 
-  let iconName = "per0";
-  if      (pct > 80) iconName = "per100";
-  else if (pct > 60) iconName = "per80";
-  else if (pct > 40) iconName = "per60";
-  else if (pct > 20) iconName = "per40";
-  else if (pct > 0)  iconName = "per20";
-
-  batteryIconEl.src = `icons/${iconName}.svg`;
+  updateBatteryIcon();
 }
 
 function startGame(bonus = 0) {
