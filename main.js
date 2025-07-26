@@ -21,18 +21,6 @@ const batteryIconEl = document.getElementById("batteryIcon");
 const batteryPctEl  = document.getElementById("batteryPercent");
 const plusTextEl    = document.getElementById("plusText");
 
-// Динамическая корректировка иконок батареи
-function updateBatteryIcon() {
-  const pct = Math.max(0, Math.min(100, Math.floor(batteryPercent)));
-  let iconName = "per0";
-  if (pct > 80) iconName = "per100";
-  else if (pct > 60) iconName = "per80";
-  else if (pct > 40) iconName = "per60";
-  else if (pct > 20) iconName = "per40";
-  else if (pct > 0) iconName = "per20";
-  batteryIconEl.src = `icons/${iconName}.svg?v=${Date.now()}`; // Добавляем timestamp для предотвращения кэша
-}
-
 // In-game menu UI
 const fullscreenButton  = document.getElementById("fullscreenButton");
 const gameMenuButton    = document.getElementById("gameMenuButton");
@@ -40,7 +28,7 @@ const inGameMenuOverlay = document.getElementById("inGameMenuOverlay");
 const btnFullscreenIG   = document.getElementById("btnFullscreenIG");
 const btnRestartIG      = document.getElementById("btnRestartIG");
 const btnMainIG         = document.getElementById("btnMainIG");
-const btnCloseMenu      = document.getElementById("btnCloseMenu");
+const btnCloseMenu = document.getElementById("btnCloseMenu");
 btnCloseMenu.addEventListener("click", () => {
   inGameMenuOverlay.style.display = "none";
 });
@@ -50,37 +38,14 @@ let enableEdgePan      = true;
 let enableKeyboardPan  = true;
 let enableRightDragPan = true;
 
-// Найдём чекбоксы для in-game и main menu, повесим на них слушатели
-const cbEdgePan      = document.getElementById("cbEdgePan");      // In-game
-const cbKeyboardPan  = document.getElementById("cbKeyboardPan");  // In-game
-const cbRightDragPan = document.getElementById("cbRightDragPan"); // In-game
-const cbEdgePanMain  = document.getElementById("cbEdgePanMain");  // Main menu
-const cbKeyboardPanMain  = document.getElementById("cbKeyboardPanMain");  // Main menu
-const cbRightDragPanMain = document.getElementById("cbRightDragPanMain"); // Main menu
+// Найдём чекбоксы, повесим на них слушатели
+const cbEdgePan      = document.getElementById("cbEdgePan");
+const cbKeyboardPan  = document.getElementById("cbKeyboardPan");
+const cbRightDragPan = document.getElementById("cbRightDragPan");
 
-cbEdgePan.addEventListener("change",    () => { enableEdgePan      = cbEdgePan.checked; });
-cbKeyboardPan.addEventListener("change",() => { enableKeyboardPan  = cbKeyboardPan.checked; });
-cbRightDragPan.addEventListener("change",() => { enableRightDragPan = cbRightDragPan.checked; });
-cbEdgePanMain.addEventListener("change",    () => { enableEdgePan      = cbEdgePanMain.checked; });
-cbKeyboardPanMain.addEventListener("change",() => { enableKeyboardPan  = cbKeyboardPanMain.checked; });
-cbRightDragPanMain.addEventListener("change",() => { enableRightDragPan = cbRightDragPanMain.checked; });
-
-// Initialize settings from main menu at game start
-function initializeSettings() {
-  enableEdgePan      = cbEdgePanMain.checked;
-  enableKeyboardPan  = cbKeyboardPanMain.checked;
-  enableRightDragPan = cbRightDragPanMain.checked;
-  cbEdgePan.checked      = enableEdgePan;
-  cbKeyboardPan.checked  = enableKeyboardPan;
-  cbRightDragPan.checked = enableRightDragPan;
-}
-
-// Sync main menu settings when returning to menu
-function syncMainMenuSettings() {
-  cbEdgePanMain.checked      = enableEdgePan;
-  cbKeyboardPanMain.checked  = enableKeyboardPan;
-  cbRightDragPanMain.checked = enableRightDragPan;
-}
+cbEdgePan.addEventListener("change",    () => enableEdgePan      = cbEdgePan.checked);
+cbKeyboardPan.addEventListener("change",() => enableKeyboardPan  = cbKeyboardPan.checked);
+cbRightDragPan.addEventListener("change",() => enableRightDragPan = cbRightDragPan.checked);
 
 // Login & overlays
 const loginContainer          = document.getElementById("loginContainer");
@@ -115,17 +80,20 @@ const closeRecordsButton    = document.getElementById("closeRecordsButton");
 // Game state
 let gameState      = "menu";
 let currentPlayer  = null;
-const START_TIME   = 50;
-let batteryPercent = 100;
+const START_TIME   = 50;    // продолжительность игры в секундах
+let batteryPercent = 100;   // таймер в процентах
 let scoreTotal     = 0;
 let cameraX = 0, cameraY = 0;
 let missEvents = [];
 let gameStartTime = 0;
-let backgroundMusic = null;
+let backgroundMusic = null; // Добавляем переменную для фоновой музыки
 
+// Для “мигания” иконки и текста +10
 let blinkUntil = 0;
 let lastPct    = null;
 
+// — RIGHT‐CLICK DRAG PAN —
+// флаг и точки старта
 let isRightDragging = false;
 let dragStartRM     = { x: 0, y: 0 };
 let cameraStartRM   = { x: 0, y: 0 };
@@ -154,6 +122,8 @@ gameCanvas.addEventListener("mouseup", e => {
 
 gameCanvas.addEventListener("contextmenu", e => e.preventDefault());
 
+
+// клавиатура управление
 const keysPressed = new Set();
 
 window.addEventListener("keydown", e => {
@@ -170,18 +140,23 @@ window.addEventListener("keyup", e => {
   keysPressed.delete(e.code);
 });
 
+
+// Spotlight
 let cursorX = 0, cursorY = 0;
 const spotlightRadius = 500;
 
-const edgeThreshold = 500;
-const panSpeed      = 400;
+// Настройки паннинга
+const edgeThreshold = 500;  // px от края, после которых начинается движение
+const panSpeed      = 400;  // px/sec
 
+// Слежение за курсором для фонарика и паннинга
 gameCanvas.addEventListener("mousemove", e => {
   const r = gameCanvas.getBoundingClientRect();
   cursorX = e.clientX - r.left;
   cursorY = e.clientY - r.top;
 });
 
+// — FULLSCREEN —
 fullscreenButton.addEventListener("click", toggleFullscreen);
 btnFullscreenIG.addEventListener("click", () => {
   toggleFullscreen();
@@ -193,6 +168,7 @@ function toggleFullscreen() {
     document.exitFullscreen();
 }
 
+// — In-game MENU —
 gameMenuButton.addEventListener("click", () => {
   inGameMenuOverlay.style.display = "flex";
 });
@@ -204,10 +180,11 @@ btnMainIG.addEventListener("click", () => {
   inGameMenuOverlay.style.display = "none";
   gameState = "menu";
   updateUI();
-  syncMainMenuSettings();
 });
 
+// — GAME OVER buttons —
 btnMenuOver.addEventListener("click", () => {
+  // Останавливаем музыку при возврате в меню
   if (backgroundMusic) {
     backgroundMusic.pause();
     backgroundMusic.currentTime = 0;
@@ -215,16 +192,18 @@ btnMenuOver.addEventListener("click", () => {
   }
   gameState = "menu";
   updateUI();
-  syncMainMenuSettings();
 });
 btnRestartOver.addEventListener("click", () => {
+  // Музыка будет остановлена в startGame, так как она уже там обрабатывается
   startGame(0);
 });
 
+// — START GAME button —
 btnStart.addEventListener("click", () => {
   loginContainer.style.display = "block";
 });
 
+// — LOGIN FLOW —
 loginOkButton.addEventListener("click", async () => {
   const w = walletInput.value.trim().toLowerCase();
   if (!w || w.length !== 62) return alert("Invalid wallet!");
@@ -254,11 +233,13 @@ playWithoutWalletButton.addEventListener("click", () => {
   startGame(0);
 });
 
+// — PLAY NOW —
 btnPlayNow.addEventListener("click", () => {
   summaryOverlay.style.display = "none";
   startGame(currentPlayer ? parseInt(timeBonusEl.textContent) : 0);
 });
 
+// — RECORDS —
 btnRecords.addEventListener("click", () => {
   showRecordsOverlay(recordsTableContainer, recordsContainer, currentPlayer);
 });
@@ -266,9 +247,9 @@ closeRecordsButton.addEventListener("click", () => {
   recordsContainer.style.display = "none";
   gameState = "menu";
   updateUI();
-  syncMainMenuSettings();
 });
 
+// — CANVAS RESIZE —
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 function resizeCanvas() {
@@ -276,6 +257,7 @@ function resizeCanvas() {
   gameCanvas.height = window.innerHeight;
 }
 
+// — CLICK TO COLLECT —
 gameCanvas.addEventListener("click", e => {
   if (gameState !== "game") return;
   const r  = gameCanvas.getBoundingClientRect();
@@ -295,11 +277,11 @@ gameCanvas.addEventListener("click", e => {
   else if (ic.type === "clock") {
     ic.removeStart = now;
     batteryPercent = Math.min(100, batteryPercent + 10);
-    playSound("time.wav", 0.4);
-    blinkUntil = now + 1000;
-    updateBatteryIcon(); // Обновляем иконку батареи
+    playSound("time.wav", 0.4); // Уже есть, оставляем как есть
+    // мигание перезарядки + “+10”
+    blinkUntil = now + 1000;  // 1 сек, чтобы синхронизировать с plusAnim
     batteryPctEl.textContent = `${Math.floor(batteryPercent)}%`;
-    batteryIconEl.src        = "icons/perplus.svg?v=" + Date.now();
+    batteryIconEl.src        = "icons/perplus.svg";
     plusTextEl.classList.remove("play");
     void plusTextEl.offsetWidth;
     plusTextEl.classList.add("play");
@@ -307,45 +289,56 @@ gameCanvas.addEventListener("click", e => {
   else {
     batteryPercent = Math.max(0, batteryPercent - 6);
     missEvents.push({ key, time: now });
-    playSound("error.wav", 0.5);
+    playSound("error.wav", 0.5); // Заменяем miss.wav на error.wav
     updateHUD();
   }
 });
 
+// — UPDATE HUD —
 function updateHUD() {
   keyCountEl.textContent = scoreTotal;
 
   const pct = Math.max(0, Math.min(100, Math.floor(batteryPercent)));
   batteryPctEl.textContent = `${pct}%`;
 
+  // если ещё мигаем perplus — пропускаем
   if (performance.now() < blinkUntil) return;
 
-  updateBatteryIcon();
+  let iconName = "per0";
+  if      (pct > 80) iconName = "per100";
+  else if (pct > 60) iconName = "per80";
+  else if (pct > 40) iconName = "per60";
+  else if (pct > 20) iconName = "per40";
+  else if (pct > 0)  iconName = "per20";
+
+  batteryIconEl.src = `icons/${iconName}.svg`;
 }
 
+// — START GAME —
 function startGame(bonus = 0) {
+  // Останавливаем текущую музыку, если она играет
   if (backgroundMusic) {
     backgroundMusic.pause();
-    backgroundMusic.currentTime = 0;
+    backgroundMusic.currentTime = 0; // Сбрасываем на начало
     backgroundMusic = null;
   }
 
-  initializeSettings();
-
   Object.keys(cells).forEach(k => delete cells[k]);
   generatedChunks.clear();
-  scoreTotal = 0;
+  scoreTotal     = 0;
   batteryPercent = 100 + bonus;
-  missEvents = [];
-  blinkUntil = 0;
-  lastPct = null;
+  missEvents     = [];
+  blinkUntil     = 0;
+  lastPct        = null;
   Icon.shakeFactor = 1;
   cameraX = cameraY = 0;
   gameStartTime = performance.now();
 
+  // Запускаем фоновую музыку
   backgroundMusic = new Audio("music.wav");
-  backgroundMusic.volume = 0.3;
+  backgroundMusic.volume = 0.3; // Громкость можно настроить (0.0–1.0)
   backgroundMusic.play().catch(e => console.error("Music playback failed:", e));
+  // Останавливаем музыку, когда она заканчивается
   backgroundMusic.addEventListener("ended", () => {
     if (backgroundMusic) {
       backgroundMusic = null;
@@ -358,6 +351,9 @@ function startGame(bonus = 0) {
   updateUI();
 }
 
+
+
+// — UPDATE & DRAW —
 function update(dt) {
   if (gameState !== "game") return;
 
@@ -367,8 +363,11 @@ function update(dt) {
   const centerX = w / 2;
   const centerY = h / 2;
 
+  // 0) RIGHT-CLICK DRAG PAN (только если режим включён)
   if (enableRightDragPan && isRightDragging) {
+    // cameraX/Y уже обновляются в mousemove при isRightDragging
   } else {
+    // 0a) KEYBOARD PAN (WASD + arrows), только если включено
     if (enableKeyboardPan) {
       const keySpeed = panSpeed * 1.2;
       if (keysPressed.has("KeyW")   || keysPressed.has("ArrowUp"))    cameraY += keySpeed * dtSec;
@@ -377,6 +376,7 @@ function update(dt) {
       if (keysPressed.has("KeyD")   || keysPressed.has("ArrowRight")) cameraX -= keySpeed * dtSec;
     }
 
+    // 0b) EDGE PAN with dead-zone and eased speed, только если включено
     if (enableEdgePan) {
       const dzX = w * 0.35;
       const dzY = h * 0.35;
@@ -386,26 +386,30 @@ function update(dt) {
         cursorY <  centerY - dzY ||
         cursorY >  centerY + dzY
       ) {
+        // direction vector from center to cursor
         let dx = (cursorX - centerX) / centerX;
         let dy = (cursorY - centerY) / centerY;
         const len = Math.hypot(dx, dy);
         if (len > 1) { dx /= len; dy /= len; }
 
+        // how far past dead-zone (0…1)
         let fx = 0, fy = 0;
         if (cursorX <  centerX - dzX) fx = ((centerX - dzX) - cursorX) / (centerX - dzX);
         else if (cursorX > centerX + dzX) fx = (cursorX - (centerX + dzX)) / (centerX - dzX);
         if (cursorY <  centerY - dzY) fy = ((centerY - dzY) - cursorY) / (centerY - dzY);
         else if (cursorY > centerY + dzY) fy = (cursorY - (centerY + dzY)) / (centerY - dzY);
 
-        const factor = Math.min(1, Math.max(fx, fy));
-        const speed  = panSpeed * (1 + factor);
+        const factor = Math.min(1, Math.max(fx, fy));     // 0…1
+        const speed  = panSpeed * (1 + factor);           // panSpeed…2×panSpeed
 
+        // invert so world moves with cursor
         cameraX -= dx * speed * dtSec;
         cameraY -= dy * speed * dtSec;
       }
     }
   }
 
+  // 2) Усиливающаяся тряска и уменьшение батареи
   const now     = performance.now();
   const elapsed = (now - gameStartTime) / 1000;
   Icon.shakeFactor = 1 + Math.min(elapsed / START_TIME, 1) * 2;
@@ -434,11 +438,13 @@ function update(dt) {
 function draw() {
   if (gameState !== "game") return;
 
-  const now = performance.now();
+  const now = performance.now(); // ❗ 1. Сразу наверх
+
   ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
-  drawCells(ctx, cameraX, cameraY, gameCanvas.width, gameCanvas.height, now);
+  drawCells(ctx, cameraX, cameraY, gameCanvas.width, gameCanvas.height, now); // ❗ 2. Передать
 
+  // Подсветка красным при промахах
   for (let i = missEvents.length - 1; i >= 0; i--) {
     const ev = missEvents[i];
     const ic = cells[ev.key];
@@ -446,32 +452,34 @@ function draw() {
       missEvents.splice(i, 1);
       continue;
     }
-    const pos = ic.screenPosition(cameraX, cameraY, now);
+    const pos = ic.screenPosition(cameraX, cameraY, now); // ❗ уже есть now
     const S = 30;
     ctx.save();
-    ctx.globalAlpha = 0.5 * (1 - (now - ev.time) / 1000);
-    ctx.fillStyle = "red";
-    ctx.fillRect(pos.x - S/2, pos.y - S/2, S, S);
+      ctx.globalAlpha = 0.5 * (1 - (now - ev.time) / 1000);
+      ctx.fillStyle = "red";
+      ctx.fillRect(pos.x - S/2, pos.y - S/2, S, S);
     ctx.restore();
   }
 
+  // Рисуем «фонарик»
   const w = gameCanvas.width, h = gameCanvas.height;
   ctx.save();
-  const grad = ctx.createRadialGradient(
-    cursorX, cursorY, 0,
-    cursorX, cursorY, spotlightRadius
-  );
-  grad.addColorStop(0, "rgba(0,0,0,0)");
-  grad.addColorStop(1, "rgba(0,0,0,1)");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, w, h);
+    const grad = ctx.createRadialGradient(
+      cursorX, cursorY, 0,
+      cursorX, cursorY, spotlightRadius
+    );
+    grad.addColorStop(0, "rgba(0,0,0,0)");
+    grad.addColorStop(1, "rgba(0,0,0,1)");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
   ctx.restore();
 
+  // Затемнение последних 20%
   if (batteryPercent <= 20) {
     const alpha = 1 - (batteryPercent / 20);
     ctx.save();
-    ctx.fillStyle = `rgba(0,0,0,${alpha})`;
-    ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = `rgba(0,0,0,${alpha})`;
+      ctx.fillRect(0, 0, w, h);
     ctx.restore();
   }
 }
@@ -479,17 +487,15 @@ function draw() {
 let last = performance.now();
 function loop() {
   const now = performance.now();
-  try {
-    update(now - last);
-    draw();
-  } catch (e) {
-    console.error("Error in loop:", e);
-  }
+  update(now - last);
+  draw();
   last = now;
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
 
+
+// — SHOW/HIDE UI —
 function updateUI() {
   const isGame = (gameState === "game");
   hud.style.display            = isGame ? "flex"   : "none";
@@ -519,9 +525,10 @@ function updateUI() {
     gameCanvas.style.display        = "block";
     gameOverOverlay.style.display   = "block";
     recordsContainer.style.display  = "none";
-    finalScore.textContent          = `Your score: ${scoreTotal} <img src="icons/key.svg" alt="Key" style="filter: invert(100%); vertical-align: middle; width: 24px; height: 24px;" />`;
+    finalScore.textContent          = `Your score: ${scoreTotal}`;
   }
 }
 
+// Инициализация
 updateUI();
-Icon._loadImages();
+Icon._loadImages(); // загружаем все иконки заранее, чтобы не было лагов при генерации
