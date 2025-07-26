@@ -13,7 +13,7 @@
       width: 100vw;
       height: 100vh;
       overflow: hidden;
-      background: #131110; /* Изменён фон на #131110 */
+      background: #131110; /* Тёмный фон */
       font-family: Arial, sans-serif;
       position: relative;
     }
@@ -55,7 +55,8 @@
       align-items: center;
       gap: 8px;
     }
-    #hud-left img {
+    #hud img { /* Применяем фильтр ко всем иконкам в HUD */
+      filter: invert(100%); /* Делаем иконки белыми */
       width: 32px;
       height: 32px;
     }
@@ -192,24 +193,38 @@
       margin-bottom: 10px;
     }
     .menuButton {
-      width: 220px;
-      padding: 18px;
-      font-size: 20px;
-      background: #7AC0D6;
-      color: #021013;
+      width: 250px; /* Увеличена ширина до 250px */
+      padding: 12px;
+      font-size: 18px;
+      background: linear-gradient(45deg, #ff7e5f, #feb47b);
+      color: #fff;
       border: none;
-      border-radius: 5px;
+      border-radius: 25px;
       cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 5px 15px rgba(255, 126, 95, 0.4);
+      text-align: center; /* Центрирование текста */
     }
+
     .menuButton:hover {
-      background: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(255, 126, 95, 0.6);
+      color: #000000;
     }
+
     .buyButton {
-      background: #b33838 !important;
-      color: #fff !important;
+      background: linear-gradient(45deg, #d32f2f, #f44336);
+      box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
     }
+
     .buyButton:hover {
-      background: #9f2f2f !important;
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(244, 67, 54, 0.6);
+    }
+
+    /* Убираем подчёркивание у ссылки */
+    #centerLeft a {
+      text-decoration: none;
     }
 
     /* -------------------------------------------------- */
@@ -251,7 +266,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      background: #131110; /* Изменён фон на #131110 */
+      background: #131110; /* Тёмный фон */
       color: #ffffff;
       z-index: 300;
       overflow: hidden;
@@ -271,7 +286,7 @@
       border-radius: 15px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
       animation: float 3s ease-in-out infinite;
-      margin-bottom: 40px; /* Increased bottom margin for larger offset */
+      margin-bottom: 40px;
     }
 
     @keyframes float {
@@ -340,41 +355,6 @@
       color: #e0e0e0;
     }
 
-    .menuButton {
-      width: 250px; /* Увеличена ширина до 250px для одинаковой длины */
-      padding: 12px;
-      font-size: 18px;
-      background: linear-gradient(45deg, #ff7e5f, #feb47b);
-      color: #fff;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      transition: transform 0.3s, box-shadow 0.3s;
-      box-shadow: 0 5px 15px rgba(255, 126, 95, 0.4);
-      text-align: center; /* Центрирование текста для равномерности */
-    }
-
-    .menuButton:hover {
-      transform: scale(1.05);
-      box-shadow: 0 8px 20px rgba(255, 126, 95, 0.6);
-      color: #000000; /* Black text on hover for Start Game and Records */
-    }
-
-    .buyButton {
-      background: linear-gradient(45deg, #d32f2f, #f44336);
-      box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
-    }
-
-    .buyButton:hover {
-      transform: scale(1.05);
-      box-shadow: 0 8px 20px rgba(244, 67, 54, 0.6);
-    }
-
-    /* Убираем подчёркивание у ссылки */
-    #centerLeft a {
-      text-decoration: none;
-    }
-
     /* -------------------------------------------------- */
     /*                      CANVAS                        */
     /* -------------------------------------------------- */
@@ -383,6 +363,7 @@
       top: 0; left: 0;
       width: 100vw; height: 100vh;
       display: none;
+      background: #131110; /* Тёмный фон для canvas */
     }
 
     /* -------------------------------------------------- */
@@ -476,13 +457,13 @@
     
     /* небольшая красная кнопка вверху меню */
     #inGameMenuOverlay .menuBox button.closeMenuButton {
-      display: block;             /* чтобы занимала всю строку */
-      width: 150px;               /* уже, чем остальные */
-      margin: 0 auto 15px;        /* по центру + отступ снизу */
-      padding: 6px 0;             /* меньше вертикальный padding */
-      font-size: 14px;            /* чуть меньше шрифт */
-      background: #b33838;        /* красный фон */
-      color: #fff;                /* белый текст */
+      display: block;
+      width: 150px;
+      margin: 0 auto 15px;
+      padding: 6px 0;
+      font-size: 14px;
+      background: #b33838;
+      color: #fff;
       border: none;
       border-radius: 4px;
       cursor: pointer;
@@ -493,10 +474,10 @@
 
     /* увеличиваем размер «птичек» */
     #inGameMenuOverlay .menuBox input[type="checkbox"] {
-      width: 20px;        /* ширина чекбокса */
-      height: 20px;       /* высота чекбокса */
+      width: 20px;
+      height: 20px;
       vertical-align: middle;
-      margin-right: 8px;  /* расстояние до текста */
+      margin-right: 8px;
     }
 
     /* увеличиваем размер шрифта меток */
@@ -605,11 +586,11 @@
         <a href="https://www.secretsociety.so/" target="_blank" class="menuButton buyButton">Secret Society Website</a>
       </div>
       <div id="centerRight">
-        <h3>Collect Keys = LMB</h3> <!-- Изменено с "Controls" -->
+        <h3>Collect Keys = LMB</h3>
         <p>
           <span class="highlight">Collect keys with LMB</span>: collect icon.
         </p>
-        <h3>Movement Settings</h3> <!-- Изменено с "Control Settings" -->
+        <h3>Movement Settings</h3>
         <label style="display:block; text-align:left;">
           <input type="checkbox" id="cbEdgePanMain" checked> Edge Pan
         </label>
