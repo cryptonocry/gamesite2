@@ -1,3 +1,4 @@
+// game.js
 import { Icon } from "./digit.js";
 
 export const CELL_SIZE  = 80;
