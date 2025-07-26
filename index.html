@@ -13,7 +13,7 @@
       width: 100vw;
       height: 100vh;
       overflow: hidden;
-      background: #100C18; /* Изменён фон на #100C18 */
+      background: #100C18;
       font-family: Arial, sans-serif;
       position: relative;
     }
@@ -26,21 +26,20 @@
       top: 10px;
       right: 10px;
       z-index: 1000;
-      padding: 20px 30px; /* Увеличено в два раза */
-      background: #FFFFFF; /* Белый цвет */
+      padding: 10px 15px; /* Возвращаем исходный размер */
+      background: linear-gradient(45deg, #ff7e5f, #feb47b); /* Градиент */
       border: none;
-      border-radius: 10px;
+      border-radius: 5px;
       cursor: pointer;
-      font-size: 18px; /* Увеличен размер текста */
+      color: #fff;
     }
     #fullscreenButton:hover {
-      background: #E0E0E0; /* Лёгкое затемнение при наведении */
+      background: linear-gradient(45deg, #ff9a7a, #ffcc99); /* Более светлый градиент при наведении */
       color: #000000;
     }
 
     /* -------------------------------------------------- */
     /*                        HUD                         */
-    /* (появляется только в игре — скрыт на главной)     */
     /* -------------------------------------------------- */
     #hud {
       position: absolute;
@@ -57,7 +56,7 @@
       gap: 8px;
     }
     #hud img {
-      filter: invert(100%); /* Делаем иконки белыми */
+      filter: invert(100%);
       width: 32px;
       height: 32px;
     }
@@ -117,17 +116,16 @@
       top: 10px;
       right: 10px;
       z-index: 950;
-      padding: 16px 24px; /* Увеличено в два раза */
-      background: #FFFFFF; /* Белый цвет */
-      color: #000000;
+      padding: 8px 12px; /* Возвращаем исходный размер */
+      background: linear-gradient(45deg, #ff7e5f, #feb47b); /* Градиент */
+      color: #fff;
       border: none;
-      border-radius: 8px;
+      border-radius: 4px;
       cursor: pointer;
       display: none;
-      font-size: 20px; /* Увеличен размер текста */
     }
     #gameMenuButton:hover {
-      background: #E0E0E0; /* Лёгкое затемнение при наведении */
+      background: linear-gradient(45deg, #ff9a7a, #ffcc99); /* Более светлый градиент */
       color: #000000;
     }
 
@@ -145,26 +143,26 @@
       justify-content: center;
     }
     #inGameMenuOverlay .menuBox {
-      background: #000000; /* Чёрный фон */
+      background: #000000;
       padding: 20px;
-      border: 5px solid #FFFFFF; /* Толстая белая обводка */
+      border: 5px solid #FFFFFF;
       border-radius: 10px;
       text-align: center;
-      color: #FFFFFF; /* Белый текст */
+      color: #FFFFFF;
     }
     #inGameMenuOverlay .menuBox button {
       width: 200px;
       margin: 10px 0;
       padding: 12px;
       font-size: 18px;
-      background: #FFFFFF; /* Белый цвет вместо бирюзового */
-      color: #000000;
+      background: linear-gradient(45deg, #ff7e5f, #feb47b); /* Градиент */
+      color: #fff;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
     #inGameMenuOverlay .menuBox button:hover {
-      background: #E0E0E0; /* Лёгкое затемнение при наведении */
+      background: linear-gradient(45deg, #ff9a7a, #ffcc99); /* Более светлый градиент */
     }
 
     /* -------------------------------------------------- */
@@ -184,7 +182,7 @@
       background: #021013;
       padding: 20px;
       border-radius: 10px;
-      color: #FFFFFF; /* Белый текст вместо бирюзового */
+      color: #FFFFFF;
       text-align: center;
       width: 300px;
     }
@@ -198,30 +196,41 @@
       width: 250px;
       padding: 12px;
       font-size: 18px;
-      background: #FFFFFF; /* Белый цвет вместо градиента */
-      color: #000000;
+      background: linear-gradient(45deg, #4CAF50, #81C784); /* Зелёный градиент для OK/Cancel */
+      color: #fff;
       border: none;
       border-radius: 25px;
       cursor: pointer;
       transition: transform 0.3s, box-shadow 0.3s;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
       text-align: center;
+      margin: 5px 0; /* Отступы между кнопками */
     }
 
     .menuButton:hover {
       transform: scale(1.05);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 8px 20px rgba(76, 175, 80, 0.6);
       color: #000000;
     }
 
     .buyButton {
-      background: #FFFFFF; /* Белый цвет вместо градиента */
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+      width: 250px;
+      padding: 12px;
+      font-size: 18px;
+      background: linear-gradient(45deg, #D32F2F, #F44336); /* Красный градиент для Play without wallet */
+      color: #fff;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 5px 15px rgba(211, 47, 47, 0.4);
+      text-align: center;
+      margin: 5px 0; /* Отступы */
     }
 
     .buyButton:hover {
       transform: scale(1.05);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 8px 20px rgba(211, 47, 47, 0.6);
     }
 
     #centerLeft a {
@@ -241,12 +250,12 @@
       justify-content: center;
     }
     #summaryOverlay .overlayContent {
-      background: #000000; /* Чёрный фон */
+      background: #000000;
       padding: 20px;
-      border: 5px solid #FFFFFF; /* Толстая белая обводка */
+      border: 5px solid #FFFFFF;
       border-radius: 10px;
       text-align: center;
-      color: #FFFFFF; /* Белый текст */
+      color: #FFFFFF;
     }
     #summaryOverlay .overlayContent h2 {
       margin: 0 0 10px;
@@ -354,7 +363,7 @@
 
     #centerRight p {
       margin-bottom: 15px;
-      color: #FFFFFF; /* Белый текст */
+      color: #FFFFFF;
     }
 
     /* -------------------------------------------------- */
@@ -378,7 +387,7 @@
       background: rgba(0,0,0,0.75);
       display: none;
       z-index: 600;
-      color: #FFFFFF; /* Белый текст */
+      color: #FFFFFF;
     }
     #gameOverContent {
       position: absolute;
@@ -398,14 +407,14 @@
       margin: 10px;
       padding: 10px 20px;
       font-size: 18px;
-      background: #FFFFFF; /* Белый цвет */
-      color: #000000;
+      background: linear-gradient(45deg, #ff7e5f, #feb47b); /* Градиент */
+      color: #fff;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
     .goButton:hover {
-      background: #E0E0E0; /* Лёгкое затемнение */
+      background: linear-gradient(45deg, #ff9a7a, #ffcc99); /* Более светлый градиент */
     }
 
     /* -------------------------------------------------- */
@@ -418,16 +427,16 @@
       background: rgba(0,0,0,0.9);
       display: none;
       z-index: 600;
-      color: #FFFFFF; /* Белый текст */
+      color: #FFFFFF;
     }
     #recordsContent {
       position: absolute;
       top: 5%; left: 50%;
       transform: translateX(-50%);
       width: 90%; max-height: 90%;
-      background: #000000; /* Чёрный фон */
+      background: #000000;
       padding: 20px;
-      border: 5px solid #FFFFFF; /* Толстая белая обводка */
+      border: 5px solid #FFFFFF;
       border-radius: 10px;
       overflow-y: auto;
     }
@@ -438,24 +447,24 @@
     }
     #recordsContent th, #recordsContent td {
       padding: 8px;
-      border: 1px solid #FFFFFF; /* Белая граница */
+      border: 1px solid #FFFFFF;
       text-align: left;
     }
     #recordsContent th {
-      background: #FFFFFF; /* Белый фон заголовков */
+      background: linear-gradient(45deg, #ff7e5f, #feb47b); /* Градиент */
       color: #000000;
     }
     #recordsContent button {
       padding: 8px 16px;
       font-size: 16px;
-      background: #FFFFFF; /* Белый цвет */
-      color: #000000;
+      background: linear-gradient(45deg, #ff7e5f, #feb47b); /* Градиент */
+      color: #fff;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
     #recordsContent button:hover {
-      background: #E0E0E0; /* Лёгкое затемнение */
+      background: linear-gradient(45deg, #ff9a7a, #ffcc99); /* Более светлый градиент */
     }
     
     #inGameMenuOverlay .menuBox button.closeMenuButton {
@@ -549,12 +558,10 @@
       <h2>Enter your wallet</h2>
       <input id="walletInput" type="text" placeholder="62 chars lowercase [a-z0-9]" maxlength="62" />
       <div style="margin-top:10px;">
-        <button id="loginOkButton" class="menuButton">OK</button>
-        <button id="loginCancelButton" class="menuButton">Cancel</button>
+        <button id="loginOkButton" class="menuButton" style="margin-bottom: 10px;">OK</button><br/>
+        <button id="loginCancelButton" class="menuButton" style="margin-bottom: 10px;">Cancel</button><br/>
+        <button id="playWithoutWalletButton" class="menuButton buyButton">Play without wallet</button>
       </div>
-      <button id="playWithoutWalletButton" class="menuButton buyButton">
-        Play without wallet
-      </button>
     </div>
   </div>
 
@@ -566,7 +573,7 @@
         You have <strong><span id="refCount">0</span></strong> referrals
         — +<strong><span id="timeBonus">0</span></strong>% bonus
       </p>
-      <button id="btnPlayNow" class="menuButton" style="background:#FFFFFF;">
+      <button id="btnPlayNow" class="menuButton" style="background: linear-gradient(45deg, #ff7e5f, #feb47b);">
         PLAY
       </button>
     </div>
@@ -582,7 +589,7 @@
       <div id="centerLeft">
         <button id="btnStart" class="menuButton">Start Game</button>
         <button id="btnRecords" class="menuButton">Records</button>
-        <a href="https://www.secretsociety.so/" target="_blank" class="menuButton buyButton">Secret Society Website</a>
+        <a href="https://www.secretsociety.so/" target="_blank" class="menuButton buyButton" style="width: 300px;">Secret Society Website</a>
       </div>
       <div id="centerRight">
         <h3>Collect Keys</h3>
