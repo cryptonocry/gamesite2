@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>ICON HUNT Game</title>
+  <title>Secret Society: Key Quest</title>
   <style>
     /* -------------------------------------------------- */
     /*                      ОБЩИЕ СТИЛИ                  */
@@ -13,7 +13,7 @@
       width: 100vw;
       height: 100vh;
       overflow: hidden;
-      background: #f5e9d4;
+      background: #100C18;
       font-family: Arial, sans-serif;
       position: relative;
     }
@@ -27,19 +27,19 @@
       right: 10px;
       z-index: 1000;
       padding: 10px 15px;
-      background: #7AC0D6;
+      background: linear-gradient(45deg, #ff7e5f, #feb47b);
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      color: #fff;
     }
     #fullscreenButton:hover {
-      background: #fff;
-      color: #021013;
+      background: linear-gradient(45deg, #ff9a7a, #ffcc99);
+      color: #000000;
     }
 
     /* -------------------------------------------------- */
     /*                        HUD                         */
-    /* (появляется только в игре — скрыт на главной)     */
     /* -------------------------------------------------- */
     #hud {
       position: absolute;
@@ -55,7 +55,8 @@
       align-items: center;
       gap: 8px;
     }
-    #hud-left img {
+    #hud img {
+      filter: invert(100%);
       width: 32px;
       height: 32px;
     }
@@ -71,7 +72,6 @@
       flex-direction: column;
       align-items: center;
     }
-    /* группа батарейка + процент в одну строку */
     #batteryGroup {
       display: flex;
       align-items: center;
@@ -81,7 +81,7 @@
       width: 32px;
       height: 32px;
       transition: opacity 0.2s ease;
-      filter: invert(100%); /* Добавляем инверсию для белого цвета */
+      filter: invert(100%); /* Добавляем инверсию для иконок батареи */
     }
     #batteryGroup span {
       font-size: 24px;
@@ -89,7 +89,6 @@
       text-shadow: 0 0 4px rgba(0,0,0,0.7);
     }
 
-    /* “+10” под батареей */
     #plusText {
       position: absolute;
       top: 100%;
@@ -115,10 +114,11 @@
     /* -------------------------------------------------- */
     #gameMenuButton {
       position: absolute;
-      top: 10px; right: 10px;
+      top: 10px;
+      right: 10px;
       z-index: 950;
       padding: 8px 12px;
-      background: rgba(0,0,0,0.6);
+      background: linear-gradient(45deg, #ff7e5f, #feb47b);
       color: #fff;
       border: none;
       border-radius: 4px;
@@ -126,7 +126,8 @@
       display: none;
     }
     #gameMenuButton:hover {
-      background: rgba(0,0,0,0.8);
+      background: linear-gradient(45deg, #ff9a7a, #ffcc99);
+      color: #000000;
     }
 
     /* -------------------------------------------------- */
@@ -143,25 +144,26 @@
       justify-content: center;
     }
     #inGameMenuOverlay .menuBox {
-      background: #f5e9d4;
+      background: #000000;
       padding: 20px;
+      border: 5px solid #FFFFFF;
       border-radius: 10px;
       text-align: center;
-      color: #33484f;
+      color: #FFFFFF;
     }
     #inGameMenuOverlay .menuBox button {
       width: 200px;
       margin: 10px 0;
       padding: 12px;
       font-size: 18px;
-      background: #7AC0D6;
-      color: #021013;
+      background: linear-gradient(45deg, #ff7e5f, #feb47b);
+      color: #fff;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
     #inGameMenuOverlay .menuBox button:hover {
-      background: #fff;
+      background: linear-gradient(45deg, #ff9a7a, #ffcc99);
     }
 
     /* -------------------------------------------------- */
@@ -181,7 +183,7 @@
       background: #021013;
       padding: 20px;
       border-radius: 10px;
-      color: #7AC0D6;
+      color: #FFFFFF;
       text-align: center;
       width: 300px;
     }
@@ -192,24 +194,48 @@
       margin-bottom: 10px;
     }
     .menuButton {
-      width: 220px;
-      padding: 18px;
-      font-size: 20px;
-      background: #7AC0D6;
-      color: #021013;
+      width: 250px;
+      padding: 12px;
+      font-size: 18px;
+      background: linear-gradient(45deg, #4CAF50, #81C784);
+      color: #fff;
       border: none;
-      border-radius: 5px;
+      border-radius: 25px;
       cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+      text-align: center;
+      margin: 5px 0;
     }
+
     .menuButton:hover {
-      background: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(76, 175, 80, 0.6);
+      color: #000000;
     }
+
     .buyButton {
-      background: #b33838 !important;
-      color: #fff !important;
+      width: 250px;
+      padding: 12px;
+      font-size: 18px;
+      background: linear-gradient(45deg, #D32F2F, #F44336);
+      color: #fff;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 5px 15px rgba(211, 47, 47, 0.4);
+      text-align: center;
+      margin: 5px 0;
     }
+
     .buyButton:hover {
-      background: #9f2f2f !important;
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(211, 47, 47, 0.6);
+    }
+
+    #centerLeft a {
+      text-decoration: none;
     }
 
     /* -------------------------------------------------- */
@@ -225,11 +251,12 @@
       justify-content: center;
     }
     #summaryOverlay .overlayContent {
-      background: #f5e9d4;
+      background: #000000;
       padding: 20px;
+      border: 5px solid #FFFFFF;
       border-radius: 10px;
       text-align: center;
-      color: #33484f;
+      color: #FFFFFF;
     }
     #summaryOverlay .overlayContent h2 {
       margin: 0 0 10px;
@@ -243,54 +270,101 @@
     /* -------------------------------------------------- */
     #menuContainer {
       position: absolute;
-      top: 80px; left: 0;
-      width: 100%; height: calc(100% - 80px);
-      display: none;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
       flex-direction: column;
-      background: #f5e9d4;
-      color: #33484f;
+      justify-content: center;
+      align-items: center;
+      background: #100C18;
+      color: #FFFFFF;
       z-index: 300;
+      overflow: hidden;
+      padding: 20px;
+      animation: fadeIn 1s ease-in-out;
     }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
     #topSection {
       text-align: center;
-      padding: 30px 0;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      animation: float 3s ease-in-out infinite;
+      margin-bottom: 40px;
     }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
     #topSection h1 {
-      font-size: 56px;
+      font-size: 48px;
+      font-weight: 700;
       margin: 0;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      color: #ffcc00;
     }
+
     #topSection p {
-      font-size: 22px;
-      margin: 6px 0 0;
+      font-size: 18px;
+      margin: 10px 0 0;
+      opacity: 0.9;
     }
+
+    #topSection img,
+    #centerRight img {
+      vertical-align: middle;
+      width: 24px;
+      height: 24px;
+      margin: 0 5px;
+      filter: invert(100%);
+    }
+
     #centerSection {
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 70px;
-      padding: 20px;
+      gap: 40px;
+      margin-top: 20px;
     }
+
     #centerLeft {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 15px;
     }
+
     #centerRight {
       max-width: 30em;
-      font-size: 20px;
-      line-height: 1.4;
+      font-size: 16px;
+      line-height: 1.6;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(5px);
     }
+
     #centerRight h3 {
       margin-top: 0;
       margin-bottom: 10px;
-      font-size: 24px;
+      font-size: 20px;
+      color: #ffcc00;
+      text-transform: uppercase;
     }
+
     #centerRight p {
       margin-bottom: 15px;
-    }
-    .highlight {
-      color: #b33838;
-      font-weight: bold;
+      color: #FFFFFF;
     }
 
     /* -------------------------------------------------- */
@@ -301,6 +375,7 @@
       top: 0; left: 0;
       width: 100vw; height: 100vh;
       display: none;
+      background: #100C18;
     }
 
     /* -------------------------------------------------- */
@@ -313,7 +388,7 @@
       background: rgba(0,0,0,0.75);
       display: none;
       z-index: 600;
-      color: #7AC0D6;
+      color: #FFFFFF;
     }
     #gameOverContent {
       position: absolute;
@@ -333,14 +408,14 @@
       margin: 10px;
       padding: 10px 20px;
       font-size: 18px;
-      background: #7AC0D6;
-      color: #021013;
+      background: linear-gradient(45deg, #ff7e5f, #feb47b);
+      color: #fff;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
     .goButton:hover {
-      background: #fff;
+      background: linear-gradient(45deg, #ff9a7a, #ffcc99);
     }
 
     /* -------------------------------------------------- */
@@ -353,15 +428,16 @@
       background: rgba(0,0,0,0.9);
       display: none;
       z-index: 600;
-      color: #7AC0D6;
+      color: #FFFFFF;
     }
     #recordsContent {
       position: absolute;
       top: 5%; left: 50%;
       transform: translateX(-50%);
       width: 90%; max-height: 90%;
-      background: #f5e9d4;
+      background: #000000;
       padding: 20px;
+      border: 5px solid #FFFFFF;
       border-radius: 10px;
       overflow-y: auto;
     }
@@ -372,27 +448,26 @@
     }
     #recordsContent th, #recordsContent td {
       padding: 8px;
-      border: 1px solid #33484f;
+      border: 1px solid #FFFFFF;
       text-align: left;
     }
     #recordsContent th {
-      background: #7AC0D6;
-      color: #021013;
+      background: linear-gradient(45deg, #ff7e5f, #feb47b);
+      color: #000000;
     }
     #recordsContent button {
       padding: 8px 16px;
       font-size: 16px;
-      background: #7AC0D6;
-      color: #021013;
+      background: linear-gradient(45deg, #ff7e5f, #feb47b);
+      color: #fff;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
     #recordsContent button:hover {
-      background: #fff;
+      background: linear-gradient(45deg, #ff9a7a, #ffcc99);
     }
     
-    /* небольшая красная кнопка вверху меню */
     #inGameMenuOverlay .menuBox button.closeMenuButton {
       display: block;
       width: 150px;
@@ -409,7 +484,6 @@
       background: #912a2a;
     }
 
-    /* увеличиваем размер «птичек» */
     #inGameMenuOverlay .menuBox input[type="checkbox"] {
       width: 20px;
       height: 20px;
@@ -417,7 +491,6 @@
       margin-right: 8px;
     }
 
-    /* увеличиваем размер шрифта меток */
     #inGameMenuOverlay .menuBox label {
       font-size: 18px;
       line-height: 1.4;
@@ -426,19 +499,8 @@
       margin-bottom: 8px;
     }
     
-    /* 1) Сделать иконку ключа белой */
     #keyIconHUD {
       filter: invert(100%);
-    }
-
-    /* 2) Сделать фон кнопки MENU белым */
-    #gameMenuButton {
-      background: #fff !important;
-      color: #021013 !important;
-    }
-    #gameMenuButton:hover {
-      background: rgba(255,255,255,0.8) !important;
-      color: #021013 !important;
     }
   </style>
 </head>
@@ -455,7 +517,7 @@
     </div>
     <div id="hud-center">
       <div id="batteryGroup">
-        <img id="batteryIcon" src="icons/per100.svg" alt="Battery" />
+        <img id="batteryIcon" src="icons/per100.svg?v=1" alt="Battery" />
         <span id="batteryPercent">100%</span>
       </div>
       <span id="plusText">+10</span>
@@ -497,12 +559,10 @@
       <h2>Enter your wallet</h2>
       <input id="walletInput" type="text" placeholder="62 chars lowercase [a-z0-9]" maxlength="62" />
       <div style="margin-top:10px;">
-        <button id="loginOkButton" class="menuButton">OK</button>
-        <button id="loginCancelButton" class="menuButton">Cancel</button>
+        <button id="loginOkButton" class="menuButton" style="margin-bottom: 10px;">OK</button><br/>
+        <button id="loginCancelButton" class="menuButton" style="margin-bottom: 10px;">Cancel</button><br/>
+        <button id="playWithoutWalletButton" class="menuButton buyButton">Play without wallet</button>
       </div>
-      <button id="playWithoutWalletButton" class="menuButton buyButton">
-        Play without wallet
-      </button>
     </div>
   </div>
 
@@ -514,7 +574,7 @@
         You have <strong><span id="refCount">0</span></strong> referrals
         — +<strong><span id="timeBonus">0</span></strong>% bonus
       </p>
-      <button id="btnPlayNow" class="menuButton" style="background:#4CAF50;">
+      <button id="btnPlayNow" class="menuButton" style="background: linear-gradient(45deg, #ff7e5f, #feb47b);">
         PLAY
       </button>
     </div>
@@ -523,26 +583,30 @@
   <!-- MAIN MENU -->
   <div id="menuContainer">
     <div id="topSection">
-      <h1>ICON HUNT</h1>
-      <p>Collect keys and clocks—and keep your flashlight powered!</p>
+      <h1>Secret Society: Key Quest</h1>
+      <p>Collect <img src="icons/key.svg" alt="Key" /> keys and <img src="icons/clock.svg" alt="Clock" /> clocks—and keep your flashlight powered!</p>
     </div>
     <div id="centerSection">
       <div id="centerLeft">
         <button id="btnStart" class="menuButton">Start Game</button>
         <button id="btnRecords" class="menuButton">Records</button>
-        <button id="btnBuy" class="menuButton buyButton">BUY TOKEN</button>
+        <a href="https://www.secretsociety.so/" target="_blank" class="menuButton buyButton" style="width: 300px;">Secret Society Website</a>
       </div>
       <div id="centerRight">
-        <h3>Objective</h3>
+        <h3>Collect Keys</h3>
         <p>
-          Find as many <strong>keys</strong> (+1 each) and
-          <strong>clocks</strong> (+10%) as you can before your flashlight dies.
+          Collect keys
         </p>
-        <h3>Controls</h3>
-        <p>
-          <span class="highlight">Left-click</span>: collect icon.<br/>
-          <span class="highlight">Right-click + drag</span>: move camera.
-        </p>
+        <h3>Movement Settings</h3>
+        <label style="display:block; text-align:left;">
+          <input type="checkbox" id="cbEdgePanMain" checked> Edge Pan
+        </label>
+        <label style="display:block; text-align:left;">
+          <input type="checkbox" id="cbKeyboardPanMain" checked> Keyboard Pan (WASD/Arrows)
+        </label>
+        <label style="display:block; text-align:left;">
+          <input type="checkbox" id="cbRightDragPanMain" checked> Right Drag Pan
+        </label>
       </div>
     </div>
   </div>
@@ -554,7 +618,7 @@
   <div id="gameOverOverlay">
     <div id="gameOverContent">
       <h1>Time’s up!</h1>
-      <p id="finalScore">Your score: 0</p>
+      <p id="finalScore">Your score: 0 <img src="icons/key.svg" alt="Key" style="filter: invert(100%); vertical-align: middle; width: 24px; height: 24px;" /></p>
       <button id="btnMenu" class="goButton">MENU</button>
       <button id="btnRestart" class="goButton">RESTART</button>
     </div>
