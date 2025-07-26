@@ -103,8 +103,8 @@ const closeRecordsButton    = document.getElementById("closeRecordsButton");
 // Game state
 let gameState      = "menu";
 let currentPlayer  = null;
-const START_TIME   = 50;    // продолжительность игры в секундах
-let batteryPercent = 100;   // таймер в процентах
+const START_TIME   = 50;
+let batteryPercent = 100;
 let scoreTotal     = 0;
 let cameraX = 0, cameraY = 0;
 let missEvents = [];
@@ -429,7 +429,6 @@ function draw() {
   if (gameState !== "game") return;
 
   const now = performance.now();
-
   ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
   drawCells(ctx, cameraX, cameraY, gameCanvas.width, gameCanvas.height, now);
@@ -441,7 +440,7 @@ function draw() {
       missEvents.splice(i, 1);
       continue;
     }
-    const pos = ic.screenPosition(cameraX, camY, now);
+    const pos = ic.screenPosition(cameraX, cameraY, now);
     const S = 30;
     ctx.save();
     ctx.globalAlpha = 0.5 * (1 - (now - ev.time) / 1000);
@@ -474,8 +473,12 @@ function draw() {
 let last = performance.now();
 function loop() {
   const now = performance.now();
-  update(now - last);
-  draw();
+  try {
+    update(now - last);
+    draw();
+  } catch (e) {
+    console.error("Error in loop:", e);
+  }
   last = now;
   requestAnimationFrame(loop);
 }
