@@ -117,15 +117,16 @@
       top: 10px; right: 10px;
       z-index: 950;
       padding: 8px 12px;
-      background: rgba(0,0,0,0.6);
-      color: #fff;
+      background: #fff;
+      color: #021013;
       border: none;
       border-radius: 4px;
       cursor: pointer;
       display: none;
     }
     #gameMenuButton:hover {
-      background: rgba(0,0,0,0.8);
+      background: rgba(255,255,255,0.8);
+      color: #021013;
     }
 
     /* -------------------------------------------------- */
@@ -505,16 +506,6 @@
     #keyIconHUD {
       filter: invert(100%);
     }
-
-    /* 2) Сделать фон кнопки MENU белым */
-    #gameMenuButton {
-      background: #fff !important;
-      color: #021013 !important;
-    }
-    #gameMenuButton:hover {
-      background: rgba(255,255,255,0.8) !important;
-      color: #021013 !important;
-    }
   </style>
 </head>
 <body>
@@ -549,7 +540,6 @@
       <button id="btnRestartIG">RESTART</button><br/>
       <button id="btnMainIG">MAIN PAGE</button>
       
-      <!-- вот эти строки нужно добавить сразу после трёх кнопок: -->
       <hr style="margin:20px 0;"/>
       <h3 style="margin-bottom:10px;">Настройки управления</h3>
       <label style="display:block; text-align:left;">
@@ -564,7 +554,6 @@
         <input type="checkbox" id="cbRightDragPan" checked>
         Перетаскивание ПКМ
       </label>
-      <!-- конец добавления -->
     </div>
   </div>
 
@@ -622,13 +611,13 @@
         </p>
         <h3>Control Settings</h3>
         <label style="display:block; text-align:left;">
-          <input type="checkbox" id="cbEdgePan" checked> Edge Pan
+          <input type="checkbox" id="cbEdgePanMain" checked> Edge Pan
         </label>
         <label style="display:block; text-align:left;">
-          <input type="checkbox" id="cbKeyboardPan" checked> Keyboard Pan (WASD/Arrows)
+          <input type="checkbox" id="cbKeyboardPanMain" checked> Keyboard Pan (WASD/Arrows)
         </label>
         <label style="display:block; text-align:left;">
-          <input type="checkbox" id="cbRightDragPan" checked> Right Drag Pan
+          <input type="checkbox" id="cbRightDragPanMain" checked> Right Drag Pan
         </label>
       </div>
     </div>
