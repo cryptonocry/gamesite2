@@ -42,25 +42,32 @@ let enableRightDragPan = true;
 const cbEdgePan      = document.getElementById("cbEdgePan");
 const cbKeyboardPan  = document.getElementById("cbKeyboardPan");
 const cbRightDragPan = document.getElementById("cbRightDragPan");
-const cbEdgePanMain  = document.getElementById("cbEdgePan");
+const cbEdgePanMain  = document.getElementById("cbEdgePan"); // Same IDs for now
 const cbKeyboardPanMain  = document.getElementById("cbKeyboardPan");
 const cbRightDragPanMain = document.getElementById("cbRightDragPan");
 
-cbEdgePan.addEventListener("change",    () => { enableEdgePan      = cbEdgePan.checked; cbEdgePanMain.checked = enableEdgePan; });
-cbKeyboardPan.addEventListener("change",() => { enableKeyboardPan  = cbKeyboardPan.checked; cbKeyboardPanMain.checked = enableKeyboardPan; });
-cbRightDragPan.addEventListener("change",() => { enableRightDragPan = cbRightDragPan.checked; cbRightDragPanMain.checked = enableRightDragPan; });
-cbEdgePanMain.addEventListener("change",    () => { enableEdgePan      = cbEdgePanMain.checked; cbEdgePan.checked = enableEdgePan; });
-cbKeyboardPanMain.addEventListener("change",() => { enableKeyboardPan  = cbKeyboardPanMain.checked; cbKeyboardPan.checked = enableKeyboardPan; });
-cbRightDragPanMain.addEventListener("change",() => { enableRightDragPan = cbRightDragPanMain.checked; cbRightDragPan.checked = enableRightDragPan; });
+cbEdgePan.addEventListener("change",    () => { enableEdgePan      = cbEdgePan.checked; });
+cbKeyboardPan.addEventListener("change",() => { enableKeyboardPan  = cbKeyboardPan.checked; });
+cbRightDragPan.addEventListener("change",() => { enableRightDragPan = cbRightDragPan.checked; });
+cbEdgePanMain.addEventListener("change",    () => { enableEdgePan      = cbEdgePanMain.checked; });
+cbKeyboardPanMain.addEventListener("change",() => { enableKeyboardPan  = cbKeyboardPanMain.checked; });
+cbRightDragPanMain.addEventListener("change",() => { enableRightDragPan = cbRightDragPanMain.checked; });
 
-// Initialize settings at game start
+// Initialize settings from in-game menu at game start
 function initializeSettings() {
-  enableEdgePan      = cbEdgePanMain.checked;
-  enableKeyboardPan  = cbKeyboardPanMain.checked;
-  enableRightDragPan = cbRightDragPanMain.checked;
-  cbEdgePan.checked      = enableEdgePan;
-  cbKeyboardPan.checked  = enableKeyboardPan;
-  cbRightDragPan.checked = enableRightDragPan;
+  enableEdgePan      = cbEdgePan.checked;
+  enableKeyboardPan  = cbKeyboardPan.checked;
+  enableRightDragPan = cbRightDragPan.checked;
+  cbEdgePanMain.checked      = enableEdgePan; // Sync main menu
+  cbKeyboardPanMain.checked  = enableKeyboardPan;
+  cbRightDragPanMain.checked = enableRightDragPan;
+}
+
+// Sync main menu settings when returning to menu
+function syncMainMenuSettings() {
+  cbEdgePanMain.checked      = enableEdgePan;
+  cbKeyboardPanMain.checked  = enableKeyboardPan;
+  cbRightDragPanMain.checked = enableRightDragPan;
 }
 
 // Login & overlays
@@ -196,6 +203,7 @@ btnMainIG.addEventListener("click", () => {
   inGameMenuOverlay.style.display = "none";
   gameState = "menu";
   updateUI();
+  syncMainMenuSettings(); // Sync settings when returning to menu
 });
 
 // — GAME OVER buttons —
@@ -208,6 +216,7 @@ btnMenuOver.addEventListener("click", () => {
   }
   gameState = "menu";
   updateUI();
+  syncMainMenuSettings(); // Sync settings when returning to menu
 });
 btnRestartOver.addEventListener("click", () => {
   // Музыка будет остановлена в startGame, так как она уже там обрабатывается
@@ -263,6 +272,7 @@ closeRecordsButton.addEventListener("click", () => {
   recordsContainer.style.display = "none";
   gameState = "menu";
   updateUI();
+  syncMainMenuSettings(); // Sync settings when closing records
 });
 
 // — CANVAS RESIZE —
@@ -350,7 +360,7 @@ function startGame(bonus = 0) {
   cameraX = cameraY = 0;
   gameStartTime = performance.now();
 
-  // Initialize settings
+  // Initialize settings from in-game menu
   initializeSettings();
 
   // Запускаем фоновую музыку
@@ -547,3 +557,34 @@ function updateUI() {
 // Инициализация
 updateUI();
 Icon._loadImages(); // загружаем все иконки заранее, чтобы не было лагов при генерации
+
+// Save settings to localStorage when changed
+function saveSettings() {
+  localStorage.setItem("enableEdgePan", enableEdgePan);
+  localStorage.setItem("enableKeyboardPan", enableKeyboardPan);
+  localStorage.setItem("enableRightDragPan", enableRightDragPan);
+}
+
+// Load settings from localStorage on init
+function loadSettings() {
+  enableEdgePan      = localStorage.getItem("enableEdgePan") === "true" || true;
+  enableKeyboardPan  = localStorage.getItem("enableKeyboardPan") === "true" || true;
+  enableRightDragPan = localStorage.getItem("enableRightDragPan") === "true" || true;
+  cbEdgePan.checked      = enableEdgePan;
+  cbKeyboardPan.checked  = enableKeyboardPan;
+  cbRightDragPan.checked = enableRightDragPan;
+  cbEdgePanMain.checked      = enableEdgePan;
+  cbKeyboardPanMain.checked  = enableKeyboardPan;
+  cbRightDragPanMain.checked = enableRightDragPan;
+}
+
+// Update listeners to save settings
+cbEdgePan.addEventListener("change",    () => { enableEdgePan      = cbEdgePan.checked; saveSettings(); });
+cbKeyboardPan.addEventListener("change",() => { enableKeyboardPan  = cbKeyboardPan.checked; saveSettings(); });
+cbRightDragPan.addEventListener("change",() => { enableRightDragPan = cbRightDragPan.checked; saveSettings(); });
+cbEdgePanMain.addEventListener("change",    () => { enableEdgePan      = cbEdgePanMain.checked; saveSettings(); });
+cbKeyboardPanMain.addEventListener("change",() => { enableKeyboardPan  = cbKeyboardPanMain.checked; saveSettings(); });
+cbRightDragPanMain.addEventListener("change",() => { enableRightDragPan = cbRightDragPanMain.checked; saveSettings(); });
+
+// Initialize with loaded settings
+loadSettings();
