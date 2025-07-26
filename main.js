@@ -28,7 +28,7 @@ const inGameMenuOverlay = document.getElementById("inGameMenuOverlay");
 const btnFullscreenIG   = document.getElementById("btnFullscreenIG");
 const btnRestartIG      = document.getElementById("btnRestartIG");
 const btnMainIG         = document.getElementById("btnMainIG");
-const btnCloseMenu = document.getElementById("btnCloseMenu");
+const btnCloseMenu      = document.getElementById("btnCloseMenu");
 btnCloseMenu.addEventListener("click", () => {
   inGameMenuOverlay.style.display = "none";
 });
@@ -38,14 +38,30 @@ let enableEdgePan      = true;
 let enableKeyboardPan  = true;
 let enableRightDragPan = true;
 
-// Найдём чекбоксы, повесим на них слушатели
+// Найдём чекбоксы для in-game и main menu, повесим на них слушатели
 const cbEdgePan      = document.getElementById("cbEdgePan");
 const cbKeyboardPan  = document.getElementById("cbKeyboardPan");
 const cbRightDragPan = document.getElementById("cbRightDragPan");
+const cbEdgePanMain  = document.getElementById("cbEdgePan");
+const cbKeyboardPanMain  = document.getElementById("cbKeyboardPan");
+const cbRightDragPanMain = document.getElementById("cbRightDragPan");
 
-cbEdgePan.addEventListener("change",    () => enableEdgePan      = cbEdgePan.checked);
-cbKeyboardPan.addEventListener("change",() => enableKeyboardPan  = cbKeyboardPan.checked);
-cbRightDragPan.addEventListener("change",() => enableRightDragPan = cbRightDragPan.checked);
+cbEdgePan.addEventListener("change",    () => { enableEdgePan      = cbEdgePan.checked; cbEdgePanMain.checked = enableEdgePan; });
+cbKeyboardPan.addEventListener("change",() => { enableKeyboardPan  = cbKeyboardPan.checked; cbKeyboardPanMain.checked = enableKeyboardPan; });
+cbRightDragPan.addEventListener("change",() => { enableRightDragPan = cbRightDragPan.checked; cbRightDragPanMain.checked = enableRightDragPan; });
+cbEdgePanMain.addEventListener("change",    () => { enableEdgePan      = cbEdgePanMain.checked; cbEdgePan.checked = enableEdgePan; });
+cbKeyboardPanMain.addEventListener("change",() => { enableKeyboardPan  = cbKeyboardPanMain.checked; cbKeyboardPan.checked = enableKeyboardPan; });
+cbRightDragPanMain.addEventListener("change",() => { enableRightDragPan = cbRightDragPanMain.checked; cbRightDragPan.checked = enableRightDragPan; });
+
+// Initialize settings at game start
+function initializeSettings() {
+  enableEdgePan      = cbEdgePanMain.checked;
+  enableKeyboardPan  = cbKeyboardPanMain.checked;
+  enableRightDragPan = cbRightDragPanMain.checked;
+  cbEdgePan.checked      = enableEdgePan;
+  cbKeyboardPan.checked  = enableKeyboardPan;
+  cbRightDragPan.checked = enableRightDragPan;
+}
 
 // Login & overlays
 const loginContainer          = document.getElementById("loginContainer");
@@ -319,7 +335,7 @@ function startGame(bonus = 0) {
   // Останавливаем текущую музыку, если она играет
   if (backgroundMusic) {
     backgroundMusic.pause();
-    backgroundMusic.currentTime = 0; // Сбрасываем на начало
+    backgroundMusic.currentTime = 0;
     backgroundMusic = null;
   }
 
@@ -334,11 +350,13 @@ function startGame(bonus = 0) {
   cameraX = cameraY = 0;
   gameStartTime = performance.now();
 
+  // Initialize settings
+  initializeSettings();
+
   // Запускаем фоновую музыку
   backgroundMusic = new Audio("music.wav");
-  backgroundMusic.volume = 0.3; // Громкость можно настроить (0.0–1.0)
+  backgroundMusic.volume = 0.3;
   backgroundMusic.play().catch(e => console.error("Music playback failed:", e));
-  // Останавливаем музыку, когда она заканчивается
   backgroundMusic.addEventListener("ended", () => {
     if (backgroundMusic) {
       backgroundMusic = null;
@@ -350,8 +368,6 @@ function startGame(bonus = 0) {
   gameState = "game";
   updateUI();
 }
-
-
 
 // — UPDATE & DRAW —
 function update(dt) {
@@ -493,7 +509,6 @@ function loop() {
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
-
 
 // — SHOW/HIDE UI —
 function updateUI() {
