@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>ICON HUNT Game</title>
+  <title>Secret Society: Key Quest</title>
   <style>
     /* -------------------------------------------------- */
     /*                      ОБЩИЕ СТИЛИ                  */
@@ -250,7 +250,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      background: linear-gradient(135deg, #16325c, #214279); /* Darker gradient */
       color: #ffffff;
       z-index: 300;
       overflow: hidden;
@@ -270,6 +270,7 @@
       border-radius: 15px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
       animation: float 3s ease-in-out infinite;
+      margin-bottom: 40px; /* Increased bottom margin for larger offset */
     }
 
     @keyframes float {
@@ -291,11 +292,13 @@
       opacity: 0.9;
     }
 
-    #topSection img {
+    #topSection img,
+    #centerRight img {
       vertical-align: middle;
       width: 24px;
       height: 24px;
       margin: 0 5px;
+      filter: invert(100%); /* Make icons white */
     }
 
     #centerSection {
@@ -336,13 +339,6 @@
       color: #e0e0e0;
     }
 
-    #centerRight img {
-      vertical-align: middle;
-      width: 20px;
-      height: 20px;
-      margin: 0 5px;
-    }
-
     .menuButton {
       width: 200px;
       padding: 12px;
@@ -359,6 +355,7 @@
     .menuButton:hover {
       transform: scale(1.05);
       box-shadow: 0 8px 20px rgba(255, 126, 95, 0.6);
+      color: #000000; /* Black text on hover for Start Game and Records */
     }
 
     .buyButton {
@@ -603,14 +600,14 @@
   <!-- MAIN MENU -->
   <div id="menuContainer">
     <div id="topSection">
-      <h1>ICON HUNT</h1>
+      <h1>Secret Society: Key Quest</h1>
       <p>Collect <img src="icons/key.svg" alt="Key" /> keys and <img src="icons/clock.svg" alt="Clock" /> clocks—and keep your flashlight powered!</p>
     </div>
     <div id="centerSection">
       <div id="centerLeft">
         <button id="btnStart" class="menuButton">Start Game</button>
         <button id="btnRecords" class="menuButton">Records</button>
-        <button id="btnBuy" class="menuButton buyButton">BUY TOKEN</button>
+        <a href="https://www.secretsociety.so/" target="_blank" class="menuButton buyButton">Secret Society Website</a>
       </div>
       <div id="centerRight">
         <h3>Objective</h3>
@@ -620,9 +617,19 @@
         </p>
         <h3>Controls</h3>
         <p>
-          <span class="highlight">Left-click</span>: collect icon.<br/>
-          <span class="highlight">Right-click + drag</span>: move camera.
+          <span class="highlight">Collect keys with LMB</span>: collect icon.<br/>
+          <span class="highlight">Move with Right-click + drag</span>: move camera.
         </p>
+        <h3>Control Settings</h3>
+        <label style="display:block; text-align:left;">
+          <input type="checkbox" id="cbEdgePan" checked> Edge Pan
+        </label>
+        <label style="display:block; text-align:left;">
+          <input type="checkbox" id="cbKeyboardPan" checked> Keyboard Pan (WASD/Arrows)
+        </label>
+        <label style="display:block; text-align:left;">
+          <input type="checkbox" id="cbRightDragPan" checked> Right Drag Pan
+        </label>
       </div>
     </div>
   </div>
