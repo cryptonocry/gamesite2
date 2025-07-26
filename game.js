@@ -1,4 +1,3 @@
-// game.js
 import { Icon } from "./digit.js";
 
 export const CELL_SIZE  = 80;
@@ -63,6 +62,9 @@ export function drawCells(ctx, camX, camY, w, h, now) {
   const top    = Math.floor(-camY / CELL_SIZE) - 1;
   const bottom = Math.ceil((h - camY) / CELL_SIZE) + 1;
 
+  ctx.save(); // Сохраняем состояние контекста
+  ctx.filter = 'invert(100%)'; // Применяем фильтр для белого цвета иконок
+
   for (let gx = left; gx <= right; gx++) {
     for (let gy = top; gy <= bottom; gy++) {
       const key = `${gx}_${gy}`;
@@ -82,6 +84,8 @@ export function drawCells(ctx, camX, camY, w, h, now) {
       }
     }
   }
+
+  ctx.restore(); // Восстанавливаем состояние контекста
 }
 
 export function getClickedIcon(mx, my, camX, camY) {
