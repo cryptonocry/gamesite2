@@ -18,7 +18,8 @@ export class Icon {
     [
       "mask", "letterS", "cd", "xicon",
       "clock", "key", "ethicon", "btcicon",
-      "eye", "lock", "scroll", "dna", "flask"
+      "eye", "lock", "scroll", "dna", "flask",
+      "per0", "per20", "per40", "per60", "per80", "per100", "perplus" // Добавлены иконки батареи
     ].forEach(name => {
       const img = new Image();
       img.src = `icons/${name}.svg`;
