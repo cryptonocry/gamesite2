@@ -22,21 +22,7 @@ export class Icon {
       "per0", "per20", "per40", "per60", "per80", "per100", "perplus"
     ].forEach(name => {
       const img = new Image();
-      img.onload = () => {
-        // Принудительно применяем белый цвет после загрузки
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = 64; // Увеличим для лучшего качества
-        canvas.height = 64;
-        ctx.drawImage(img, 0, 0, 64, 64);
-        ctx.globalCompositeOperation = 'source-atop';
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(0, 0, 64, 64);
-        ctx.globalCompositeOperation = 'source-over';
-        Icon.images[name] = canvas;
-      };
       img.src = `icons/${name}.svg`;
-      // Временное изображение до полной загрузки
       Icon.images[name] = img;
     });
   }
@@ -59,8 +45,13 @@ export class Icon {
     const SIZE = 30;
     ctx.save();
     ctx.globalAlpha = alpha;
-    // Рисуем предварительно обработанное изображение
     ctx.drawImage(img, pos.x - SIZE / 2, pos.y - SIZE / 2, SIZE, SIZE);
+    
+    // Применяем белый цвет поверх иконки
+    ctx.globalCompositeOperation = 'source-atop';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(pos.x - SIZE / 2, pos.y - SIZE / 2, SIZE, SIZE);
+    ctx.globalCompositeOperation = 'source-over'; // Возвращаем стандартный режим
     ctx.restore();
   }
 }
