@@ -46,6 +46,11 @@ export class Icon {
     ctx.save();
     ctx.globalAlpha = alpha;
     ctx.drawImage(img, pos.x - SIZE / 2, pos.y - SIZE / 2, SIZE, SIZE);
+    // Наложение белого цвета для всех иконок в игре
+    ctx.globalCompositeOperation = 'source-atop';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(pos.x - SIZE / 2, pos.y - SIZE / 2, SIZE, SIZE);
+    ctx.globalCompositeOperation = 'source-over'; // Возвращаем стандартный режим
     ctx.restore();
   }
 }
