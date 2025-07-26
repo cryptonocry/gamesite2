@@ -238,138 +238,138 @@
     }
 
     /* -------------------------------------------------- */
-/*                    MAIN MENU                      */
-/* -------------------------------------------------- */
-#menuContainer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: linear-gradient(135deg, #1e3c72, #2a5298);
-  color: #ffffff;
-  z-index: 300;
-  overflow: hidden;
-  padding: 20px;
-  animation: fadeIn 1s ease-in-out;
-}
+    /*                    MAIN MENU                      */
+    /* -------------------------------------------------- */
+    #menuContainer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: #ffffff;
+      z-index: 300;
+      overflow: hidden;
+      padding: 20px;
+      animation: fadeIn 1s ease-in-out;
+    }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
 
-#topSection {
-  text-align: center;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  animation: float 3s ease-in-out infinite;
-}
+    #topSection {
+      text-align: center;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      animation: float 3s ease-in-out infinite;
+    }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
 
-#topSection h1 {
-  font-size: 48px;
-  font-weight: 700;
-  margin: 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  color: #ffcc00;
-}
+    #topSection h1 {
+      font-size: 48px;
+      font-weight: 700;
+      margin: 0;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      color: #ffcc00;
+    }
 
-#topSection p {
-  font-size: 18px;
-  margin: 10px 0 0;
-  opacity: 0.9;
-}
+    #topSection p {
+      font-size: 18px;
+      margin: 10px 0 0;
+      opacity: 0.9;
+    }
 
-#topSection img {
-  vertical-align: middle;
-  width: 24px;
-  height: 24px;
-  margin: 0 5px;
-}
+    #topSection img {
+      vertical-align: middle;
+      width: 24px;
+      height: 24px;
+      margin: 0 5px;
+    }
 
-#centerSection {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 40px;
-  margin-top: 20px;
-}
+    #centerSection {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 40px;
+      margin-top: 20px;
+    }
 
-#centerLeft {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
+    #centerLeft {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
 
-#centerRight {
-  max-width: 30em;
-  font-size: 16px;
-  line-height: 1.6;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(5px);
-}
+    #centerRight {
+      max-width: 30em;
+      font-size: 16px;
+      line-height: 1.6;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(5px);
+    }
 
-#centerRight h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
-  font-size: 20px;
-  color: #ffcc00;
-  text-transform: uppercase;
-}
+    #centerRight h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 20px;
+      color: #ffcc00;
+      text-transform: uppercase;
+    }
 
-#centerRight p {
-  margin-bottom: 15px;
-  color: #e0e0e0;
-}
+    #centerRight p {
+      margin-bottom: 15px;
+      color: #e0e0e0;
+    }
 
-#centerRight img {
-  vertical-align: middle;
-  width: 20px;
-  height: 20px;
-  margin: 0 5px;
-}
+    #centerRight img {
+      vertical-align: middle;
+      width: 20px;
+      height: 20px;
+      margin: 0 5px;
+    }
 
-.menuButton {
-  width: 200px;
-  padding: 12px;
-  font-size: 18px;
-  background: linear-gradient(45deg, #ff7e5f, #feb47b);
-  color: #fff;
-  border: none;
-  border-radius: 25px;
-  cursor: pointer;
-  transition: transform 0.3s, box-shadow 0.3s;
-  box-shadow: 0 5px 15px rgba(255, 126, 95, 0.4);
-}
+    .menuButton {
+      width: 200px;
+      padding: 12px;
+      font-size: 18px;
+      background: linear-gradient(45deg, #ff7e5f, #feb47b);
+      color: #fff;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 5px 15px rgba(255, 126, 95, 0.4);
+    }
 
-.menuButton:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 20px rgba(255, 126, 95, 0.6);
-}
+    .menuButton:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(255, 126, 95, 0.6);
+    }
 
-.buyButton {
-  background: linear-gradient(45deg, #d32f2f, #f44336);
-  box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
-}
+    .buyButton {
+      background: linear-gradient(45deg, #d32f2f, #f44336);
+      box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
+    }
 
-.buyButton:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 20px rgba(244, 67, 54, 0.6);
-}
+    .buyButton:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(244, 67, 54, 0.6);
+    }
 
     /* -------------------------------------------------- */
     /*                      CANVAS                        */
@@ -470,56 +470,54 @@
       background: #fff;
     }
     
-/* небольшая красная кнопка вверху меню */
-#inGameMenuOverlay .menuBox button.closeMenuButton {
-  display: block;             /* чтобы занимала всю строку */
-  width: 150px;               /* уже, чем остальные */
-  margin: 0 auto 15px;        /* по центру + отступ снизу */
-  padding: 6px 0;             /* меньше вертикальный padding */
-  font-size: 14px;            /* чуть меньше шрифт */
-  background: #b33838;        /* красный фон */
-  color: #fff;                /* белый текст */
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-#inGameMenuOverlay .menuBox button.closeMenuButton:hover {
-  background: #912a2a;
-}
+    /* небольшая красная кнопка вверху меню */
+    #inGameMenuOverlay .menuBox button.closeMenuButton {
+      display: block;             /* чтобы занимала всю строку */
+      width: 150px;               /* уже, чем остальные */
+      margin: 0 auto 15px;        /* по центру + отступ снизу */
+      padding: 6px 0;             /* меньше вертикальный padding */
+      font-size: 14px;            /* чуть меньше шрифт */
+      background: #b33838;        /* красный фон */
+      color: #fff;                /* белый текст */
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #inGameMenuOverlay .menuBox button.closeMenuButton:hover {
+      background: #912a2a;
+    }
 
-/* увеличиваем размер «птичек» */
-#inGameMenuOverlay .menuBox input[type="checkbox"] {
-  width: 20px;        /* ширина чекбокса */
-  height: 20px;       /* высота чекбокса */
-  vertical-align: middle;
-  margin-right: 8px;  /* расстояние до текста */
-}
+    /* увеличиваем размер «птичек» */
+    #inGameMenuOverlay .menuBox input[type="checkbox"] {
+      width: 20px;        /* ширина чекбокса */
+      height: 20px;       /* высота чекбокса */
+      vertical-align: middle;
+      margin-right: 8px;  /* расстояние до текста */
+    }
 
-/* увеличиваем размер шрифта меток */
-#inGameMenuOverlay .menuBox label {
-  font-size: 18px;
-  line-height: 1.4;
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-}
+    /* увеличиваем размер шрифта меток */
+    #inGameMenuOverlay .menuBox label {
+      font-size: 18px;
+      line-height: 1.4;
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
     
-/* 1) Сделать иконку ключа белой */
-#keyIconHUD {
-  filter: invert(100%);
-}
+    /* 1) Сделать иконку ключа белой */
+    #keyIconHUD {
+      filter: invert(100%);
+    }
 
-/* 2) Сделать фон кнопки MENU белым */
-#gameMenuButton {
-  background: #fff !important;
-  color: #021013 !important;
-}
-#gameMenuButton:hover {
-  background: rgba(255,255,255,0.8) !important;
-  color: #021013 !important;
-}
-
-    
+    /* 2) Сделать фон кнопки MENU белым */
+    #gameMenuButton {
+      background: #fff !important;
+      color: #021013 !important;
+    }
+    #gameMenuButton:hover {
+      background: rgba(255,255,255,0.8) !important;
+      color: #021013 !important;
+    }
   </style>
 </head>
 <body>
@@ -546,33 +544,32 @@
   <!-- IN-GAME MENU BUTTON -->
   <button id="gameMenuButton">MENU</button>
 
-<!-- IN-GAME MENU OVERLAY -->
-<div id="inGameMenuOverlay">
-  <div class="menuBox">
-    <button id="btnCloseMenu" class="closeMenuButton">Close Menu</button>
-    <button id="btnFullscreenIG">FULL SCREEN</button><br/>
-    <button id="btnRestartIG">RESTART</button><br/>
-    <button id="btnMainIG">MAIN PAGE</button>
-    
-    <!-- вот эти строки нужно добавить сразу после трёх кнопок: -->
-    <hr style="margin:20px 0;"/>
-    <h3 style="margin-bottom:10px;">Настройки управления</h3>
-    <label style="display:block; text-align:left;">
-      <input type="checkbox" id="cbEdgePan" checked>
-      Панорамирование от края экрана
-    </label>
-    <label style="display:block; text-align:left;">
-      <input type="checkbox" id="cbKeyboardPan" checked>
-      Управление WASD/стрелки
-    </label>
-    <label style="display:block; text-align:left;">
-      <input type="checkbox" id="cbRightDragPan" checked>
-      Перетаскивание ПКМ
-    </label>
-    <!-- конец добавления -->
+  <!-- IN-GAME MENU OVERLAY -->
+  <div id="inGameMenuOverlay">
+    <div class="menuBox">
+      <button id="btnCloseMenu" class="closeMenuButton">Close Menu</button>
+      <button id="btnFullscreenIG">FULL SCREEN</button><br/>
+      <button id="btnRestartIG">RESTART</button><br/>
+      <button id="btnMainIG">MAIN PAGE</button>
+      
+      <!-- вот эти строки нужно добавить сразу после трёх кнопок: -->
+      <hr style="margin:20px 0;"/>
+      <h3 style="margin-bottom:10px;">Настройки управления</h3>
+      <label style="display:block; text-align:left;">
+        <input type="checkbox" id="cbEdgePan" checked>
+        Панорамирование от края экрана
+      </label>
+      <label style="display:block; text-align:left;">
+        <input type="checkbox" id="cbKeyboardPan" checked>
+        Управление WASD/стрелки
+      </label>
+      <label style="display:block; text-align:left;">
+        <input type="checkbox" id="cbRightDragPan" checked>
+        Перетаскивание ПКМ
+      </label>
+      <!-- конец добавления -->
+    </div>
   </div>
-</div>
-
 
   <!-- LOGIN OVERLAY -->
   <div id="loginContainer">
@@ -607,7 +604,7 @@
   <div id="menuContainer">
     <div id="topSection">
       <h1>ICON HUNT</h1>
-      <p>Collect keys and clocks—and keep your flashlight powered!</p>
+      <p>Collect <img src="icons/key.svg" alt="Key" /> keys and <img src="icons/clock.svg" alt="Clock" /> clocks—and keep your flashlight powered!</p>
     </div>
     <div id="centerSection">
       <div id="centerLeft">
@@ -618,8 +615,8 @@
       <div id="centerRight">
         <h3>Objective</h3>
         <p>
-          Find as many <strong>keys</strong> (+1 each) and
-          <strong>clocks</strong> (+10%) as you can before your flashlight dies.
+          Find as many <img src="icons/key.svg" alt="Key" /> keys (+1 each) and
+          <img src="icons/clock.svg" alt="Clock" /> clocks (+10%) as you can before your flashlight dies.
         </p>
         <h3>Controls</h3>
         <p>
