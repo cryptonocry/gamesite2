@@ -56,12 +56,15 @@
       gap: 8px;
     }
     #hud img {
-      filter: invert(100%); /* Применяем инверсию для всех иконок в HUD */
+      filter: invert(100%);
       width: 32px;
       height: 32px;
     }
     #batteryGroup img {
-      filter: invert(100%) !important; /* Принудительная инверсия для иконок батареи */
+      filter: invert(100%) brightness(10) !important; /* Усиленный фильтр для батареи */
+      width: 32px;
+      height: 32px;
+      transition: opacity 0.2s ease;
     }
     #hud-left span {
       font-size: 24px;
@@ -79,11 +82,6 @@
       display: flex;
       align-items: center;
       gap: 8px;
-    }
-    #batteryGroup img {
-      width: 32px;
-      height: 32px;
-      transition: opacity 0.2s ease;
     }
     #batteryGroup span {
       font-size: 24px;
@@ -519,7 +517,7 @@
     </div>
     <div id="hud-center">
       <div id="batteryGroup">
-        <img id="batteryIcon" src="icons/per100.svg" alt="Battery" />
+        <img id="batteryIcon" src="icons/per100.svg?v=1" alt="Battery" />
         <span id="batteryPercent">100%</span>
       </div>
       <span id="plusText">+10</span>
