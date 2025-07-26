@@ -46,12 +46,6 @@ export class Icon {
     ctx.save();
     ctx.globalAlpha = alpha;
     ctx.drawImage(img, pos.x - SIZE / 2, pos.y - SIZE / 2, SIZE, SIZE);
-    
-    // Применяем белый цвет поверх иконки
-    ctx.globalCompositeOperation = 'source-atop';
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(pos.x - SIZE / 2, pos.y - SIZE / 2, SIZE, SIZE);
-    ctx.globalCompositeOperation = 'source-over'; // Возвращаем стандартный режим
     ctx.restore();
   }
 }
