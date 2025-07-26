@@ -13,7 +13,7 @@
       width: 100vw;
       height: 100vh;
       overflow: hidden;
-      background: #f5e9d4;
+      background: #131110; /* Изменён фон на #131110 */
       font-family: Arial, sans-serif;
       position: relative;
     }
@@ -251,7 +251,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(135deg, #16325c, #214279); /* Darker gradient */
+      background: #131110; /* Изменён фон на #131110 */
       color: #ffffff;
       z-index: 300;
       overflow: hidden;
@@ -341,7 +341,7 @@
     }
 
     .menuButton {
-      width: 200px;
+      width: 250px; /* Увеличена ширина до 250px для одинаковой длины */
       padding: 12px;
       font-size: 18px;
       background: linear-gradient(45deg, #ff7e5f, #feb47b);
@@ -351,6 +351,7 @@
       cursor: pointer;
       transition: transform 0.3s, box-shadow 0.3s;
       box-shadow: 0 5px 15px rgba(255, 126, 95, 0.4);
+      text-align: center; /* Центрирование текста для равномерности */
     }
 
     .menuButton:hover {
@@ -367,6 +368,11 @@
     .buyButton:hover {
       transform: scale(1.05);
       box-shadow: 0 8px 20px rgba(244, 67, 54, 0.6);
+    }
+
+    /* Убираем подчёркивание у ссылки */
+    #centerLeft a {
+      text-decoration: none;
     }
 
     /* -------------------------------------------------- */
@@ -599,17 +605,11 @@
         <a href="https://www.secretsociety.so/" target="_blank" class="menuButton buyButton">Secret Society Website</a>
       </div>
       <div id="centerRight">
-        <h3>Objective</h3>
+        <h3>Collect Keys = LMB</h3> <!-- Изменено с "Controls" -->
         <p>
-          Find as many <img src="icons/key.svg" alt="Key" /> keys (+1 each) and
-          <img src="icons/clock.svg" alt="Clock" /> clocks (+10%) as you can before your flashlight dies.
+          <span class="highlight">Collect keys with LMB</span>: collect icon.
         </p>
-        <h3>Controls</h3>
-        <p>
-          <span class="highlight">Collect keys with LMB</span>: collect icon.<br/>
-          <span class="highlight">Move with Right-click + drag</span>: move camera.
-        </p>
-        <h3>Control Settings</h3>
+        <h3>Movement Settings</h3> <!-- Изменено с "Control Settings" -->
         <label style="display:block; text-align:left;">
           <input type="checkbox" id="cbEdgePanMain" checked> Edge Pan
         </label>
