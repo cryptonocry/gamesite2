@@ -13,7 +13,7 @@
       width: 100vw;
       height: 100vh;
       overflow: hidden;
-      background: #131110; /* Тёмный фон */
+      background: #100C18; /* Изменён фон на #100C18 */
       font-family: Arial, sans-serif;
       position: relative;
     }
@@ -26,15 +26,16 @@
       top: 10px;
       right: 10px;
       z-index: 1000;
-      padding: 10px 15px;
-      background: #7AC0D6;
+      padding: 20px 30px; /* Увеличено в два раза */
+      background: #FFFFFF; /* Белый цвет */
       border: none;
-      border-radius: 5px;
+      border-radius: 10px;
       cursor: pointer;
+      font-size: 18px; /* Увеличен размер текста */
     }
     #fullscreenButton:hover {
-      background: #fff;
-      color: #021013;
+      background: #E0E0E0; /* Лёгкое затемнение при наведении */
+      color: #000000;
     }
 
     /* -------------------------------------------------- */
@@ -55,7 +56,7 @@
       align-items: center;
       gap: 8px;
     }
-    #hud img { /* Применяем фильтр ко всем иконкам в HUD */
+    #hud img {
       filter: invert(100%); /* Делаем иконки белыми */
       width: 32px;
       height: 32px;
@@ -72,7 +73,6 @@
       flex-direction: column;
       align-items: center;
     }
-    /* группа батарейка + процент в одну строку */
     #batteryGroup {
       display: flex;
       align-items: center;
@@ -89,7 +89,6 @@
       text-shadow: 0 0 4px rgba(0,0,0,0.7);
     }
 
-    /* “+10” под батареей */
     #plusText {
       position: absolute;
       top: 100%;
@@ -115,19 +114,21 @@
     /* -------------------------------------------------- */
     #gameMenuButton {
       position: absolute;
-      top: 10px; right: 10px;
+      top: 10px;
+      right: 10px;
       z-index: 950;
-      padding: 8px 12px;
-      background: #fff;
-      color: #021013;
+      padding: 16px 24px; /* Увеличено в два раза */
+      background: #FFFFFF; /* Белый цвет */
+      color: #000000;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       cursor: pointer;
       display: none;
+      font-size: 20px; /* Увеличен размер текста */
     }
     #gameMenuButton:hover {
-      background: rgba(255,255,255,0.8);
-      color: #021013;
+      background: #E0E0E0; /* Лёгкое затемнение при наведении */
+      color: #000000;
     }
 
     /* -------------------------------------------------- */
@@ -144,25 +145,26 @@
       justify-content: center;
     }
     #inGameMenuOverlay .menuBox {
-      background: #f5e9d4;
+      background: #000000; /* Чёрный фон */
       padding: 20px;
+      border: 5px solid #FFFFFF; /* Толстая белая обводка */
       border-radius: 10px;
       text-align: center;
-      color: #33484f;
+      color: #FFFFFF; /* Белый текст */
     }
     #inGameMenuOverlay .menuBox button {
       width: 200px;
       margin: 10px 0;
       padding: 12px;
       font-size: 18px;
-      background: #7AC0D6;
-      color: #021013;
+      background: #FFFFFF; /* Белый цвет вместо бирюзового */
+      color: #000000;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
     #inGameMenuOverlay .menuBox button:hover {
-      background: #fff;
+      background: #E0E0E0; /* Лёгкое затемнение при наведении */
     }
 
     /* -------------------------------------------------- */
@@ -182,7 +184,7 @@
       background: #021013;
       padding: 20px;
       border-radius: 10px;
-      color: #7AC0D6;
+      color: #FFFFFF; /* Белый текст вместо бирюзового */
       text-align: center;
       width: 300px;
     }
@@ -193,36 +195,35 @@
       margin-bottom: 10px;
     }
     .menuButton {
-      width: 250px; /* Увеличена ширина до 250px */
+      width: 250px;
       padding: 12px;
       font-size: 18px;
-      background: linear-gradient(45deg, #ff7e5f, #feb47b);
-      color: #fff;
+      background: #FFFFFF; /* Белый цвет вместо градиента */
+      color: #000000;
       border: none;
       border-radius: 25px;
       cursor: pointer;
       transition: transform 0.3s, box-shadow 0.3s;
-      box-shadow: 0 5px 15px rgba(255, 126, 95, 0.4);
-      text-align: center; /* Центрирование текста */
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+      text-align: center;
     }
 
     .menuButton:hover {
       transform: scale(1.05);
-      box-shadow: 0 8px 20px rgba(255, 126, 95, 0.6);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
       color: #000000;
     }
 
     .buyButton {
-      background: linear-gradient(45deg, #d32f2f, #f44336);
-      box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
+      background: #FFFFFF; /* Белый цвет вместо градиента */
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
     }
 
     .buyButton:hover {
       transform: scale(1.05);
-      box-shadow: 0 8px 20px rgba(244, 67, 54, 0.6);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
     }
 
-    /* Убираем подчёркивание у ссылки */
     #centerLeft a {
       text-decoration: none;
     }
@@ -240,11 +241,12 @@
       justify-content: center;
     }
     #summaryOverlay .overlayContent {
-      background: #f5e9d4;
+      background: #000000; /* Чёрный фон */
       padding: 20px;
+      border: 5px solid #FFFFFF; /* Толстая белая обводка */
       border-radius: 10px;
       text-align: center;
-      color: #33484f;
+      color: #FFFFFF; /* Белый текст */
     }
     #summaryOverlay .overlayContent h2 {
       margin: 0 0 10px;
@@ -266,8 +268,8 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      background: #131110; /* Тёмный фон */
-      color: #ffffff;
+      background: #100C18;
+      color: #FFFFFF;
       z-index: 300;
       overflow: hidden;
       padding: 20px;
@@ -314,7 +316,7 @@
       width: 24px;
       height: 24px;
       margin: 0 5px;
-      filter: invert(100%); /* Make icons white */
+      filter: invert(100%);
     }
 
     #centerSection {
@@ -352,7 +354,7 @@
 
     #centerRight p {
       margin-bottom: 15px;
-      color: #e0e0e0;
+      color: #FFFFFF; /* Белый текст */
     }
 
     /* -------------------------------------------------- */
@@ -363,7 +365,7 @@
       top: 0; left: 0;
       width: 100vw; height: 100vh;
       display: none;
-      background: #131110; /* Тёмный фон для canvas */
+      background: #100C18;
     }
 
     /* -------------------------------------------------- */
@@ -376,7 +378,7 @@
       background: rgba(0,0,0,0.75);
       display: none;
       z-index: 600;
-      color: #7AC0D6;
+      color: #FFFFFF; /* Белый текст */
     }
     #gameOverContent {
       position: absolute;
@@ -396,14 +398,14 @@
       margin: 10px;
       padding: 10px 20px;
       font-size: 18px;
-      background: #7AC0D6;
-      color: #021013;
+      background: #FFFFFF; /* Белый цвет */
+      color: #000000;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
     .goButton:hover {
-      background: #fff;
+      background: #E0E0E0; /* Лёгкое затемнение */
     }
 
     /* -------------------------------------------------- */
@@ -416,15 +418,16 @@
       background: rgba(0,0,0,0.9);
       display: none;
       z-index: 600;
-      color: #7AC0D6;
+      color: #FFFFFF; /* Белый текст */
     }
     #recordsContent {
       position: absolute;
       top: 5%; left: 50%;
       transform: translateX(-50%);
       width: 90%; max-height: 90%;
-      background: #f5e9d4;
+      background: #000000; /* Чёрный фон */
       padding: 20px;
+      border: 5px solid #FFFFFF; /* Толстая белая обводка */
       border-radius: 10px;
       overflow-y: auto;
     }
@@ -435,27 +438,26 @@
     }
     #recordsContent th, #recordsContent td {
       padding: 8px;
-      border: 1px solid #33484f;
+      border: 1px solid #FFFFFF; /* Белая граница */
       text-align: left;
     }
     #recordsContent th {
-      background: #7AC0D6;
-      color: #021013;
+      background: #FFFFFF; /* Белый фон заголовков */
+      color: #000000;
     }
     #recordsContent button {
       padding: 8px 16px;
       font-size: 16px;
-      background: #7AC0D6;
-      color: #021013;
+      background: #FFFFFF; /* Белый цвет */
+      color: #000000;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
     #recordsContent button:hover {
-      background: #fff;
+      background: #E0E0E0; /* Лёгкое затемнение */
     }
     
-    /* небольшая красная кнопка вверху меню */
     #inGameMenuOverlay .menuBox button.closeMenuButton {
       display: block;
       width: 150px;
@@ -472,7 +474,6 @@
       background: #912a2a;
     }
 
-    /* увеличиваем размер «птичек» */
     #inGameMenuOverlay .menuBox input[type="checkbox"] {
       width: 20px;
       height: 20px;
@@ -480,7 +481,6 @@
       margin-right: 8px;
     }
 
-    /* увеличиваем размер шрифта меток */
     #inGameMenuOverlay .menuBox label {
       font-size: 18px;
       line-height: 1.4;
@@ -489,7 +489,6 @@
       margin-bottom: 8px;
     }
     
-    /* 1) Сделать иконку ключа белой */
     #keyIconHUD {
       filter: invert(100%);
     }
@@ -567,7 +566,7 @@
         You have <strong><span id="refCount">0</span></strong> referrals
         — +<strong><span id="timeBonus">0</span></strong>% bonus
       </p>
-      <button id="btnPlayNow" class="menuButton" style="background:#4CAF50;">
+      <button id="btnPlayNow" class="menuButton" style="background:#FFFFFF;">
         PLAY
       </button>
     </div>
@@ -586,9 +585,9 @@
         <a href="https://www.secretsociety.so/" target="_blank" class="menuButton buyButton">Secret Society Website</a>
       </div>
       <div id="centerRight">
-        <h3>Collect Keys = LMB</h3>
+        <h3>Collect Keys</h3>
         <p>
-          <span class="highlight">Collect keys with LMB</span>: collect icon.
+          Collect keys
         </p>
         <h3>Movement Settings</h3>
         <label style="display:block; text-align:left;">
@@ -611,7 +610,7 @@
   <div id="gameOverOverlay">
     <div id="gameOverContent">
       <h1>Time’s up!</h1>
-      <p id="finalScore">Your score: 0</p>
+      <p id="finalScore">Your score: 0 <img src="icons/key.svg" alt="Key" style="filter: invert(100%); vertical-align: middle; width: 24px; height: 24px;" /></p>
       <button id="btnMenu" class="goButton">MENU</button>
       <button id="btnRestart" class="goButton">RESTART</button>
     </div>
