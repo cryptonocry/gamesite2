@@ -53,14 +53,15 @@ cbEdgePanMain.addEventListener("change",    () => { enableEdgePan      = cbEdgeP
 cbKeyboardPanMain.addEventListener("change",() => { enableKeyboardPan  = cbKeyboardPanMain.checked; });
 cbRightDragPanMain.addEventListener("change",() => { enableRightDragPan = cbRightDragPanMain.checked; });
 
-// Initialize settings from in-game menu at game start
+// Initialize settings from main menu at game start
 function initializeSettings() {
-  enableEdgePan      = cbEdgePan.checked;
-  enableKeyboardPan  = cbKeyboardPan.checked;
-  enableRightDragPan = cbRightDragPan.checked;
-  cbEdgePanMain.checked      = enableEdgePan; // Sync main menu
-  cbKeyboardPanMain.checked  = enableKeyboardPan;
-  cbRightDragPanMain.checked = enableRightDragPan;
+  enableEdgePan      = cbEdgePanMain.checked;
+  enableKeyboardPan  = cbKeyboardPanMain.checked;
+  enableRightDragPan = cbRightDragPanMain.checked;
+  // Sync in-game menu checkboxes with main menu settings
+  cbEdgePan.checked      = enableEdgePan;
+  cbKeyboardPan.checked  = enableKeyboardPan;
+  cbRightDragPan.checked = enableRightDragPan;
 }
 
 // Sync main menu settings when returning to menu
@@ -360,7 +361,7 @@ function startGame(bonus = 0) {
   cameraX = cameraY = 0;
   gameStartTime = performance.now();
 
-  // Initialize settings from in-game menu
+  // Initialize settings from main menu
   initializeSettings();
 
   // Запускаем фоновую музыку
@@ -557,34 +558,3 @@ function updateUI() {
 // Инициализация
 updateUI();
 Icon._loadImages(); // загружаем все иконки заранее, чтобы не было лагов при генерации
-
-// Save settings to localStorage when changed
-function saveSettings() {
-  localStorage.setItem("enableEdgePan", enableEdgePan);
-  localStorage.setItem("enableKeyboardPan", enableKeyboardPan);
-  localStorage.setItem("enableRightDragPan", enableRightDragPan);
-}
-
-// Load settings from localStorage on init
-function loadSettings() {
-  enableEdgePan      = localStorage.getItem("enableEdgePan") === "true" || true;
-  enableKeyboardPan  = localStorage.getItem("enableKeyboardPan") === "true" || true;
-  enableRightDragPan = localStorage.getItem("enableRightDragPan") === "true" || true;
-  cbEdgePan.checked      = enableEdgePan;
-  cbKeyboardPan.checked  = enableKeyboardPan;
-  cbRightDragPan.checked = enableRightDragPan;
-  cbEdgePanMain.checked      = enableEdgePan;
-  cbKeyboardPanMain.checked  = enableKeyboardPan;
-  cbRightDragPanMain.checked = enableRightDragPan;
-}
-
-// Update listeners to save settings
-cbEdgePan.addEventListener("change",    () => { enableEdgePan      = cbEdgePan.checked; saveSettings(); });
-cbKeyboardPan.addEventListener("change",() => { enableKeyboardPan  = cbKeyboardPan.checked; saveSettings(); });
-cbRightDragPan.addEventListener("change",() => { enableRightDragPan = cbRightDragPan.checked; saveSettings(); });
-cbEdgePanMain.addEventListener("change",    () => { enableEdgePan      = cbEdgePanMain.checked; saveSettings(); });
-cbKeyboardPanMain.addEventListener("change",() => { enableKeyboardPan  = cbKeyboardPanMain.checked; saveSettings(); });
-cbRightDragPanMain.addEventListener("change",() => { enableRightDragPan = cbRightDragPanMain.checked; saveSettings(); });
-
-// Initialize with loaded settings
-loadSettings();
