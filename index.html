@@ -56,9 +56,12 @@
       gap: 8px;
     }
     #hud img {
-      filter: invert(100%);
+      filter: invert(100%); /* Применяем инверсию для всех иконок в HUD */
       width: 32px;
       height: 32px;
+    }
+    #batteryGroup img {
+      filter: invert(100%) !important; /* Принудительная инверсия для иконок батареи */
     }
     #hud-left span {
       font-size: 24px;
