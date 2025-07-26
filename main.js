@@ -39,12 +39,12 @@ let enableKeyboardPan  = true;
 let enableRightDragPan = true;
 
 // Найдём чекбоксы для in-game и main menu, повесим на них слушатели
-const cbEdgePan      = document.getElementById("cbEdgePan");
-const cbKeyboardPan  = document.getElementById("cbKeyboardPan");
-const cbRightDragPan = document.getElementById("cbRightDragPan");
-const cbEdgePanMain  = document.getElementById("cbEdgePan"); // Same IDs for now
-const cbKeyboardPanMain  = document.getElementById("cbKeyboardPan");
-const cbRightDragPanMain = document.getElementById("cbRightDragPan");
+const cbEdgePan      = document.getElementById("cbEdgePan");      // In-game
+const cbKeyboardPan  = document.getElementById("cbKeyboardPan");  // In-game
+const cbRightDragPan = document.getElementById("cbRightDragPan"); // In-game
+const cbEdgePanMain  = document.getElementById("cbEdgePanMain");  // Main menu
+const cbKeyboardPanMain  = document.getElementById("cbKeyboardPanMain");  // Main menu
+const cbRightDragPanMain = document.getElementById("cbRightDragPanMain"); // Main menu
 
 cbEdgePan.addEventListener("change",    () => { enableEdgePan      = cbEdgePan.checked; });
 cbKeyboardPan.addEventListener("change",() => { enableKeyboardPan  = cbKeyboardPan.checked; });
@@ -56,12 +56,12 @@ cbRightDragPanMain.addEventListener("change",() => { enableRightDragPan = cbRigh
 // Initialize settings from main menu at game start
 function initializeSettings() {
   // Берем значения с главной страницы
-  enableEdgePan = document.getElementById("cbEdgePan").checked;      // Или cbEdgePanMain, если ID разные
-  enableKeyboardPan = document.getElementById("cbKeyboardPan").checked;  // Или cbKeyboardPanMain
-  enableRightDragPan = document.getElementById("cbRightDragPan").checked; // Или cbRightDragPanMain
+  enableEdgePan      = cbEdgePanMain.checked;
+  enableKeyboardPan  = cbKeyboardPanMain.checked;
+  enableRightDragPan = cbRightDragPanMain.checked;
   // Обновляем галочки в игре
-  cbEdgePan.checked = enableEdgePan;
-  cbKeyboardPan.checked = enableKeyboardPan;
+  cbEdgePan.checked      = enableEdgePan;
+  cbKeyboardPan.checked  = enableKeyboardPan;
   cbRightDragPan.checked = enableRightDragPan;
 }
 
@@ -374,12 +374,6 @@ function startGame(bonus = 0) {
       backgroundMusic = null;
     }
   });
-
-  playSound("start.wav", 0.7);
-  updateHUD();
-  gameState = "game";
-  updateUI();
-}
 
   playSound("start.wav", 0.7);
   updateHUD();
