@@ -502,6 +502,12 @@
     #keyIconHUD {
       filter: invert(100%);
     }
+    
+    /* Стили для отключённых чекбоксов */
+    input[type="checkbox"]:disabled {
+    opacity: 0.6; /* Слегка прозрачный, чтобы показать, что чекбокс неактивен */
+    cursor: not-allowed; /* Курсор показывает, что взаимодействие невозможно */
+  }
   </style>
 </head>
 <body>
