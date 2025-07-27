@@ -39,51 +39,34 @@ let enableKeyboardPan  = true;
 let enableRightDragPan = true;
 
 // Найдём чекбоксы для in-game и main menu
-const cbEdgePan      = document.getElementById("cbEdgePan");      // In-game
-const cbKeyboardPan  = document.getElementById("cbKeyboardPan");  // In-game
-const cbRightDragPan = document.getElementById("cbRightDragPan"); // In-game
-const cbEdgePanMain  = document.getElementById("cbEdgePanMain");  // Main menu
-const cbKeyboardPanMain  = document.getElementById("cbKeyboardPanMain");  // Main menu
-const cbRightDragPanMain = document.getElementById("cbRightDragPanMain"); // Main menu
+const cbEdgePan      = document.getElementById("cbEdgePan");
+const cbKeyboardPan  = document.getElementById("cbKeyboardPan");
+const cbRightDragPan = document.getElementById("cbRightDragPan");
+const cbEdgePanMain  = document.getElementById("cbEdgePanMain");
+const cbKeyboardPanMain  = document.getElementById("cbKeyboardPanMain");
+const cbRightDragPanMain = document.getElementById("cbRightDragPanMain");
 
-// Флаг для предотвращения рекурсии
-let isUpdatingCheckboxes = false;
+// Проверка, что все элементы найдены
+console.log("cbEdgePan:", cbEdgePan);
+console.log("cbKeyboardPan:", cbKeyboardPan);
+console.log("cbRightDragPan:", cbRightDragPan);
+console.log("cbEdgePanMain:", cbEdgePanMain);
+console.log("cbKeyboardPanMain:", cbKeyboardPanMain);
+console.log("cbRightDragPanMain:", cbRightDragPanMain);
 
-// Обновление глобальных переменных и синхронизация чекбоксов
-function updateSettings() {
-  if (isUpdatingCheckboxes) return;
-
-  isUpdatingCheckboxes = true;
-  enableEdgePan      = cbEdgePan.checked || cbEdgePanMain.checked;
-  enableKeyboardPan  = cbKeyboardPan.checked || cbKeyboardPanMain.checked;
-  enableRightDragPan = cbRightDragPan.checked || cbRightDragPanMain.checked;
-
-  // Синхронизируем все чекбоксы с текущими значениями
-  cbEdgePan.checked      = enableEdgePan;
-  cbKeyboardPan.checked  = enableKeyboardPan;
-  cbRightDragPan.checked = enableRightDragPan;
-  cbEdgePanMain.checked  = enableEdgePan;
-  cbKeyboardPanMain.checked  = enableKeyboardPan;
-  cbRightDragPanMain.checked = enableRightDragPan;
-  isUpdatingCheckboxes = false;
-}
-
-// Инициализация начальных значений
-updateSettings();
-
-// Слушатели событий для чекбоксов
-cbEdgePan.addEventListener("change", updateSettings);
-cbKeyboardPan.addEventListener("change", updateSettings);
-cbRightDragPan.addEventListener("change", updateSettings);
-cbEdgePanMain.addEventListener("change", updateSettings);
-cbKeyboardPanMain.addEventListener("change", updateSettings);
-cbRightDragPanMain.addEventListener("change", updateSettings);
+// Простая обработка событий без сложной синхронизации
+if (cbEdgePan) cbEdgePan.addEventListener("change", () => { enableEdgePan = cbEdgePan.checked; console.log("Edge Pan:", enableEdgePan); });
+if (cbKeyboardPan) cbKeyboardPan.addEventListener("change", () => { enableKeyboardPan = cbKeyboardPan.checked; console.log("Keyboard Pan:", enableKeyboardPan); });
+if (cbRightDragPan) cbRightDragPan.addEventListener("change", () => { enableRightDragPan = cbRightDragPan.checked; console.log("Right Drag Pan:", enableRightDragPan); });
+if (cbEdgePanMain) cbEdgePanMain.addEventListener("change", () => { enableEdgePan = cbEdgePanMain.checked; console.log("Edge Pan Main:", enableEdgePan); });
+if (cbKeyboardPanMain) cbKeyboardPanMain.addEventListener("change", () => { enableKeyboardPan = cbKeyboardPanMain.checked; console.log("Keyboard Pan Main:", enableKeyboardPan); });
+if (cbRightDragPanMain) cbRightDragPanMain.addEventListener("change", () => { enableRightDragPan = cbRightDragPanMain.checked; console.log("Right Drag Pan Main:", enableRightDragPan); });
 
 // Sync main menu settings when returning to menu
 function syncMainMenuSettings() {
-  cbEdgePanMain.checked      = enableEdgePan;
-  cbKeyboardPanMain.checked  = enableKeyboardPan;
-  cbRightDragPanMain.checked = enableRightDragPan;
+  if (cbEdgePanMain) cbEdgePanMain.checked = enableEdgePan;
+  if (cbKeyboardPanMain) cbKeyboardPanMain.checked = enableKeyboardPan;
+  if (cbRightDragPanMain) cbRightDragPanMain.checked = enableRightDragPan;
 }
 
 // Login & overlays
@@ -133,6 +116,8 @@ let lastPct    = null;
 let isRightDragging = false;
 let dragStartRM     = { x: 0, y: 0 };
 let cameraStartRM   = { x: 0, y: 0 };
+
+// ... (остальной код остаётся без изменений до конца файла)
 
 gameCanvas.addEventListener("mousedown", e => {
   if (e.button === 2) {
