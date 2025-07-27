@@ -54,7 +54,7 @@ console.log("cbEdgePanMain:", cbEdgePanMain);
 console.log("cbKeyboardPanMain:", cbKeyboardPanMain);
 console.log("cbRightDragPanMain:", cbRightDragPanMain);
 
-// Простая обработка событий без сложной синхронизации
+// Простая обработка событий
 if (cbEdgePan) cbEdgePan.addEventListener("change", () => { enableEdgePan = cbEdgePan.checked; console.log("Edge Pan:", enableEdgePan); });
 if (cbKeyboardPan) cbKeyboardPan.addEventListener("change", () => { enableKeyboardPan = cbKeyboardPan.checked; console.log("Keyboard Pan:", enableKeyboardPan); });
 if (cbRightDragPan) cbRightDragPan.addEventListener("change", () => { enableRightDragPan = cbRightDragPan.checked; console.log("Right Drag Pan:", enableRightDragPan); });
@@ -62,12 +62,28 @@ if (cbEdgePanMain) cbEdgePanMain.addEventListener("change", () => { enableEdgePa
 if (cbKeyboardPanMain) cbKeyboardPanMain.addEventListener("change", () => { enableKeyboardPan = cbKeyboardPanMain.checked; console.log("Keyboard Pan Main:", enableKeyboardPan); });
 if (cbRightDragPanMain) cbRightDragPanMain.addEventListener("change", () => { enableRightDragPan = cbRightDragPanMain.checked; console.log("Right Drag Pan Main:", enableRightDragPan); });
 
+// Синхронизация всех чекбоксов с текущими настройками
+function syncAllCheckboxes() {
+  if (cbEdgePan) cbEdgePan.checked = enableEdgePan;
+  if (cbKeyboardPan) cbKeyboardPan.checked = enableKeyboardPan;
+  if (cbRightDragPan) cbRightDragPan.checked = enableRightDragPan;
+  if (cbEdgePanMain) cbEdgePanMain.checked = enableEdgePan;
+  if (cbKeyboardPanMain) cbKeyboardPanMain.checked = enableKeyboardPan;
+  if (cbRightDragPanMain) cbRightDragPanMain.checked = enableRightDragPan;
+}
+
 // Sync main menu settings when returning to menu
 function syncMainMenuSettings() {
   if (cbEdgePanMain) cbEdgePanMain.checked = enableEdgePan;
   if (cbKeyboardPanMain) cbKeyboardPanMain.checked = enableKeyboardPan;
   if (cbRightDragPanMain) cbRightDragPanMain.checked = enableRightDragPan;
 }
+
+// Синхронизация при открытии игрового меню
+gameMenuButton.addEventListener("click", () => {
+  syncAllCheckboxes(); // Обновляем все галки перед показом меню
+  inGameMenuOverlay.style.display = "flex";
+});
 
 // Login & overlays
 const loginContainer          = document.getElementById("loginContainer");
@@ -183,6 +199,7 @@ function toggleFullscreen() {
 }
 
 gameMenuButton.addEventListener("click", () => {
+  syncAllCheckboxes(); // Обновляем все галки перед показом меню
   inGameMenuOverlay.style.display = "flex";
 });
 btnRestartIG.addEventListener("click", () => {
