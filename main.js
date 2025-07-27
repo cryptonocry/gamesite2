@@ -36,7 +36,7 @@ btnCloseMenu.addEventListener("click", () => {
 // — CAMERA MODE TOGGLES —
 let enableEdgePan      = true;
 let enableKeyboardPan  = true;
-let enableRightDragPan = true;
+let enableRightDragPan = true; // Всегда включено
 
 // Найдём чекбоксы для in-game и main menu
 const cbEdgePan      = document.getElementById("cbEdgePan");
@@ -57,26 +57,42 @@ console.log("cbRightDragPanMain:", cbRightDragPanMain);
 // Простая обработка событий
 if (cbEdgePan) cbEdgePan.addEventListener("change", () => { enableEdgePan = cbEdgePan.checked; console.log("Edge Pan:", enableEdgePan); });
 if (cbKeyboardPan) cbKeyboardPan.addEventListener("change", () => { enableKeyboardPan = cbKeyboardPan.checked; console.log("Keyboard Pan:", enableKeyboardPan); });
-if (cbRightDragPan) cbRightDragPan.addEventListener("change", () => { enableRightDragPan = cbRightDragPan.checked; console.log("Right Drag Pan:", enableRightDragPan); });
+// Чекбокс для ПКМ всегда включён и неактивен
+if (cbRightDragPan) {
+  cbRightDragPan.checked = true;
+  cbRightDragPan.disabled = true; // Неактивен
+}
 if (cbEdgePanMain) cbEdgePanMain.addEventListener("change", () => { enableEdgePan = cbEdgePanMain.checked; console.log("Edge Pan Main:", enableEdgePan); });
 if (cbKeyboardPanMain) cbKeyboardPanMain.addEventListener("change", () => { enableKeyboardPan = cbKeyboardPanMain.checked; console.log("Keyboard Pan Main:", enableKeyboardPan); });
-if (cbRightDragPanMain) cbRightDragPanMain.addEventListener("change", () => { enableRightDragPan = cbRightDragPanMain.checked; console.log("Right Drag Pan Main:", enableRightDragPan); });
+if (cbRightDragPanMain) {
+  cbRightDragPanMain.checked = true;
+  cbRightDragPanMain.disabled = true; // Неактивен
+}
 
 // Синхронизация всех чекбоксов с текущими настройками
 function syncAllCheckboxes() {
   if (cbEdgePan) cbEdgePan.checked = enableEdgePan;
   if (cbKeyboardPan) cbKeyboardPan.checked = enableKeyboardPan;
-  if (cbRightDragPan) cbRightDragPan.checked = enableRightDragPan;
+  if (cbRightDragPan) {
+    cbRightDragPan.checked = true; // Всегда включено
+    cbRightDragPan.disabled = true; // Неактивно
+  }
   if (cbEdgePanMain) cbEdgePanMain.checked = enableEdgePan;
   if (cbKeyboardPanMain) cbKeyboardPanMain.checked = enableKeyboardPan;
-  if (cbRightDragPanMain) cbRightDragPanMain.checked = enableRightDragPan;
+  if (cbRightDragPanMain) {
+    cbRightDragPanMain.checked = true; // Всегда включено
+    cbRightDragPanMain.disabled = true; // Неактивно
+  }
 }
 
 // Sync main menu settings when returning to menu
 function syncMainMenuSettings() {
   if (cbEdgePanMain) cbEdgePanMain.checked = enableEdgePan;
   if (cbKeyboardPanMain) cbKeyboardPanMain.checked = enableKeyboardPan;
-  if (cbRightDragPanMain) cbRightDragPanMain.checked = enableRightDragPan;
+  if (cbRightDragPanMain) {
+    cbRightDragPanMain.checked = true; // Всегда включено
+    cbRightDragPanMain.disabled = true; // Неактивно
+  }
 }
 
 // Синхронизация при открытии игрового меню
@@ -132,8 +148,6 @@ let lastPct    = null;
 let isRightDragging = false;
 let dragStartRM     = { x: 0, y: 0 };
 let cameraStartRM   = { x: 0, y: 0 };
-
-// ... (остальной код остаётся без изменений до конца файла)
 
 gameCanvas.addEventListener("mousedown", e => {
   if (e.button === 2) {
