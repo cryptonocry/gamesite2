@@ -46,22 +46,33 @@ const cbEdgePanMain  = document.getElementById("cbEdgePanMain");  // Main menu
 const cbKeyboardPanMain  = document.getElementById("cbKeyboardPanMain");  // Main menu
 const cbRightDragPanMain = document.getElementById("cbRightDragPanMain"); // Main menu
 
-cbEdgePan.addEventListener("change",    () => { enableEdgePan      = cbEdgePan.checked; });
-cbKeyboardPan.addEventListener("change",() => { enableKeyboardPan  = cbKeyboardPan.checked; });
-cbRightDragPan.addEventListener("change",() => { enableRightDragPan = cbRightDragPan.checked; });
-cbEdgePanMain.addEventListener("change",    () => { enableEdgePan      = cbEdgePanMain.checked; });
-cbKeyboardPanMain.addEventListener("change",() => { enableKeyboardPan  = cbKeyboardPanMain.checked; });
-cbRightDragPanMain.addEventListener("change",() => { enableRightDragPan = cbRightDragPanMain.checked; });
+// Обновляем глобальные переменные при изменении чекбоксов
+function updateSettingsFromCheckboxes() {
+  enableEdgePan      = cbEdgePan.checked      || cbEdgePanMain.checked;
+  enableKeyboardPan  = cbKeyboardPan.checked  || cbKeyboardPanMain.checked;
+  enableRightDragPan = cbRightDragPan.checked || cbRightDragPanMain.checked;
 
-// Initialize settings from main menu at game start
-function initializeSettings() {
-  enableEdgePan      = cbEdgePanMain.checked;
-  enableKeyboardPan  = cbKeyboardPanMain.checked;
-  enableRightDragPan = cbRightDragPanMain.checked;
+  // Синхронизируем все чекбоксы с текущими значениями
   cbEdgePan.checked      = enableEdgePan;
   cbKeyboardPan.checked  = enableKeyboardPan;
   cbRightDragPan.checked = enableRightDragPan;
+  cbEdgePanMain.checked  = enableEdgePan;
+  cbKeyboardPanMain.checked  = enableKeyboardPan;
+  cbRightDragPanMain.checked = enableRightDragPan;
 }
+
+// Инициализация начальных значений
+updateSettingsFromCheckboxes();
+
+cbEdgePan.addEventListener("change",    updateSettingsFromCheckboxes);
+cbKeyboardPan.addEventListener("change",updateSettingsFromCheckboxes);
+cbRightDragPan.addEventListener("change",updateSettingsFromCheckboxes);
+cbEdgePanMain.addEventListener("change",    updateSettingsFromCheckboxes);
+cbKeyboardPanMain.addEventListener("change",updateSettingsFromCheckboxes);
+cbRightDragPanMain.addEventListener("change",updateSettingsFromCheckboxes);
+
+// Удаляем initializeSettings(), так как теперь настройки обновляются динамически
+// function initializeSettings() { ... } — удалено
 
 // Sync main menu settings when returning to menu
 function syncMainMenuSettings() {
@@ -324,7 +335,8 @@ function startGame(bonus = 0) {
     backgroundMusic = null;
   }
 
-  initializeSettings();
+  // Не сбрасываем настройки, используем текущие значения
+  // initializeSettings(); — удалено, так как настройки теперь глобальные и динамические
 
   Object.keys(cells).forEach(k => delete cells[k]);
   generatedChunks.clear();
