@@ -38,7 +38,7 @@ let enableEdgePan      = true;
 let enableKeyboardPan  = true;
 let enableRightDragPan = true;
 
-// Найдём чекбоксы для in-game и main menu, повесим на них слушатели
+// Найдём чекбоксы для in-game и main menu
 const cbEdgePan      = document.getElementById("cbEdgePan");      // In-game
 const cbKeyboardPan  = document.getElementById("cbKeyboardPan");  // In-game
 const cbRightDragPan = document.getElementById("cbRightDragPan"); // In-game
@@ -46,10 +46,16 @@ const cbEdgePanMain  = document.getElementById("cbEdgePanMain");  // Main menu
 const cbKeyboardPanMain  = document.getElementById("cbKeyboardPanMain");  // Main menu
 const cbRightDragPanMain = document.getElementById("cbRightDragPanMain"); // Main menu
 
-// Обновляем глобальные переменные при изменении чекбоксов
-function updateSettingsFromCheckboxes() {
-  enableEdgePan      = cbEdgePan.checked      || cbEdgePanMain.checked;
-  enableKeyboardPan  = cbKeyboardPan.checked  || cbKeyboardPanMain.checked;
+// Флаг для предотвращения рекурсии
+let isUpdatingCheckboxes = false;
+
+// Обновление глобальных переменных и синхронизация чекбоксов
+function updateSettings() {
+  if (isUpdatingCheckboxes) return;
+
+  isUpdatingCheckboxes = true;
+  enableEdgePan      = cbEdgePan.checked || cbEdgePanMain.checked;
+  enableKeyboardPan  = cbKeyboardPan.checked || cbKeyboardPanMain.checked;
   enableRightDragPan = cbRightDragPan.checked || cbRightDragPanMain.checked;
 
   // Синхронизируем все чекбоксы с текущими значениями
@@ -59,20 +65,19 @@ function updateSettingsFromCheckboxes() {
   cbEdgePanMain.checked  = enableEdgePan;
   cbKeyboardPanMain.checked  = enableKeyboardPan;
   cbRightDragPanMain.checked = enableRightDragPan;
+  isUpdatingCheckboxes = false;
 }
 
 // Инициализация начальных значений
-updateSettingsFromCheckboxes();
+updateSettings();
 
-cbEdgePan.addEventListener("change",    updateSettingsFromCheckboxes);
-cbKeyboardPan.addEventListener("change",updateSettingsFromCheckboxes);
-cbRightDragPan.addEventListener("change",updateSettingsFromCheckboxes);
-cbEdgePanMain.addEventListener("change",    updateSettingsFromCheckboxes);
-cbKeyboardPanMain.addEventListener("change",updateSettingsFromCheckboxes);
-cbRightDragPanMain.addEventListener("change",updateSettingsFromCheckboxes);
-
-// Удаляем initializeSettings(), так как теперь настройки обновляются динамически
-// function initializeSettings() { ... } — удалено
+// Слушатели событий для чекбоксов
+cbEdgePan.addEventListener("change", updateSettings);
+cbKeyboardPan.addEventListener("change", updateSettings);
+cbRightDragPan.addEventListener("change", updateSettings);
+cbEdgePanMain.addEventListener("change", updateSettings);
+cbKeyboardPanMain.addEventListener("change", updateSettings);
+cbRightDragPanMain.addEventListener("change", updateSettings);
 
 // Sync main menu settings when returning to menu
 function syncMainMenuSettings() {
@@ -334,9 +339,6 @@ function startGame(bonus = 0) {
     backgroundMusic.currentTime = 0;
     backgroundMusic = null;
   }
-
-  // Не сбрасываем настройки, используем текущие значения
-  // initializeSettings(); — удалено, так как настройки теперь глобальные и динамические
 
   Object.keys(cells).forEach(k => delete cells[k]);
   generatedChunks.clear();
