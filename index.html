@@ -19,6 +19,103 @@
     }
 
     /* -------------------------------------------------- */
+    /*                      MAIN TEXT RULES                */
+    /* -------------------------------------------------- */
+
+#menuContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #1a1a1a; /* Тёмный фон для атмосферы */
+  color: #ffffff; /* Белый текст для контраста */
+  font-family: Arial, sans-serif;
+}
+
+#topSection {
+  text-align: center;
+  padding: 20px;
+}
+
+#topSection h1 {
+  font-size: 2.5em;
+  margin: 0;
+  color: #ffd700; /* Золотистый цвет для заголовка */
+  text-shadow: 2px 2px 4px #000000;
+}
+
+#centerSection {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  padding: 20px;
+}
+
+#gameInfo, #actionButtons, #settings {
+  flex: 1;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.7); /* Полупрозрачный фон */
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+#gameInfo h2 {
+  font-size: 1.5em;
+  margin-bottom: 15px;
+  color: #ffd700;
+}
+
+#gameInfo p {
+  font-size: 1.2em;
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.game-icon {
+  width: 30px;
+  height: 30px;
+  filter: invert(100%); /* Инверсия цвета для иконок */
+}
+
+#actionButtons button, #actionButtons a {
+  display: block;
+  width: 200px;
+  margin: 10px auto;
+  padding: 10px;
+  font-size: 1.1em;
+  border: none;
+  border-radius: 5px;
+  background-color: #ffd700;
+  color: #1a1a1a;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+}
+
+#actionButtons button:hover, #actionButtons a:hover {
+  background-color: #e6c200;
+}
+
+#settings h3 {
+  font-size: 1.3em;
+  margin-bottom: 15px;
+  color: #ffd700;
+}
+
+#settings label {
+  font-size: 1.1em;
+  margin: 8px 0;
+}
+
+.menuButton:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+}
+    
+    /* -------------------------------------------------- */
     /*                КНОПКА FULLSCREEN                  */
     /* -------------------------------------------------- */
     #fullscreenButton {
@@ -586,36 +683,42 @@
     </div>
   </div>
 
-  <!-- MAIN MENU -->
-  <div id="menuContainer">
-    <div id="topSection">
-      <h1>Secret Society: Key Quest</h1>
-      <p>Collect <img src="icons/key.svg" alt="Key" /> keys and <img src="icons/clock.svg" alt="Clock" /> clocks—and keep your flashlight powered!</p>
+<!-- MAIN MENU -->
+<div id="menuContainer">
+  <div id="topSection">
+    <h1>Secret Society: Key Quest</h1>
+  </div>
+  <div id="centerSection">
+    <div id="gameInfo">
+      <h2>Собирай:</h2>
+      <p>
+        <img src="icons/key.svg" alt="Key" class="game-icon" /> 
+        Ключи — чтобы набрать очки
+      </p>
+      <p>
+        <img src="icons/clock.svg" alt="Clock" class="game-icon" /> 
+        Часы — чтобы подзарядить фонарик и не остаться в темноте!
+      </p>
     </div>
-    <div id="centerSection">
-      <div id="centerLeft">
-        <button id="btnStart" class="menuButton">Start Game</button>
-        <button id="btnRecords" class="menuButton">Records</button>
-        <a href="https://www.secretsociety.so/" target="_blank" class="menuButton buyButton" style="width: 300px;">Secret Society Website</a>
-      </div>
-      <div id="centerRight">
-        <h3>Collect Keys</h3>
-        <p>
-          Collect keys
-        </p>
-        <h3>Movement Settings</h3>
-        <label style="display:block; text-align:left;">
-          <input type="checkbox" id="cbEdgePanMain" checked> Edge Pan
-        </label>
-        <label style="display:block; text-align:left;">
-          <input type="checkbox" id="cbKeyboardPanMain" checked> Keyboard Pan (WASD/Arrows)
-        </label>
-        <label style="display:block; text-align:left;">
-          <input type="checkbox" id="cbRightDragPanMain" checked> Right Drag Pan
-        </label>
-      </div>
+    <div id="actionButtons">
+      <button id="btnStart" class="menuButton">Начать игру</button>
+      <button id="btnRecords" class="menuButton">Рекорды</button>
+      <a href="https://www.secretsociety.so/" target="_blank" class="menuButton buyButton" style="width: 300px;">Сайт Secret Society</a>
+    </div>
+    <div id="settings">
+      <h3>Настройки движения</h3>
+      <label style="display: block; text-align: left;">
+        <input type="checkbox" id="cbEdgePanMain" checked> Прокрутка по краям
+      </label>
+      <label style="display: block; text-align: left;">
+        <input type="checkbox" id="cbKeyboardPanMain" checked> Прокрутка клавиатурой (WASD/Стрелки)
+      </label>
+      <label style="display: block; text-align: left;">
+        <input type="checkbox" id="cbRightDragPanMain" checked> Прокрутка правой кнопкой
+      </label>
     </div>
   </div>
+</div>
 
   <!-- GAME CANVAS -->
   <canvas id="gameCanvas"></canvas>
