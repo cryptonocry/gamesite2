@@ -36,6 +36,9 @@
 #topSection {
   text-align: center;
   padding: 20px;
+  background-color: rgba(0, 0, 0, 0.7); /* Полупрозрачный фон */
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
 #topSection h1 {
@@ -45,6 +48,21 @@
   text-shadow: 2px 2px 4px #000000;
 }
 
+#topSection p {
+  font-size: 1.2em;
+  margin: 10px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+#topSection img {
+  width: 30px;
+  height: 30px;
+  filter: invert(100%); /* Инверсия цвета для иконок */
+}
+
 #centerSection {
   display: flex;
   flex-direction: row;
@@ -52,7 +70,7 @@
   padding: 20px;
 }
 
-#gameInfo, #actionButtons, #settings {
+#centerLeft, #centerRight {
   flex: 1;
   padding: 20px;
   background-color: rgba(0, 0, 0, 0.7); /* Полупрозрачный фон */
@@ -60,27 +78,18 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
-#gameInfo h2 {
-  font-size: 1.5em;
+#centerRight h3 {
+  font-size: 1.3em;
   margin-bottom: 15px;
   color: #ffd700;
 }
 
-#gameInfo p {
-  font-size: 1.2em;
-  margin: 10px 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+#centerRight label {
+  font-size: 1.1em;
+  margin: 8px 0;
 }
 
-.game-icon {
-  width: 30px;
-  height: 30px;
-  filter: invert(100%); /* Инверсия цвета для иконок */
-}
-
-#actionButtons button, #actionButtons a {
+button.menuButton, a.menuButton {
   display: block;
   width: 200px;
   margin: 10px auto;
@@ -95,19 +104,8 @@
   text-decoration: none;
 }
 
-#actionButtons button:hover, #actionButtons a:hover {
+button.menuButton:hover, a.menuButton:hover {
   background-color: #e6c200;
-}
-
-#settings h3 {
-  font-size: 1.3em;
-  margin-bottom: 15px;
-  color: #ffd700;
-}
-
-#settings label {
-  font-size: 1.1em;
-  margin: 8px 0;
 }
 
 .menuButton:disabled {
@@ -687,33 +685,23 @@
 <div id="menuContainer">
   <div id="topSection">
     <h1>Secret Society: Key Quest</h1>
+    <p>Собирай: <img src="icons/key.svg" alt="Key" /> Ключи — чтобы набрать очки, <img src="icons/clock.svg" alt="Clock" /> Часы — чтобы подзарядить фонарик и не остаться в темноте!</p>
   </div>
   <div id="centerSection">
-    <div id="gameInfo">
-      <h2>Собирай:</h2>
-      <p>
-        <img src="icons/key.svg" alt="Key" class="game-icon" /> 
-        Ключи — чтобы набрать очки
-      </p>
-      <p>
-        <img src="icons/clock.svg" alt="Clock" class="game-icon" /> 
-        Часы — чтобы подзарядить фонарик и не остаться в темноте!
-      </p>
-    </div>
-    <div id="actionButtons">
+    <div id="centerLeft">
       <button id="btnStart" class="menuButton">Начать игру</button>
       <button id="btnRecords" class="menuButton">Рекорды</button>
       <a href="https://www.secretsociety.so/" target="_blank" class="menuButton buyButton" style="width: 300px;">Сайт Secret Society</a>
     </div>
-    <div id="settings">
+    <div id="centerRight">
       <h3>Настройки движения</h3>
-      <label style="display: block; text-align: left;">
+      <label style="display:block; text-align:left;">
         <input type="checkbox" id="cbEdgePanMain" checked> Прокрутка по краям
       </label>
-      <label style="display: block; text-align: left;">
+      <label style="display:block; text-align:left;">
         <input type="checkbox" id="cbKeyboardPanMain" checked> Прокрутка клавиатурой (WASD/Стрелки)
       </label>
-      <label style="display: block; text-align: left;">
+      <label style="display:block; text-align:left;">
         <input type="checkbox" id="cbRightDragPanMain" checked> Прокрутка правой кнопкой
       </label>
     </div>
