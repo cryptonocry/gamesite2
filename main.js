@@ -15,7 +15,7 @@ function playSound(src, vol = 0.5) {
 }
 
 // — Предварительная загрузка фоновой музыки —
-let backgroundMusic = new Audio("music.mp3"); // Изменено на MP3
+let backgroundMusic = new Audio("music.mp3");
 backgroundMusic.loop = true;
 backgroundMusic.volume = 0.3;
 
@@ -551,7 +551,7 @@ function updateUI() {
     gameCanvas.style.display        = "block";
     gameOverOverlay.style.display   = "block";
     recordsContainer.style.display  = "none";
-    finalScore.textContent          = `Your score: ${scoreTotal} <img src="icons/key.svg" alt="Key" style="filter: invert(100%); vertical-align: middle; width: 24px; height: 24px;" />`;
+    finalScore.innerHTML           = `Your score: ${scoreTotal} <img src="icons/key.svg" alt="Key" style="filter: invert(100%); vertical-align: middle; width: 24px; height: 24px;" />`;
   }
 }
 
