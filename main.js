@@ -230,6 +230,10 @@ btnRestartIG.addEventListener("click", () => {
   startGame(0);
 });
 btnMainIG.addEventListener("click", () => {
+  if (backgroundMusic) {
+    backgroundMusic.pause();
+    backgroundMusic.currentTime = 0; // Сбрасываем позицию
+  }
   inGameMenuOverlay.style.display = "none";
   gameState = "menu";
   updateUI();
@@ -291,6 +295,10 @@ btnRecords.addEventListener("click", () => {
   showRecordsOverlay(recordsTableContainer, recordsContainer, currentPlayer);
 });
 closeRecordsButton.addEventListener("click", () => {
+  if (backgroundMusic) {
+    backgroundMusic.pause();
+    backgroundMusic.currentTime = 0; // Сбрасываем позицию
+  }
   recordsContainer.style.display = "none";
   gameState = "menu";
   updateUI();
@@ -529,6 +537,10 @@ function updateUI() {
   fullscreenButton.style.display = (gameState === "menu") ? "block" : "none";
 
   if (gameState === "menu") {
+    if (backgroundMusic) {
+      backgroundMusic.pause();
+      backgroundMusic.currentTime = 0; // Сбрасываем позицию
+    }
     menuContainer.style.display     = "flex";
     loginContainer.style.display    = "none";
     summaryOverlay.style.display    = "none";
