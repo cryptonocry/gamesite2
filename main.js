@@ -308,8 +308,9 @@ btnStart.addEventListener("click", () => {
 });
 
 loginOkButton.addEventListener("click", async () => {
-  const w = walletInput.value.trim().toLowerCase();
-  if (!w || w.length !== 62) return alert("Invalid wallet!");
+  const w = walletInput.value.trim();
+  const isValid = /^0x[a-fA-F0-9]{40}$/.test(w);
+  if (!isValid) return alert("Invalid wallet!");
   currentPlayer = { wallet: w, score: 0 };
   loginContainer.style.display = "none";
 
