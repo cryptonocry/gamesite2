@@ -172,26 +172,26 @@ html, body {
   box-shadow: 0 8px 20px rgba(211, 47, 47, 0.6);
 }
 
-/* Новый класс для серого градиента */
+/* Новый класс для белоснежно-серого градиента */
 .grey-gradient {
-  background: linear-gradient(45deg, #757575, #B0B0B0); /* Серый градиент */
-  color: #fff;
-  box-shadow: 0 5px 15px rgba(117, 117, 117, 0.4); /* Серые тени */
+  background: linear-gradient(45deg, #F5F5F5, #D3D3D3); /* Белоснежно-серый градиент */
+  color: #333; /* Тёмный текст для контраста */
+  box-shadow: 0 5px 15px rgba(211, 211, 211, 0.4); /* Светло-серые тени */
 }
 
 .grey-gradient:hover {
-  background: linear-gradient(45deg, #A0A0A0, #D0D0D0); /* Более светлый серый при наведении */
-  box-shadow: 0 8px 20px rgba(117, 117, 117, 0.6);
+  background: linear-gradient(45deg, #E0E0E0, #C0C0C0); /* Более тёмный серый при наведении */
+  box-shadow: 0 8px 20px rgba(211, 211, 211, 0.6);
   color: #000000;
 }
 
-/* Стили для кнопок с серым градиентом */
+/* Стили для кнопок с белоснежно-серым градиентом */
 #fullscreenButton,
 #gameMenuButton,
 #inGameMenuOverlay .menuBox button,
 .goButton,
 #btnPlayNow {
-  width: auto; /* Или укажите нужную ширину, например 200px для .menuBox button */
+  width: auto; /* Сохраняем оригинальные размеры */
   padding: 10px 15px;
   font-size: 18px;
   border: none;
@@ -199,20 +199,51 @@ html, body {
   cursor: pointer;
   display: inline-block;
   box-sizing: border-box;
+  background: inherit; /* Наследуем градиент */
+}
+
+/* Применяем grey-gradient ко всем кнопкам */
+#fullscreenButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+}
+
+#gameMenuButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 950;
+}
+
+#inGameMenuOverlay .menuBox button {
+  width: 200px;
+  margin: 10px 0;
+}
+
+.goButton {
+  margin: 10px;
+}
+
+#btnPlayNow {
+  margin: 0;
 }
 
 /* Удаляем старые стили оранжевого градиента */
 #fullscreenButton,
 #gameMenuButton,
 #inGameMenuOverlay .menuBox button,
-.goButton {
+.goButton,
+#btnPlayNow {
   background: none; /* Убираем старый градиент */
 }
 
 #fullscreenButton:hover,
 #gameMenuButton:hover,
 #inGameMenuOverlay .menuBox button:hover,
-.goButton:hover {
+.goButton:hover,
+#btnPlayNow:hover {
   background: none; /* Убираем старый hover-эффект */
 }
 
@@ -223,16 +254,6 @@ html, body {
 .goButton,
 #btnPlayNow {
   background: inherit; /* Наследуем градиент из .grey-gradient */
-}
-
-/* -------------------------------------------------- */
-/*                КНОПКА FULLSCREEN                  */
-/* -------------------------------------------------- */
-#fullscreenButton {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 1000;
 }
 
 /* -------------------------------------------------- */
@@ -304,16 +325,6 @@ html, body {
 }
 #plusText.play {
   animation: plusAnim 1s ease forwards;
-}
-
-/* -------------------------------------------------- */
-/*                 In-Game MENU BUTTON                */
-/* -------------------------------------------------- */
-#gameMenuButton {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 950;
 }
 
 /* -------------------------------------------------- */
