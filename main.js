@@ -11,8 +11,18 @@ import {
 function playSound(src, vol = 0.5) {
   const s = new Audio(src);
   s.volume = vol;
-  s.play().catch();
+  s.play().catch(e => console.error("Sound playback failed:", e));
 }
+
+// — Предварительная загрузка фоновой музыки —
+let backgroundMusic = new Audio("music.wav");
+backgroundMusic.loop = true;
+backgroundMusic.volume = 0.3;
+
+function preloadAudio() {
+  backgroundMusic.load(); // Загружаем музыку заранее
+}
+preloadAudio();
 
 // HUD
 const hud           = document.getElementById("hud");
@@ -140,7 +150,6 @@ let scoreTotal     = 0;
 let cameraX = 0, cameraY = 0;
 let missEvents = [];
 let gameStartTime = 0;
-let backgroundMusic = null;
 
 let blinkUntil = 0;
 let lastPct    = null;
@@ -230,8 +239,7 @@ btnMainIG.addEventListener("click", () => {
 btnMenuOver.addEventListener("click", () => {
   if (backgroundMusic) {
     backgroundMusic.pause();
-    backgroundMusic.currentTime = 0;
-    backgroundMusic = null;
+    backgroundMusic.currentTime = 0; // Сбрасываем позицию
   }
   gameState = "menu";
   updateUI();
@@ -350,10 +358,10 @@ function updateHUD() {
 }
 
 function startGame(bonus = 0) {
+  // Останавливаем музыку, если она уже играет
   if (backgroundMusic) {
     backgroundMusic.pause();
     backgroundMusic.currentTime = 0;
-    backgroundMusic = null;
   }
 
   Object.keys(cells).forEach(k => delete cells[k]);
@@ -367,10 +375,10 @@ function startGame(bonus = 0) {
   cameraX = cameraY = 0;
   gameStartTime = performance.now();
 
-backgroundMusic = new Audio("music.wav");
-backgroundMusic.loop = true; // <-- Это заставит музыку играть по кругу
-backgroundMusic.volume = 0.3;
-backgroundMusic.play().catch(e => console.error("Music playback failed:", e));
+  // Запускаем музыку
+  if (backgroundMusic) {
+    backgroundMusic.play().catch(e => console.error("Music playback failed:", e));
+  }
 
   playSound("start.wav", 0.7);
   updateHUD();
@@ -442,6 +450,10 @@ function update(dt) {
     if (currentPlayer) {
       currentPlayer.score = scoreTotal;
       addParticipantToXano(currentPlayer.wallet, scoreTotal);
+    }
+    if (backgroundMusic) {
+      backgroundMusic.pause();
+      backgroundMusic.currentTime = 0;
     }
     playSound("end.wav", 0.5);
     updateUI();
