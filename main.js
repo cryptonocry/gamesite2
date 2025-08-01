@@ -334,7 +334,7 @@ playWithoutWalletButton.addEventListener("click", () => {
 
 btnPlayNow.addEventListener("click", () => {
   summaryOverlay.style.display = "none";
-  startGame(currentPlayer ? parseInt(timeBonusEl.textContent) : 0);
+  startGame(0);
 });
 
 btnRecords.addEventListener("click", () => {
