@@ -191,7 +191,6 @@ html, body {
 #inGameMenuOverlay .menuBox button,
 .goButton,
 #btnPlayNow {
-  @extend .grey-gradient;
   width: auto; /* Или укажите нужную ширину, например 200px для .menuBox button */
   padding: 10px 15px;
   font-size: 18px;
@@ -202,10 +201,38 @@ html, body {
   box-sizing: border-box;
 }
 
+/* Удаляем старые стили оранжевого градиента */
+#fullscreenButton,
+#gameMenuButton,
+#inGameMenuOverlay .menuBox button,
+.goButton {
+  background: none; /* Убираем старый градиент */
+}
+
+#fullscreenButton:hover,
+#gameMenuButton:hover,
+#inGameMenuOverlay .menuBox button:hover,
+.goButton:hover {
+  background: none; /* Убираем старый hover-эффект */
+}
+
+/* Применяем grey-gradient ко всем кнопкам */
+#fullscreenButton,
+#gameMenuButton,
+#inGameMenuOverlay .menuBox button,
+.goButton,
+#btnPlayNow {
+  background: inherit; /* Наследуем градиент из .grey-gradient */
+}
+
 /* -------------------------------------------------- */
 /*                КНОПКА FULLSCREEN                  */
 /* -------------------------------------------------- */
 #fullscreenButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
 }
 
 /* -------------------------------------------------- */
@@ -283,6 +310,10 @@ html, body {
 /*                 In-Game MENU BUTTON                */
 /* -------------------------------------------------- */
 #gameMenuButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 950;
 }
 
 /* -------------------------------------------------- */
