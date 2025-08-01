@@ -680,32 +680,6 @@ input[type="checkbox"]:disabled {
 </div>
 
 
-<script>
-  const input = document.getElementById("walletInput");
-  const okBtn = document.getElementById("loginOkButton");
-
-  // Ограничиваем только допустимые символы при вводе
-  input.addEventListener("input", () => {
-    input.value = input.value.toLowerCase().replace(/[^a-f0-9x]/g, "");
-  });
-
-  // Проверка при нажатии на OK
-okBtn.addEventListener("click", () => {
-  const value = input.value.trim();
-
-  const isValid = /^0x[a-f0-9]{40}$/i.test(value); // теперь допускает верхний регистр
-  if (!isValid) {
-    alert("Invalid wallet!");
-    input.focus();
-    return;
-  }
-
-  console.log("Wallet address accepted:", value);
-});
-
-</script>
-
-
   <!-- SUMMARY OVERLAY -->
   <div id="summaryOverlay">
     <div class="overlayContent">
