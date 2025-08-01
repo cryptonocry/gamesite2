@@ -4,56 +4,75 @@
   <meta charset="UTF-8" />
   <title>Secret Society: Key Quest</title>
   <style>
-    /* -------------------------------------------------- */
-    /*                      ОБЩИЕ СТИЛИ                  */
-    /* -------------------------------------------------- */
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-      background: #100C18;
-      font-family: Arial, sans-serif;
-      position: relative;
-    }
+/* -------------------------------------------------- */
+/*                      ОБЩИЕ СТИЛИ                  */
+/* -------------------------------------------------- */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #100C18;
+  font-family: Arial, sans-serif;
+  position: relative;
+}
 
-    /* -------------------------------------------------- */
-    /*                      MAIN TEXT RULES                */
-    /* -------------------------------------------------- */
-
+/* -------------------------------------------------- */
+/*                      MAIN MENU                     */
+/* -------------------------------------------------- */
 #menuContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  height: 100vh;
-  background-color: #1a1a1a; /* Тёмный фон для атмосферы */
-  color: #ffffff; /* Белый текст для контраста */
-  font-family: Arial, sans-serif;
+  align-items: center;
+  background: #100C18;
+  color: #FFFFFF;
+  z-index: 300;
+  overflow: hidden;
+  padding: 20px;
+  animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 #topSection {
   text-align: center;
   padding: 20px;
-  background-color: rgba(0, 0, 0, 0.7); /* Полупрозрачный фон */
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  animation: float 3s ease-in-out infinite;
+  margin-bottom: 40px;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 #topSection h1 {
-  font-size: 2.5em;
+  font-size: 48px;
+  font-weight: 700;
   margin: 0;
-  color: #ffd700; /* Золотистый цвет для заголовка */
-  text-shadow: 2px 2px 4px #000000;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  color: #ffcc00;
 }
 
 .game-description {
-  margin-top: 50px; /* Добавлен отступ сверху перед "Собирай:" */
+  margin-top: 50px; /* Отступ сверху перед "Собирай:" */
 }
 
 .game-description p {
-  font-size: 1.2em;
+  font-size: 1.2em; /* Базовый размер текста для всех строк */
   margin: 5px 0;
   display: flex;
   justify-content: center;
@@ -63,7 +82,7 @@
 
 .game-description p:first-child {
   font-size: 5.4em; /* Увеличение размера "Собирай:" в два раза (от 1.2em) */
-  font-weight: bold; /* Оставляем жирный шрифт для акцента */
+  font-weight: bold; /* Жирный шрифт для акцента */
 }
 
 .game-description img {
@@ -74,23 +93,35 @@
 
 #centerSection {
   display: flex;
-  flex-direction: row;
-  gap: 20px;
-  padding: 20px;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  margin-top: 20px;
 }
 
-#centerLeft, #centerRight {
-  flex: 1;
+#centerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+#centerRight {
+  max-width: 30em;
+  font-size: 16px;
+  line-height: 1.6;
+  background: rgba(255, 255, 255, 0.05);
   padding: 20px;
-  background-color: rgba(0, 0, 0, 0.7); /* Полупрозрачный фон */
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
 }
 
 #centerRight h3 {
-  font-size: 1.3em;
-  margin-bottom: 15px;
-  color: #ffd700;
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 20px;
+  color: #ffcc00;
+  text-transform: uppercase;
 }
 
 #centerRight label {
@@ -98,520 +129,394 @@
   margin: 8px 0;
 }
 
-button.menuButton, a.menuButton {
-  display: block;
-  width: 200px;
-  margin: 10px auto;
-  padding: 10px;
-  font-size: 1.1em;
+/* -------------------------------------------------- */
+/*                КНОПКА FULLSCREEN                  */
+/* -------------------------------------------------- */
+#fullscreenButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  padding: 10px 15px;
+  background: linear-gradient(45deg, #ff7e5f, #feb47b);
   border: none;
   border-radius: 5px;
-  background-color: #ffd700;
-  color: #1a1a1a;
   cursor: pointer;
+  color: #fff;
+}
+#fullscreenButton:hover {
+  background: linear-gradient(45deg, #ff9a7a, #ffcc99);
+  color: #000000;
+}
+
+/* -------------------------------------------------- */
+/*                        HUD                         */
+/* -------------------------------------------------- */
+#hud {
+  position: absolute;
+  top: 10px; left: 10px; right: 10px;
+  display: none;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 900;
+  pointer-events: none;
+}
+#hud-left, #hud-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#hud img {
+  filter: invert(100%);
+  width: 32px;
+  height: 32px;
+}
+#hud-left span {
+  font-size: 24px;
+  color: #fff;
+  text-shadow: 0 0 4px rgba(0,0,0,0.7);
+}
+
+#hud-center {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#batteryGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#batteryGroup img {
+  width: 32px;
+  height: 32px;
+  transition: opacity 0.2s ease;
+  filter: brightness(0) invert(1); /* Принудительно белый цвет */
+}
+#batteryGroup span {
+  font-size: 24px;
+  color: #fff;
+  text-shadow: 0 0 4px rgba(0,0,0,0.7);
+}
+
+#plusText {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #71FF61;
+  font-size: 18px;
+  opacity: 0;
+  pointer-events: none;
+}
+@keyframes plusAnim {
+  0%   { opacity: 0; }
+  30%  { opacity: 1; }
+  70%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+#plusText.play {
+  animation: plusAnim 1s ease forwards;
+}
+
+/* -------------------------------------------------- */
+/*                 In-Game MENU BUTTON                */
+/* -------------------------------------------------- */
+#gameMenuButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 950;
+  padding: 8px 12px;
+  background: linear-gradient(45deg, #ff7e5f, #feb47b);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: none;
+}
+#gameMenuButton:hover {
+  background: linear-gradient(45deg, #ff9a7a, #ffcc99);
+  color: #000000;
+}
+
+/* -------------------------------------------------- */
+/*                In-Game MENU OVERLAY               */
+/* -------------------------------------------------- */
+#inGameMenuOverlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.8);
+  display: none;
+  z-index: 1001;
+  align-items: center;
+  justify-content: center;
+}
+#inGameMenuOverlay .menuBox {
+  background: #000000;
+  padding: 20px;
+  border: 5px solid #FFFFFF;
+  border-radius: 10px;
   text-align: center;
+  color: #FFFFFF;
+}
+#inGameMenuOverlay .menuBox button {
+  width: 200px;
+  margin: 10px 0;
+  padding: 12px;
+  font-size: 18px;
+  background: linear-gradient(45deg, #ff7e5f, #feb47b);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+#inGameMenuOverlay .menuBox button:hover {
+  background: linear-gradient(45deg, #ff9a7a, #ffcc99);
+}
+
+/* -------------------------------------------------- */
+/*                   LOGIN OVERLAY                   */
+/* -------------------------------------------------- */
+#loginContainer {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.8);
+  display: none;
+  z-index: 600;
+}
+#loginContent {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: #021013;
+  padding: 20px;
+  border-radius: 10px;
+  color: #FFFFFF;
+  text-align: center;
+  width: 300px;
+}
+#loginContent input {
+  width: 280px;
+  padding: 10px;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+.menuButton {
+  width: 250px;
+  padding: 12px;
+  font-size: 18px;
+  background: linear-gradient(45deg, #4CAF50, #81C784);
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+  text-align: center;
+  margin: 5px 0;
+}
+
+.menuButton:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.6);
+  color: #000000;
+}
+
+.buyButton {
+  width: 250px;
+  padding: 12px;
+  font-size: 18px;
+  background: linear-gradient(45deg, #D32F2F, #F44336);
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 5px 15px rgba(211, 47, 47, 0.4);
+  text-align: center;
+  margin: 5px 0;
+}
+
+.buyButton:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(211, 47, 47, 0.6);
+}
+
+#centerLeft a {
   text-decoration: none;
 }
 
-button.menuButton:hover, a.menuButton:hover {
-  background-color: #e6c200;
+/* -------------------------------------------------- */
+/*                  SUMMARY OVERLAY                  */
+/* -------------------------------------------------- */
+#summaryOverlay {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  z-index: 600;
+  align-items: center;
+  justify-content: center;
+}
+#summaryOverlay .overlayContent {
+  background: #000000;
+  padding: 20px;
+  border: 5px solid #FFFFFF;
+  border-radius: 10px;
+  text-align: center;
+  color: #FFFFFF;
+}
+#summaryOverlay .overlayContent h2 {
+  margin: 0 0 10px;
+}
+#summaryOverlay .overlayContent p {
+  margin: 0 0 20px;
 }
 
-.menuButton:disabled {
-  background-color: #666;
-  cursor: not-allowed;
+/* -------------------------------------------------- */
+/*                      CANVAS                        */
+/* -------------------------------------------------- */
+#gameCanvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  display: none;
+  background: #100C18;
 }
-    
-    /* -------------------------------------------------- */
-    /*                КНОПКА FULLSCREEN                  */
-    /* -------------------------------------------------- */
-    #fullscreenButton {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 1000;
-      padding: 10px 15px;
-      background: linear-gradient(45deg, #ff7e5f, #feb47b);
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      color: #fff;
-    }
-    #fullscreenButton:hover {
-      background: linear-gradient(45deg, #ff9a7a, #ffcc99);
-      color: #000000;
-    }
 
-    /* -------------------------------------------------- */
-    /*                        HUD                         */
-    /* -------------------------------------------------- */
-    #hud {
-      position: absolute;
-      top: 10px; left: 10px; right: 10px;
-      display: none;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 900;
-      pointer-events: none;
-    }
-    #hud-left, #hud-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    #hud img {
-      filter: invert(100%);
-      width: 32px;
-      height: 32px;
-    }
-    #hud-left span {
-      font-size: 24px;
-      color: #fff;
-      text-shadow: 0 0 4px rgba(0,0,0,0.7);
-    }
+/* -------------------------------------------------- */
+/*                   GAME OVER OVERLAY               */
+/* -------------------------------------------------- */
+#gameOverOverlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.75);
+  display: none;
+  z-index: 600;
+  color: #FFFFFF;
+}
+#gameOverContent {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+#gameOverContent h1 {
+  font-size: 36px;
+  margin-bottom: 20px;
+}
+#gameOverContent p {
+  font-size: 24px;
+  margin: 20px 0;
+}
+.goButton {
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 18px;
+  background: linear-gradient(45deg, #ff7e5f, #feb47b);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.goButton:hover {
+  background: linear-gradient(45deg, #ff9a7a, #ffcc99);
+}
 
-    #hud-center {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    #batteryGroup {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    #batteryGroup img {
-      width: 32px;
-      height: 32px;
-      transition: opacity 0.2s ease;
-      filter: brightness(0) invert(1); /* Принудительно белый цвет */
-    }
-    #batteryGroup span {
-      font-size: 24px;
-      color: #fff;
-      text-shadow: 0 0 4px rgba(0,0,0,0.7);
-    }
+/* -------------------------------------------------- */
+/*                    RECORDS OVERLAY                */
+/* -------------------------------------------------- */
+#recordsContainer {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.9);
+  display: none;
+  z-index: 600;
+  color: #FFFFFF;
+}
+#recordsContent {
+  position: absolute;
+  top: 5%; left: 50%;
+  transform: translateX(-50%);
+  width: 90%; max-height: 90%;
+  background: #000000;
+  padding: 20px;
+  border: 5px solid #FFFFFF;
+  border-radius: 10px;
+  overflow-y: auto;
+}
+#recordsContent table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+}
+#recordsContent th, #recordsContent td {
+  padding: 8px;
+  border: 1px solid #FFFFFF;
+  text-align: left;
+}
+#recordsContent th {
+  background: linear-gradient(45deg, #ff7e5f, #feb47b);
+  color: #000000;
+}
+#recordsContent button {
+  padding: 8px 16px;
+  font-size: 16px;
+  background: linear-gradient(45deg, #ff7e5f, #feb47b);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+#recordsContent button:hover {
+  background: linear-gradient(45deg, #ff9a7a, #ffcc99);
+}
 
-    #plusText {
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #71FF61;
-      font-size: 18px;
-      opacity: 0;
-      pointer-events: none;
-    }
-    @keyframes plusAnim {
-      0%   { opacity: 0; }
-      30%  { opacity: 1; }
-      70%  { opacity: 1; }
-      100% { opacity: 0; }
-    }
-    #plusText.play {
-      animation: plusAnim 1s ease forwards;
-    }
+#inGameMenuOverlay .menuBox button.closeMenuButton {
+  display: block;
+  width: 150px;
+  margin: 0 auto 15px;
+  padding: 6px 0;
+  font-size: 14px;
+  background: #b33838;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+#inGameMenuOverlay .menuBox button.closeMenuButton:hover {
+  background: #912a2a;
+}
 
-    /* -------------------------------------------------- */
-    /*                 In-Game MENU BUTTON                */
-    /* -------------------------------------------------- */
-    #gameMenuButton {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 950;
-      padding: 8px 12px;
-      background: linear-gradient(45deg, #ff7e5f, #feb47b);
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      display: none;
-    }
-    #gameMenuButton:hover {
-      background: linear-gradient(45deg, #ff9a7a, #ffcc99);
-      color: #000000;
-    }
+#inGameMenuOverlay .menuBox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  margin-right: 8px;
+}
 
-    /* -------------------------------------------------- */
-    /*                In-Game MENU OVERLAY               */
-    /* -------------------------------------------------- */
-    #inGameMenuOverlay {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8);
-      display: none;
-      z-index: 1001;
-      align-items: center;
-      justify-content: center;
-    }
-    #inGameMenuOverlay .menuBox {
-      background: #000000;
-      padding: 20px;
-      border: 5px solid #FFFFFF;
-      border-radius: 10px;
-      text-align: center;
-      color: #FFFFFF;
-    }
-    #inGameMenuOverlay .menuBox button {
-      width: 200px;
-      margin: 10px 0;
-      padding: 12px;
-      font-size: 18px;
-      background: linear-gradient(45deg, #ff7e5f, #feb47b);
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    #inGameMenuOverlay .menuBox button:hover {
-      background: linear-gradient(45deg, #ff9a7a, #ffcc99);
-    }
+#inGameMenuOverlay .menuBox label {
+  font-size: 18px;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
 
-    /* -------------------------------------------------- */
-    /*                   LOGIN OVERLAY                   */
-    /* -------------------------------------------------- */
-    #loginContainer {
-      position: absolute; top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8);
-      display: none;
-      z-index: 600;
-    }
-    #loginContent {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      background: #021013;
-      padding: 20px;
-      border-radius: 10px;
-      color: #FFFFFF;
-      text-align: center;
-      width: 300px;
-    }
-    #loginContent input {
-      width: 280px;
-      padding: 10px;
-      font-size: 16px;
-      margin-bottom: 10px;
-    }
-    .menuButton {
-      width: 250px;
-      padding: 12px;
-      font-size: 18px;
-      background: linear-gradient(45deg, #4CAF50, #81C784);
-      color: #fff;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      transition: transform 0.3s, box-shadow 0.3s;
-      box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
-      text-align: center;
-      margin: 5px 0;
-    }
+#keyIconHUD {
+  filter: invert(100%);
+}
 
-    .menuButton:hover {
-      transform: scale(1.05);
-      box-shadow: 0 8px 20px rgba(76, 175, 80, 0.6);
-      color: #000000;
-    }
-
-    .buyButton {
-      width: 250px;
-      padding: 12px;
-      font-size: 18px;
-      background: linear-gradient(45deg, #D32F2F, #F44336);
-      color: #fff;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      transition: transform 0.3s, box-shadow 0.3s;
-      box-shadow: 0 5px 15px rgba(211, 47, 47, 0.4);
-      text-align: center;
-      margin: 5px 0;
-    }
-
-    .buyButton:hover {
-      transform: scale(1.05);
-      box-shadow: 0 8px 20px rgba(211, 47, 47, 0.6);
-    }
-
-    #centerLeft a {
-      text-decoration: none;
-    }
-
-    /* -------------------------------------------------- */
-    /*                  SUMMARY OVERLAY                  */
-    /* -------------------------------------------------- */
-    #summaryOverlay {
-      position: absolute; top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
-      display: none;
-      z-index: 600;
-      align-items: center;
-      justify-content: center;
-    }
-    #summaryOverlay .overlayContent {
-      background: #000000;
-      padding: 20px;
-      border: 5px solid #FFFFFF;
-      border-radius: 10px;
-      text-align: center;
-      color: #FFFFFF;
-    }
-    #summaryOverlay .overlayContent h2 {
-      margin: 0 0 10px;
-    }
-    #summaryOverlay .overlayContent p {
-      margin: 0 0 20px;
-    }
-
-    /* -------------------------------------------------- */
-    /*                    MAIN MENU                      */
-    /* -------------------------------------------------- */
-    #menuContainer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: #100C18;
-      color: #FFFFFF;
-      z-index: 300;
-      overflow: hidden;
-      padding: 20px;
-      animation: fadeIn 1s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    #topSection {
-      text-align: center;
-      padding: 20px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      animation: float 3s ease-in-out infinite;
-      margin-bottom: 40px;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-
-    #topSection h1 {
-      font-size: 48px;
-      font-weight: 700;
-      margin: 0;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-      color: #ffcc00;
-    }
-
-    #topSection p {
-      font-size: 18px;
-      margin: 10px 0 0;
-      opacity: 0.9;
-    }
-
-    #topSection img,
-    #centerRight img {
-      vertical-align: middle;
-      width: 24px;
-      height: 24px;
-      margin: 0 5px;
-      filter: invert(100%);
-    }
-
-    #centerSection {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 40px;
-      margin-top: 20px;
-    }
-
-    #centerLeft {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    #centerRight {
-      max-width: 30em;
-      font-size: 16px;
-      line-height: 1.6;
-      background: rgba(255, 255, 255, 0.05);
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(5px);
-    }
-
-    #centerRight h3 {
-      margin-top: 0;
-      margin-bottom: 10px;
-      font-size: 20px;
-      color: #ffcc00;
-      text-transform: uppercase;
-    }
-
-    #centerRight p {
-      margin-bottom: 15px;
-      color: #FFFFFF;
-    }
-
-    /* -------------------------------------------------- */
-    /*                      CANVAS                        */
-    /* -------------------------------------------------- */
-    #gameCanvas {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      display: none;
-      background: #100C18;
-    }
-
-    /* -------------------------------------------------- */
-    /*                   GAME OVER OVERLAY               */
-    /* -------------------------------------------------- */
-    #gameOverOverlay {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.75);
-      display: none;
-      z-index: 600;
-      color: #FFFFFF;
-    }
-    #gameOverContent {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-    }
-    #gameOverContent h1 {
-      font-size: 36px;
-      margin-bottom: 20px;
-    }
-    #gameOverContent p {
-      font-size: 24px;
-      margin: 20px 0;
-    }
-    .goButton {
-      margin: 10px;
-      padding: 10px 20px;
-      font-size: 18px;
-      background: linear-gradient(45deg, #ff7e5f, #feb47b);
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .goButton:hover {
-      background: linear-gradient(45deg, #ff9a7a, #ffcc99);
-    }
-
-    /* -------------------------------------------------- */
-    /*                    RECORDS OVERLAY                */
-    /* -------------------------------------------------- */
-    #recordsContainer {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.9);
-      display: none;
-      z-index: 600;
-      color: #FFFFFF;
-    }
-    #recordsContent {
-      position: absolute;
-      top: 5%; left: 50%;
-      transform: translateX(-50%);
-      width: 90%; max-height: 90%;
-      background: #000000;
-      padding: 20px;
-      border: 5px solid #FFFFFF;
-      border-radius: 10px;
-      overflow-y: auto;
-    }
-    #recordsContent table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 10px;
-    }
-    #recordsContent th, #recordsContent td {
-      padding: 8px;
-      border: 1px solid #FFFFFF;
-      text-align: left;
-    }
-    #recordsContent th {
-      background: linear-gradient(45deg, #ff7e5f, #feb47b);
-      color: #000000;
-    }
-    #recordsContent button {
-      padding: 8px 16px;
-      font-size: 16px;
-      background: linear-gradient(45deg, #ff7e5f, #feb47b);
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    #recordsContent button:hover {
-      background: linear-gradient(45deg, #ff9a7a, #ffcc99);
-    }
-    
-    #inGameMenuOverlay .menuBox button.closeMenuButton {
-      display: block;
-      width: 150px;
-      margin: 0 auto 15px;
-      padding: 6px 0;
-      font-size: 14px;
-      background: #b33838;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    #inGameMenuOverlay .menuBox button.closeMenuButton:hover {
-      background: #912a2a;
-    }
-
-    #inGameMenuOverlay .menuBox input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-      vertical-align: middle;
-      margin-right: 8px;
-    }
-
-    #inGameMenuOverlay .menuBox label {
-      font-size: 18px;
-      line-height: 1.4;
-      display: flex;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-    
-    #keyIconHUD {
-      filter: invert(100%);
-    }
-    
-    /* Стили для отключённых чекбоксов */
-    input[type="checkbox"]:disabled {
-    opacity: 0.6; /* Слегка прозрачный, чтобы показать, что чекбокс неактивен */
-    cursor: not-allowed; /* Курсор показывает, что взаимодействие невозможно */
-  }
+/* Стили для отключённых чекбоксов */
+input[type="checkbox"]:disabled {
+  opacity: 0.6; /* Слегка прозрачный, чтобы показать, что чекбокс неактивен */
+  cursor: not-allowed; /* Курсор показывает, что взаимодействие невозможно */
+}
   </style>
 </head>
 <body>
