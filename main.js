@@ -320,6 +320,7 @@ loginOkButton.addEventListener("click", async () => {
   const me = all.find(r => r.wallet === walletLower) || { score: 0, referals: 0 };
 
   lastRecord.textContent = me.score;
+  btnPlayNow.textContent = `PLAY`;
   summaryOverlay.style.display = "flex";
 });
 
