@@ -507,16 +507,18 @@ html, body {
   background: #000000; /* Фон, чтобы не просвечивала таблица */
   z-index: 10; /* Выше таблицы */
   padding-bottom: 10px;
+  text-align: center; /* Центрируем содержимое */
 }
 
 .stickyHeader h2 {
-  margin: 0 0 10px;
+  margin: 10px 0; /* Отступы для заголовка */
 }
 
 .stickyHeader #closeRecordsButton {
-  display: block;
-  width: 100%;
-  margin-top: 10px;
+  display: inline-block; /* Не растягивается на всю ширину */
+  width: auto; /* Автоматическая ширина по содержимому */
+  padding: 8px 16px; /* Уменьшенные отступы для компактности */
+  margin: 10px auto; /* Центрирование и отступ сверху */
 }
 
 #walletSearch {
@@ -527,6 +529,8 @@ html, body {
   padding: 8px;
   font-size: 16px;
   outline: none;
+  width: 100%; /* Поле поиска на всю ширину */
+  box-sizing: border-box;
 }
 
 #walletSearch:focus {
@@ -732,9 +736,9 @@ input[type="checkbox"]:disabled {
   <div id="recordsContainer">
     <div id="recordsContent">
       <div class="stickyHeader">
+        <button id="closeRecordsButton" class="goButton">Close</button>
         <h2>Ranking</h2>
         <input type="text" id="walletSearch" placeholder="Search by wallet..." />
-        <button id="closeRecordsButton" class="goButton">Close</button>
       </div>
       <div id="recordsTableContainer">Loading...</div>
     </div>
