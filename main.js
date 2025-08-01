@@ -413,7 +413,7 @@ function updateHUD() {
   batteryIconEl.src = `icons/${iconName}.svg`;
 }
 
-function startGame(bonus = 0) {
+function startGame() {
   // Останавливаем музыку, если она уже играет
   if (backgroundMusic) {
     backgroundMusic.pause();
@@ -423,7 +423,7 @@ function startGame(bonus = 0) {
   Object.keys(cells).forEach(k => delete cells[k]);
   generatedChunks.clear();
   scoreTotal = 0;
-  batteryPercent = 100 + bonus;
+  batteryPercent = 100;
   missEvents = [];
   blinkUntil = 0;
   lastPct = null;
