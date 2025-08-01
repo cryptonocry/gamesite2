@@ -131,7 +131,7 @@ html, body {
 
 /* Общие стили для всех кнопок */
 .menuButton, .buyButton {
-  width: 300px;
+  width: 300px !important; /* Принудительная фиксированная ширина */
   padding: 12px;
   font-size: 18px;
   border: none;
@@ -142,6 +142,8 @@ html, body {
   text-align: center;
   margin: 5px 0;
   text-decoration: none; /* Для ссылок */
+  white-space: nowrap; /* Предотвращает перенос текста */
+  overflow: hidden; /* Скрывает лишний текст */
 }
 
 .menuButton {
