@@ -367,14 +367,10 @@ function startGame(bonus = 0) {
   cameraX = cameraY = 0;
   gameStartTime = performance.now();
 
-  backgroundMusic = new Audio("music.wav");
-  backgroundMusic.volume = 0.3;
-  backgroundMusic.play().catch(e => console.error("Music playback failed:", e));
-  backgroundMusic.addEventListener("ended", () => {
-    if (backgroundMusic) {
-      backgroundMusic = null;
-    }
-  });
+backgroundMusic = new Audio("music.wav");
+backgroundMusic.loop = true; // <-- Это заставит музыку играть по кругу
+backgroundMusic.volume = 0.3;
+backgroundMusic.play().catch(e => console.error("Music playback failed:", e));
 
   playSound("start.wav", 0.7);
   updateHUD();
