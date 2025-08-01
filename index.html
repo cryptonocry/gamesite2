@@ -661,18 +661,51 @@ input[type="checkbox"]:disabled {
     </div>
   </div>
 
-  <!-- LOGIN OVERLAY -->
-  <div id="loginContainer">
-    <div id="loginContent">
-      <h2>Enter your wallet</h2>
-      <input id="walletInput" type="text" placeholder="62 chars lowercase [a-z0-9]" maxlength="62" />
-      <div style="margin-top:10px;">
-        <button id="loginOkButton" class="menuButton" style="margin-bottom: 10px;">OK</button><br/>
-        <button id="loginCancelButton" class="menuButton" style="margin-bottom: 10px;">Cancel</button><br/>
-        <button id="playWithoutWalletButton" class="menuButton buyButton">Play without wallet</button>
-      </div>
+<!-- LOGIN OVERLAY -->
+<div id="loginContainer">
+  <div id="loginContent">
+    <h2>Enter your wallet</h2>
+    <input
+      id="walletInput"
+      type="text"
+      placeholder="0x... (42 chars)"
+      maxlength="42"
+      pattern="0x[a-f0-9]{40}"
+      required
+    />
+    <div style="margin-top:10px;">
+      <button id="loginOkButton" class="menuButton" style="margin-bottom: 10px;">OK</button><br/>
+      <button id="loginCancelButton" class="menuButton" style="margin-bottom: 10px;">Cancel</button><br/>
+      <button id="playWithoutWalletButton" class="menuButton buyButton">Play without wallet</button>
     </div>
   </div>
+</div>
+
+<script>
+  const input = document.getElementById("walletInput");
+  const okBtn = document.getElementById("loginOkButton");
+
+  // Ограничиваем только допустимые символы при вводе
+  input.addEventListener("input", () => {
+    input.value = input.value.toLowerCase().replace(/[^a-f0-9x]/g, "");
+  });
+
+  // Проверка при нажатии на OK
+  okBtn.addEventListener("click", () => {
+    const value = input.value.trim();
+    const isValid = /^0x[a-f0-9]{40}$/.test(value);
+
+    if (!isValid) {
+      alert("Invalid EVM wallet address. It must start with 0x and be 42 characters long.");
+      input.focus();
+      return;
+    }
+
+    // Логика авторизации — тут можно добавить отправку данных
+    console.log("Wallet address accepted:", value);
+  });
+</script>
+
 
   <!-- SUMMARY OVERLAY -->
   <div id="summaryOverlay">
