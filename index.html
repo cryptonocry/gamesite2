@@ -151,7 +151,7 @@ html, body {
 .menuButton {
   background: linear-gradient(45deg, #4CAF50, #81C784);
   color: #fff;
-  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4); /* Зелёная тень */
 }
 
 .menuButton:hover {
@@ -164,7 +164,7 @@ html, body {
 .buyButton {
   background: linear-gradient(45deg, #D32F2F, #F44336);
   color: #fff;
-  box-shadow: 0 5px 15px rgba(211, 47, 47, 0.4);
+  box-shadow: 0 5px 15px rgba(211, 47, 47, 0.4); /* Красная тень */
 }
 
 .buyButton:hover {
@@ -172,89 +172,32 @@ html, body {
   box-shadow: 0 8px 20px rgba(211, 47, 47, 0.6);
 }
 
-/* Новый класс для белоснежно-серого градиента */
-.grey-gradient {
-  background: linear-gradient(45deg, #F5F5F5, #D3D3D3); /* Белоснежно-серый градиент */
-  color: #333; /* Тёмный текст для контраста */
-  box-shadow: 0 5px 15px rgba(211, 211, 211, 0.4); /* Светло-серые тени */
-}
 
-.grey-gradient:hover {
-  background: linear-gradient(45deg, #E0E0E0, #C0C0C0); /* Более тёмный серый при наведении */
-  box-shadow: 0 8px 20px rgba(211, 211, 211, 0.6);
-  color: #000000;
-}
-
-/* Стили для кнопок с белоснежно-серым градиентом */
-#fullscreenButton,
-#gameMenuButton,
-#inGameMenuOverlay .menuBox button,
-.goButton,
-#btnPlayNow {
-  width: auto; /* Сохраняем оригинальные размеры */
-  padding: 10px 15px;
-  font-size: 18px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  display: inline-block;
-  box-sizing: border-box;
-  background: inherit; /* Наследуем градиент */
-}
-
-/* Применяем grey-gradient ко всем кнопкам */
+/* -------------------------------------------------- */
+/*                КНОПКА FULLSCREEN                  */
+/* -------------------------------------------------- */
 #fullscreenButton {
   position: absolute;
   top: 10px;
   right: 10px;
   z-index: 1000;
+  padding: 10px 15px;
+  background: linear-gradient(45deg, #555555, #888888)
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  color: #fff;
+}
+#fullscreenButton:hover {
+  background: linear-gradient(45deg, #ff9a7a, #ffcc99);
+  color: #000000;
 }
 
-#gameMenuButton {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 950;
+    .menuButton, .buyButton {
+  display: inline-block; /* Для <a> это важно */
+  box-sizing: border-box; /* Убедимся, что padding не расширяет ширину */
 }
 
-#inGameMenuOverlay .menuBox button {
-  width: 200px;
-  margin: 10px 0;
-}
-
-.goButton {
-  margin: 10px;
-}
-
-#btnPlayNow {
-  margin: 0;
-}
-
-/* Удаляем старые стили оранжевого градиента */
-#fullscreenButton,
-#gameMenuButton,
-#inGameMenuOverlay .menuBox button,
-.goButton,
-#btnPlayNow {
-  background: none; /* Убираем старый градиент */
-}
-
-#fullscreenButton:hover,
-#gameMenuButton:hover,
-#inGameMenuOverlay .menuBox button:hover,
-.goButton:hover,
-#btnPlayNow:hover {
-  background: none; /* Убираем старый hover-эффект */
-}
-
-/* Применяем grey-gradient ко всем кнопкам */
-#fullscreenButton,
-#gameMenuButton,
-#inGameMenuOverlay .menuBox button,
-.goButton,
-#btnPlayNow {
-  background: inherit; /* Наследуем градиент из .grey-gradient */
-}
 
 /* -------------------------------------------------- */
 /*                        HUD                         */
@@ -328,6 +271,27 @@ html, body {
 }
 
 /* -------------------------------------------------- */
+/*                 In-Game MENU BUTTON                */
+/* -------------------------------------------------- */
+#gameMenuButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 950;
+  padding: 8px 12px;
+  background: linear-gradient(45deg, #555555, #888888)
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: none;
+}
+#gameMenuButton:hover {
+  background: linear-gradient(45deg, #ff9a7a, #ffcc99);
+  color: #000000;
+}
+
+/* -------------------------------------------------- */
 /*                In-Game MENU OVERLAY               */
 /* -------------------------------------------------- */
 #inGameMenuOverlay {
@@ -347,6 +311,20 @@ html, body {
   border-radius: 10px;
   text-align: center;
   color: #FFFFFF;
+}
+#inGameMenuOverlay .menuBox button {
+  width: 200px;
+  margin: 10px 0;
+  padding: 12px;
+  font-size: 18px;
+  background: linear-gradient(45deg, #555555, #888888)
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+#inGameMenuOverlay .menuBox button:hover {
+  background: linear-gradient(45deg, #ff9a7a, #ffcc99);
 }
 
 /* -------------------------------------------------- */
@@ -441,6 +419,19 @@ html, body {
   font-size: 24px;
   margin: 20px 0;
 }
+.goButton {
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 18px;
+  background: linear-gradient(45deg, #555555, #888888)
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.goButton:hover {
+  background: linear-gradient(45deg, #ff9a7a, #ffcc99);
+}
 
 /* -------------------------------------------------- */
 /*                    RECORDS OVERLAY                */
@@ -476,6 +467,20 @@ html, body {
   text-align: left;
 }
 #recordsContent th {
+  background: linear-gradient(45deg, #555555, #888888)
+  color: #000000;
+}
+#recordsContent button {
+  padding: 8px 16px;
+  font-size: 16px;
+  background: linear-gradient(45deg, #555555, #888888)
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+#recordsContent button:hover {
+  background: linear-gradient(45deg, #ff9a7a, #ffcc99);
 }
 
 #inGameMenuOverlay .menuBox button.closeMenuButton {
@@ -523,7 +528,7 @@ input[type="checkbox"]:disabled {
 <body>
 
   <!-- FULLSCREEN BUTTON -->
-  <button id="fullscreenButton" class="grey-gradient">Fullscreen</button>
+  <button id="fullscreenButton">Fullscreen</button>
 
   <!-- HUD -->
   <div id="hud">
@@ -542,15 +547,15 @@ input[type="checkbox"]:disabled {
   </div>
 
   <!-- IN-GAME MENU BUTTON -->
-  <button id="gameMenuButton" class="grey-gradient">MENU</button>
+  <button id="gameMenuButton">MENU</button>
 
   <!-- IN-GAME MENU OVERLAY -->
   <div id="inGameMenuOverlay">
     <div class="menuBox">
       <button id="btnCloseMenu" class="closeMenuButton">Close Menu</button>
-      <button id="btnFullscreenIG" class="grey-gradient">FULL SCREEN</button><br/>
-      <button id="btnRestartIG" class="grey-gradient">RESTART</button><br/>
-      <button id="btnMainIG" class="grey-gradient">MAIN PAGE</button>
+      <button id="btnFullscreenIG">FULL SCREEN</button><br/>
+      <button id="btnRestartIG">RESTART</button><br/>
+      <button id="btnMainIG">MAIN PAGE</button>
       
       <hr style="margin:20px 0;"/>
       <h3 style="margin-bottom:10px;">Настройки управления</h3>
@@ -590,7 +595,9 @@ input[type="checkbox"]:disabled {
         You have <strong><span id="refCount">0</span></strong> referrals
         — +<strong><span id="timeBonus">0</span></strong>% bonus
       </p>
-      <button id="btnPlayNow" class="grey-gradient">PLAY</button>
+      <button id="btnPlayNow" class="menuButton" style="background: linear-gradient(45deg, #555555, #888888)">
+        PLAY
+      </button>
     </div>
   </div>
 
@@ -633,8 +640,8 @@ input[type="checkbox"]:disabled {
     <div id="gameOverContent">
       <h1>Time’s up!</h1>
       <p id="finalScore">Your score: 0 <img src="icons/key.svg" alt="Key" style="filter: invert(100%); vertical-align: middle; width: 24px; height: 24px;" /></p>
-      <button id="btnMenu" class="grey-gradient">MENU</button>
-      <button id="btnRestart" class="grey-gradient">RESTART</button>
+      <button id="btnMenu" class="goButton">MENU</button>
+      <button id="btnRestart" class="goButton">RESTART</button>
     </div>
   </div>
 
@@ -643,7 +650,7 @@ input[type="checkbox"]:disabled {
     <div id="recordsContent">
       <h2>Ranking</h2>
       <div id="recordsTableContainer">Loading...</div>
-      <button id="closeRecordsButton" class="grey-gradient">Close</button>
+      <button id="closeRecordsButton" class="goButton">Close</button>
     </div>
   </div>
 
