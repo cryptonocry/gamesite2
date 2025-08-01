@@ -15,7 +15,7 @@ function playSound(src, vol = 0.5) {
 }
 
 // — Предварительная загрузка фоновой музыки —
-let backgroundMusic = new Audio("music.mp3");
+let backgroundMusic = new Audio("music.mp3"); // Изменено на MP3
 backgroundMusic.loop = true;
 backgroundMusic.volume = 0.3;
 
