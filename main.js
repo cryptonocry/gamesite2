@@ -140,6 +140,56 @@ const btnRestartOver  = document.getElementById("btnRestart");
 const recordsContainer      = document.getElementById("recordsContainer");
 const recordsTableContainer = document.getElementById("recordsTableContainer");
 const closeRecordsButton    = document.getElementById("closeRecordsButton");
+const walletSearch          = document.getElementById("walletSearch");
+
+// Wallet search functionality
+function filterRecords() {
+  const searchValue = walletSearch.value.toLowerCase();
+  const table = recordsTableContainer.querySelector('table');
+  if (!table) return;
+
+  const rows = table.querySelectorAll('tr');
+  let foundIndex = -1;
+  let visibleRows = 0;
+
+  // Remove existing no-results message
+  const existingNoResults = recordsTableContainer.querySelector('#noResults');
+  if (existingNoResults) existingNoResults.remove();
+
+  // Process table rows
+  rows.forEach((row, index) => {
+    if (index === 0) return; // Skip header
+    const walletCell = row.cells[1]; // Wallet is in the second column
+    if (walletCell) {
+      const walletText = walletCell.textContent.toLowerCase();
+      const matches = walletText.includes(searchValue);
+      row.style.display = matches || searchValue === '' ? '' : 'none';
+      if (matches) visibleRows++;
+      if (matches && foundIndex === -1) foundIndex = index;
+    }
+  });
+
+  // Show no-results message if needed
+  if (searchValue !== '' && visibleRows === 0) {
+    const noResults = document.createElement('div');
+    noResults.id = 'noResults';
+    noResults.style.color = '#FF4444';
+    noResults.style.marginTop = '10px';
+    noResults.textContent = 'No wallets found.';
+    recordsTableContainer.appendChild(noResults);
+  }
+
+  // Scroll to and highlight the first match
+  if (foundIndex !== -1 && searchValue !== '') {
+    const row = rows[foundIndex];
+    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    row.style.background = 'rgba(255, 255, 0, 0.2)';
+    setTimeout(() => row.style.background = '', 2000);
+  }
+}
+
+// Add event listener for search
+walletSearch.addEventListener('input', filterRecords);
 
 // Game state
 let gameState      = "menu";
@@ -293,6 +343,8 @@ btnPlayNow.addEventListener("click", () => {
 
 btnRecords.addEventListener("click", () => {
   showRecordsOverlay(recordsTableContainer, recordsContainer, currentPlayer);
+  walletSearch.value = ''; // Clear search input
+  filterRecords(); // Reset table display
 });
 closeRecordsButton.addEventListener("click", () => {
   if (backgroundMusic) {
