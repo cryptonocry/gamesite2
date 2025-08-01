@@ -48,16 +48,24 @@
   text-shadow: 2px 2px 4px #000000;
 }
 
-#topSection p {
+.game-description {
+  margin-top: 10px;
+}
+
+.game-description p {
   font-size: 1.2em;
-  margin: 10px 0;
+  margin: 5px 0;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 10px;
 }
 
-#topSection img {
+.game-description p:first-child {
+  font-weight: bold; /* Делаем "Собирай:" выделенным */
+}
+
+.game-description img {
   width: 30px;
   height: 30px;
   filter: invert(100%); /* Инверсия цвета для иконок */
@@ -685,7 +693,11 @@ button.menuButton:hover, a.menuButton:hover {
 <div id="menuContainer">
   <div id="topSection">
     <h1>Secret Society: Key Quest</h1>
-    <p>Собирай: <img src="icons/key.svg" alt="Key" /> Ключи — чтобы набрать очки, <img src="icons/clock.svg" alt="Clock" /> Часы — чтобы подзарядить фонарик и не остаться в темноте!</p>
+    <div class="game-description">
+      <p>Собирай:</p>
+      <p><img src="icons/key.svg" alt="Key" /> Ключи — чтобы набрать очки</p>
+      <p><img src="icons/clock.svg" alt="Clock" /> Часы — чтобы подзарядить фонарик и не остаться в темноте!</p>
+    </div>
   </div>
   <div id="centerSection">
     <div id="centerLeft">
