@@ -691,19 +691,19 @@ input[type="checkbox"]:disabled {
   });
 
   // Проверка при нажатии на OK
-  okBtn.addEventListener("click", () => {
-    const value = input.value.trim();
-    const isValid = /^0x[a-f0-9]{40}$/.test(value);
+okBtn.addEventListener("click", () => {
+  const value = input.value.trim();
 
-    if (!isValid) {
-      alert("Invalid EVM wallet address. It must start with 0x and be 42 characters long.");
-      input.focus();
-      return;
-    }
+  const isValid = /^0x[a-f0-9]{40}$/i.test(value); // теперь допускает верхний регистр
+  if (!isValid) {
+    alert("Invalid wallet!");
+    input.focus();
+    return;
+  }
 
-    // Логика авторизации — тут можно добавить отправку данных
-    console.log("Wallet address accepted:", value);
-  });
+  console.log("Wallet address accepted:", value);
+});
+
 </script>
 
 
