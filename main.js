@@ -312,17 +312,18 @@ loginOkButton.addEventListener("click", async () => {
   const isValid = /^0x[a-fA-F0-9]{40}$/.test(w);
   if (!isValid) return alert("Invalid wallet!");
 
-  const walletLower = w.toLowerCase(); // нормализуем
+  const walletLower = w.toLowerCase();
   currentPlayer = { wallet: walletLower, score: 0 };
   loginContainer.style.display = "none";
 
   const all = await fetchAllParticipantsFromXano();
-  const me = all.find(r => r.wallet === walletLower) || { score: 0, referals: 0 };
+  const me = all.find(r => r.wallet === walletLower) || { score: 0 };
 
   lastRecord.textContent = me.score;
   btnPlayNow.textContent = `PLAY`;
   summaryOverlay.style.display = "flex";
 });
+
 
 loginCancelButton.addEventListener("click", () => {
   loginContainer.style.display = "none";
