@@ -738,15 +738,29 @@ function draw() {
     ctx.restore();
   }
 
-  // Вспышка экрана
+  // Вспышка экрана — мягкий радиальный градиент вокруг курсора
   if (FX.flashAlpha > 0) {
     ctx.save();
-    const [fr,fg,fb] = FX.flashColor;
-    ctx.fillStyle = `rgba(${fr}, ${fg}, ${fb}, ${FX.flashAlpha})`;
-    ctx.fillRect(0, 0, w, h);
+    const [fr, fg, fb] = FX.flashColor;
+
+    // делаем вспышку мягче: гамма-кривой и ограничением силы
+    const a = Math.min(1, Math.pow(FX.flashAlpha, 0.6) * 0.8);
+
+    // большой радиус, чтобы края были плавные
+    const R = Math.max(gameCanvas.width, gameCanvas.height) * 0.75;
+
+    const grad = ctx.createRadialGradient(cursorX, cursorY, 0, cursorX, cursorY, R);
+    grad.addColorStop(0, `rgba(${fr}, ${fg}, ${fb}, ${a})`);
+    grad.addColorStop(1, `rgba(${fr}, ${fg}, ${fb}, 0)`);
+
+    // мягкое смешение (можно 'screen'; если ярковато — убери строку)
+    ctx.globalCompositeOperation = "lighter";
+
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
     ctx.restore();
   }
-}
+
 
 let last = performance.now();
 function loop() {
@@ -801,6 +815,7 @@ function updateUI() {
 
 updateUI();
 Icon._loadImages();
+
 
 
 
