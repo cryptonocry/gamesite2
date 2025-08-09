@@ -133,6 +133,14 @@ btnCloseMenu.addEventListener("click", () => {
   inGameMenuOverlay.style.display = "none";
 });
 
+// Доп. кнопка крестика в углу
+const btnCloseMenuIcon = document.getElementById("btnCloseMenuIcon");
+if (btnCloseMenuIcon) {
+  btnCloseMenuIcon.addEventListener("click", () => {
+    inGameMenuOverlay.style.display = "none";
+  });
+}
+
 // — CAMERA MODE TOGGLES —
 let enableEdgePan      = true;
 let enableKeyboardPan  = true;
@@ -817,6 +825,7 @@ function updateUI() {
 
 updateUI();
 Icon._loadImages();
+
 
 
 
