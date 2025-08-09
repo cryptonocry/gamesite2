@@ -2,6 +2,13 @@
 import { fetchAllParticipantsFromXano } from "./api.js";
 
 export async function showRecordsOverlay(recordsTableContainer, recordsContainer, currentPlayer) {
+    // Показать оверлей и лоадер пока тянем данные
+  recordsContainer.style.display = "block";
+  recordsTableContainer.innerHTML = `
+    <div class="loader"></div>
+    <div class="loaderText">Loading leaderboard…</div>
+  `;
+
   const records = await fetchAllParticipantsFromXano();
   if (!records || records.length === 0) {
     recordsTableContainer.innerHTML = "No records found.";
