@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
 /* =========================
-   THEME (подправь под сайт)
+   THEME
    ========================= */
 :root{
   --bg:#0E0A16;            /* основной фон */
@@ -35,7 +35,7 @@ html, body {
   color:var(--ink);
 }
 
-/* СЛОИ ФОНА: градиент + ауры + сетка + зерно */
+/* СЛОИ ФОНА: градиент + ауры + сетка + зерно + спотлайт */
 .bg-root, .bg-auras, .bg-grid, .bg-noise, .cursor-spot {
   position:fixed; inset:0; pointer-events:none; z-index:0;
 }
@@ -48,7 +48,7 @@ html, body {
     linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
 }
 
-/* Плавающие ауры (две большие размытия) */
+/* Плавающие ауры */
 .bg-auras:before, .bg-auras:after{
   content:""; position:absolute; width:55vmax; height:55vmax; border-radius:50%;
   filter: blur(70px);
@@ -289,7 +289,7 @@ html, body {
 #gameOverContent h1{ font-size:32px; margin:0 0 12px; }
 #gameOverContent p{ font-size:20px; margin:12px 0 18px; }
 
-/* in-game menu */
+/* in-game menu контейнер */
 #inGameMenuOverlay{ display:none; align-items:center; justify-content:center; }
 #inGameMenuOverlay .menuBox{
   padding:22px; text-align:center; width:min(420px, 92vw);
@@ -300,41 +300,48 @@ html, body {
 #inGameMenuOverlay .menuBox label{ display:flex; align-items:center; gap:10px; margin:8px 0; font-size:16px; }
 #inGameMenuOverlay .menuBox input[type="checkbox"]{ width:18px; height:18px; accent-color: var(--violet-2); }
 
-/* in-game menu — улучшение расположения + крестик */
-#inGameMenuOverlay .menuBox{ position:relative; padding-top:32px; }
-.menuActions{
-  display:grid;
-  grid-template-columns: repeat(2, minmax(140px,1fr));
-  gap:10px;
-  justify-items:center;
-  margin-bottom:14px;
+/* === ОБНОВЛЕНО: меню кнопок 1 колонка и крестик с отступом === */
+#inGameMenuOverlay .menuBox {
+  position: relative;
+  padding-top: 60px; /* увеличили отступ для крестика */
 }
-@media (max-width:520px){
-  .menuActions{ grid-template-columns: 1fr; }
+.menuActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-items: center;
+  margin-bottom: 14px;
 }
-#inGameMenuOverlay .menuBox .goButton{
-  width:100%;
-  border-radius:14px;
-  padding:10px 12px;
+#inGameMenuOverlay .menuBox .goButton {
+  width: 100%;
+  border-radius: 14px;
+  padding: 10px 12px;
 }
-#btnCloseMenuIcon{
-  position:absolute;
-  top:10px; right:10px;
-  width:34px; height:34px;
-  border:none; border-radius:50%;
-  cursor:pointer;
+/* крестик */
+#btnCloseMenuIcon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
   background: linear-gradient(135deg, #ff5a5a, #ff8a7a);
-  color:#fff; font-weight:800; line-height:34px;
+  color: #fff;
+  font-weight: 800;
+  line-height: 34px;
   box-shadow: 0 6px 16px rgba(255,90,90,.25);
+  z-index: 2;
 }
-#btnCloseMenuIcon:hover{
+#btnCloseMenuIcon:hover {
   background: linear-gradient(135deg, #ff7676, #ffbd9a);
-  color:#000;
+  color: #000;
 }
 /* старую кнопку Close Menu скрываем (оставляем для совместимости) */
 #btnCloseMenu{ display:none; }
 
-/* records */
+/* RECORDS */
 #recordsContent{
   position:absolute; top:5%; left:50%; transform:translateX(-50%);
   width:min(980px, 94vw); max-height:90%; padding:18px; overflow-y:auto; display:flex; flex-direction:column;
@@ -354,7 +361,7 @@ html, body {
   color:#0F0D18;
 }
 
-/* canvas */
+/* CANVAS */
 #gameCanvas{ position:absolute; inset:0; display:none; background: var(--bg); }
 
 /* мелкие эффекты / утилити */
@@ -410,7 +417,7 @@ input[type="checkbox"]:disabled{ opacity:.6; cursor:not-allowed; }
       <!-- Крестик -->
       <button id="btnCloseMenuIcon" aria-label="Close">✕</button>
 
-      <!-- Сетка action-кнопок -->
+      <!-- Кнопки в ОДИН столбец -->
       <div class="menuActions">
         <button id="btnFullscreenIG" class="goButton">FULL SCREEN</button>
         <button id="btnRestartIG"   class="goButton">RESTART</button>
@@ -424,7 +431,7 @@ input[type="checkbox"]:disabled{ opacity:.6; cursor:not-allowed; }
       <label><input type="checkbox" id="cbKeyboardPan" checked> Keyboard (WASD / Arrow Keys)</label>
       <label><input type="checkbox" id="cbRightDragPan" checked> Right-click drag</label>
 
-      <!-- старая кнопка оставлена, но скрыта стилями -->
+      <!-- старая кнопка (скрыта стилями) -->
       <button id="btnCloseMenu" class="goButton">Close Menu</button>
     </div>
   </div>
@@ -508,9 +515,9 @@ input[type="checkbox"]:disabled{ opacity:.6; cursor:not-allowed; }
     </div>
   </div>
 
-  <!-- легкие интерактивные эффекты -->
+  <!-- лёгкие интерактивные эффекты -->
   <script>
-    /* курсор-спотлайт и микро-параллакс */
+    /* курсор-спотлайт */
     const spot = document.getElementById('cursorSpot');
     window.addEventListener('pointermove', (e)=>{
       const x = e.clientX/window.innerWidth*100;
