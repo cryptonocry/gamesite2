@@ -3,652 +3,350 @@
 <head>
   <meta charset="UTF-8" />
   <title>Secret Society: Key Quest</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-/* -------------------------------------------------- */
-/*                      ОБЩИЕ СТИЛИ                  */
-/* -------------------------------------------------- */
+/* =========================
+   THEME (подправь под сайт)
+   ========================= */
+:root{
+  --bg:#0E0A16;            /* основной фон */
+  --bg-deep:#0A0810;       /* ещё темнее */
+  --violet-1:#6A00FF;      /* фирменный фиолетовый */
+  --violet-2:#B300FF;      /* фиолетовый 2 */
+  --violet-3:#3E1B74;      /* тёмный фиолетовый для карточек */
+  --gold:#FFCC00;          /* золото для акцентов/текста */
+  --gold-2:#FFB100;        /* золото 2 */
+  --ink:#FFFFFF;
+  --muted:#C9C4D6;
+  --card-glass:rgba(255,255,255,0.06);
+  --card-stroke:rgba(255,255,255,0.12);
+  --shadow:0 10px 30px rgba(0,0,0,.45);
+}
+
+/* =========================
+   BASE
+   ========================= */
 html, body {
-  margin: 0;
-  padding: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  background: #100C18;
-  font-family: Arial, sans-serif;
-  position: relative;
-}
-
-/* -------------------------------------------------- */
-/*                      MAIN MENU                     */
-/* -------------------------------------------------- */
-#menuContainer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: #100C18;
-  color: #FFFFFF;
-  z-index: 300;
-  overflow: hidden;
-  padding: 20px;
-  animation: fadeIn 1s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-#topSection {
-  text-align: center;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  animation: float 3s ease-in-out infinite;
-  margin-bottom: 40px;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-#topSection h1 {
-  font-size: 48px;
-  font-weight: 700;
-  margin: 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  color: #ffcc00;
-}
-
-.game-description {
-  margin-top: 30px; /* Отступ сверху перед "Собирай:" */
-}
-
-.game-description p {
-  font-size: 1.2em; /* Базовый размер текста для всех строк */
-  margin: 5px 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-}
-
-.game-description p:first-child {
-  font-size: 2.4em; /* Увеличение размера "Собирай:" в два раза (от 1.2em) */
-  font-weight: bold; /* Жирный шрифт для акцента */
-}
-
-.game-description img {
-  width: 30px;
-  height: 30px;
-  filter: invert(100%); /* Инверсия цвета для иконок */
-}
-
-#centerSection {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 40px;
-  margin-top: 20px;
-}
-
-#centerLeft {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-#centerRight {
-  max-width: 30em;
-  font-size: 16px;
-  line-height: 1.6;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(5px);
-}
-
-#centerRight h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
-  font-size: 20px;
-  color: #ffcc00;
-  text-transform: uppercase;
-}
-
-#centerRight label {
-  font-size: 1.1em;
-  margin: 8px 0;
-}
-
-/* Общие стили для всех кнопок */
-.menuButton, .buyButton {
-  width: 250px !important;
-  padding: 12px;
-  font-size: 18px;
-  border: none;
-  border-radius: 25px;
-  cursor: pointer;
-  transition: transform 0.3s, box-shadow 0.3s;
-  text-align: center;
-  margin: 5px 0;
-  text-decoration: none;
-  white-space: nowrap;
-  overflow: hidden;
-  display: inline-block;
-  box-sizing: border-box;
-}
-
-/* Зелёная кнопка */
-.menuButton {
-  background: linear-gradient(45deg, #4CAF50, #81C784);
-  color: #fff;
-  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4); /* Зелёная тень */
+  margin:0; padding:0;
+  width:100vw; height:100vh;
+  overflow:hidden;
+  background: var(--bg);
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color:var(--ink);
+}
+
+/* СЛОИ ФОНА: градиент + ауры + сетка + зерно */
+.bg-root, .bg-auras, .bg-grid, .bg-noise, .cursor-spot {
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+}
+
+/* Радиальный градиент центра */
+.bg-root{
+  background:
+    radial-gradient(1200px 800px at 50% -10%, rgba(179,0,255,.25), transparent 60%),
+    radial-gradient(900px 600px at 50% 120%, rgba(106,0,255,.18), transparent 60%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
+}
+
+/* Плавающие ауры (две большие размытия) */
+.bg-auras:before, .bg-auras:after{
+  content:""; position:absolute; width:55vmax; height:55vmax; border-radius:50%;
+  filter: blur(70px);
+  opacity:.25; mix-blend-mode:screen;
+  animation: auraMove 16s ease-in-out infinite alternate;
+}
+.bg-auras:before{
+  background: radial-gradient(closest-side, rgba(179,0,255,.55), transparent 70%);
+  left:-15vmax; top:-10vmax;
 }
-
-.menuButton:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.6);
-  color: #000000;
+.bg-auras:after{
+  background: radial-gradient(closest-side, rgba(106,0,255,.55), transparent 70%);
+  right:-12vmax; bottom:-10vmax; animation-delay: 1.2s;
+}
+@keyframes auraMove{
+  0%{ transform: translate(0,0) scale(1);}
+  100%{ transform: translate(2vmax, -1vmax) scale(1.05);}
+}
+
+/* Тонкая «сетка» */
+.bg-grid{
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,.06) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(1200px 700px at 50% 40%, #000 35%, transparent 75%);
+  opacity:.35;
+}
+
+/* Едва заметное зерно */
+.bg-noise{
+  background-image: url('data:image/svg+xml;utf8,\
+  <svg xmlns="http://www.w3.org/2000/svg" width=\"120\" height=\"120\" viewBox=\"0 0 120 120\">\
+  <filter id=\"n\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.9\" numOctaves=\"2\" stitchTiles=\"stitch\"/></filter>\
+  <rect width=\"120\" height=\"120\" filter=\"url(%23n)\" opacity=\"0.035\"/></svg>');
+  background-size: 120px 120px;
+  mix-blend-mode: overlay;
+}
+
+/* Спотлайт за курсором */
+.cursor-spot{
+  background: radial-gradient(220px 160px at var(--mx,50%) var(--my,50%), rgba(255,255,255,.08), transparent 60%);
+  transition: background-position .06s linear;
+}
+
+/* =========================
+   MAIN MENU
+   ========================= */
+#menuContainer{
+  position:absolute; inset:0; z-index:300;
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  padding:28px; gap:32px; text-align:center;
+  animation: fadeIn .8s ease-out both;
+}
+@keyframes fadeIn { from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none} }
+
+.card{
+  background: linear-gradient(180deg, var(--card-glass), rgba(255,255,255,0.03));
+  border: 1px solid var(--card-stroke);
+  box-shadow: var(--shadow);
+  border-radius: 18px;
+  backdrop-filter: blur(8px);
+}
+
+#topSection{
+  padding:28px 28px 22px; margin:0 16px; max-width:min(900px, 92vw);
+  animation: float 4.5s ease-in-out infinite;
+}
+@keyframes float{ 0%,100%{ transform: translateY(0)} 50%{ transform: translateY(-8px)} }
+
+#topSection h1{
+  margin:0; font-weight:800; line-height:1.05;
+  font-size: clamp(34px, 6vw, 64px);
+  letter-spacing:.02em;
+  background: linear-gradient(90deg, var(--gold) 0%, #FFF6BF 35%, var(--gold-2) 70%, var(--gold) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: 0 0 24px rgba(255,204,0,.12);
+  animation: titleGlow 3.5s ease-in-out infinite;
+}
+@keyframes titleGlow{
+  0%,100%{ filter: drop-shadow(0 0 12px rgba(255,204,0,.18)); }
+  50%{ filter: drop-shadow(0 0 22px rgba(255,204,0,.34)); }
+}
+
+/* мини-лейблы */
+.badges{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:10px;}
+.badge{
+  padding:6px 10px; font-size:12px; letter-spacing:.08em; text-transform:uppercase;
+  border-radius:999px; border:1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.05);
+  color:var(--muted);
+}
+
+/* описание с иконками */
+.game-description{ margin-top:18px; }
+.game-description p{
+  margin:8px 0; display:flex; justify-content:center; align-items:center; gap:10px;
+  font-size: clamp(14px, 2.2vw, 18px); color:var(--muted);
+}
+.game-description p:first-child{
+  font-size: clamp(18px, 3.4vw, 28px); font-weight:700; color:var(--ink);
+}
+.game-description img{ width:28px; height:28px; filter: invert(100%); opacity:.95; }
+
+/* центр секции */
+#centerSection{
+  display:flex; gap:28px; align-items:stretch; justify-content:center; flex-wrap:wrap;
+}
+#centerLeft{ display:flex; flex-direction:column; gap:12px; }
+
+/* стеклянная панель */
+#centerRight{
+  width:min(440px, 92vw);
+  padding:18px 18px 14px;
+}
+#centerRight h3{
+  margin:4px 0 10px;
+  font-size:14px; letter-spacing:.12em; color: var(--gold); text-transform: uppercase;
+}
+#centerRight label{
+  font-size:16px; display:flex; gap:10px; align-items:center; margin:10px 0; color:var(--ink);
+}
+#centerRight input[type="checkbox"]{
+  width:18px; height:18px; accent-color: var(--violet-2);
+}
+
+/* =========================
+   BUTTONS
+   ========================= */
+.button, .menuButton, .buyButton, .goButton, #gameMenuButton, #fullscreenButton, #recordsContent button {
+  --pad: 14px;
+  display:inline-block; width: 260px; padding: var(--pad) 18px;
+  font-size:18px; font-weight:700; letter-spacing:.02em; text-decoration:none; text-align:center;
+  border:none; border-radius: 999px; cursor:pointer; position:relative; overflow:hidden;
+  transition: transform .18s ease, box-shadow .18s ease, background .2s ease;
+  will-change: transform;
+}
+
+/* primary — фиолетовый */
+.menuButton{
+  background: linear-gradient(135deg, var(--violet-1) 0%, var(--violet-2) 100%);
+  color:#fff; box-shadow: 0 8px 20px rgba(179,0,255,.25);
+}
+.menuButton:hover{ transform: translateY(-1px); box-shadow: 0 12px 28px rgba(179,0,255,.35);}
+.menuButton:active{ transform: translateY(0); }
+
+/* secondary — золото */
+.buyButton{
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-2) 100%);
+  color:#1A1200; box-shadow: 0 8px 20px rgba(255,204,0,.25);
+}
+.buyButton:hover{ transform: translateY(-1px); box-shadow: 0 12px 28px rgba(255,204,0,.35); }
+.buyButton:active{ transform: translateY(0); }
+
+/* shine-эффект на ховере */
+.menuButton::before, .buyButton::before, .goButton::before{
+  content:""; position:absolute; inset:-2px; border-radius:inherit; pointer-events:none;
+  background: linear-gradient(120deg, transparent 15%, rgba(255,255,255,.35) 27%, transparent 40%);
+  transform: translateX(-120%);
+  transition: transform .6s cubic-bezier(.19,1,.22,1);
+}
+.menuButton:hover::before, .buyButton:hover::before, .goButton:hover::before{
+  transform: translateX(120%);
+}
+
+/* компактные кнопки в оверлеях */
+.goButton, #recordsContent button, #gameMenuButton, #fullscreenButton{
+  width:auto; border-radius:12px; padding:10px 14px; font-weight:600; font-size:16px;
+  background: linear-gradient(135deg, #5B5B6B, #8B8B9A);
+  color:#fff;
+}
+.goButton:hover, #recordsContent button:hover, #gameMenuButton:hover, #fullscreenButton:hover{
+  background: linear-gradient(135deg, #FF9A7A, #FFCC99);
+  color:#000;
 }
 
-/* Красная кнопка */
-.buyButton {
-  background: linear-gradient(45deg, #D32F2F, #F44336);
-  color: #fff;
-  box-shadow: 0 5px 15px rgba(211, 47, 47, 0.4); /* Красная тень */
-}
-
-.buyButton:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 20px rgba(211, 47, 47, 0.6);
-}
-
-/* -------------------------------------------------- */
-/*                КНОПКА FULLSCREEN                  */
-/* -------------------------------------------------- */
-#fullscreenButton {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 1000;
-  padding: 10px 15px;
-  background: linear-gradient(45deg, #555555, #888888);
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  color: #ffffff; /* Белый текст */
-}
-
-#fullscreenButton:hover {
-  background: linear-gradient(45deg, #ff9a7a, #ffcc99);
-  color: #000000;
-}
-
-.menuButton, .buyButton {
-  display: inline-block; /* Для <a> это важно */
-  box-sizing: border-box; /* Убедимся, что padding не расширяет ширину */
-}
-
-/* -------------------------------------------------- */
-/*                        HUD                         */
-/* -------------------------------------------------- */
-#hud {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  right: 10px;
-  display: none;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 900;
-  pointer-events: none;
-}
-
-#hud-left, #hud-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-#hud img {
-  filter: invert(100%);
-  width: 32px;
-  height: 32px;
-}
-
-#hud-left span {
-  font-size: 24px;
-  color: #fff;
-  text-shadow: 0 0 4px rgba(0,0,0,0.7);
-}
-
-#hud-center {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-#batteryGroup {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-#batteryGroup img {
-  width: 32px;
-  height: 32px;
-  transition: opacity 0.2s ease;
-  filter: brightness(0) invert(1); /* Принудительно белый цвет */
-}
-
-#batteryGroup span {
-  font-size: 24px;
-  color: #fff;
-  text-shadow: 0 0 4px rgba(0,0,0,0.7);
-}
-
-#plusText {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #71FF61;
-  font-size: 18px;
-  opacity: 0;
-  pointer-events: none;
-}
-
-@keyframes plusAnim {
-  0%   { opacity: 0; }
-  30%  { opacity: 1; }
-  70%  { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-#plusText.play {
-  animation: plusAnim 1s ease forwards;
-}
-
-/* -------------------------------------------------- */
-/*                 In-Game MENU BUTTON                */
-/* -------------------------------------------------- */
-#gameMenuButton {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 950;
-  padding: 8px 12px;
-  background: linear-gradient(45deg, #555555, #888888);
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  display: none;
-}
-
-#gameMenuButton:hover {
-  background: linear-gradient(45deg, #ff9a7a, #ffcc99);
-  color: #000000;
-}
-
-/* -------------------------------------------------- */
-/*                In-Game MENU OVERLAY               */
-/* -------------------------------------------------- */
-#inGameMenuOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.8);
-  display: none;
-  z-index: 1001;
-  align-items: center;
-  justify-content: center;
-}
-
-#inGameMenuOverlay .menuBox {
-  background: #000000;
-  padding: 20px;
-  border: 5px solid #FFFFFF;
-  border-radius: 10px;
-  text-align: center;
-  color: #FFFFFF;
-}
-
-#inGameMenuOverlay .menuBox button {
-  width: 200px;
-  margin: 10px 0;
-  padding: 12px;
-  font-size: 18px;
-  background: linear-gradient(45deg, #555555, #888888);
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-#inGameMenuOverlay .menuBox button:hover {
-  background: linear-gradient(45deg, #ff9a7a, #ffcc99);
-}
-
-/* -------------------------------------------------- */
-/*                   LOGIN OVERLAY                   */
-/* -------------------------------------------------- */
-#loginContainer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.8);
-  display: none;
-  z-index: 600;
-}
-
-#loginContent {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #021013;
-  padding: 20px;
-  border-radius: 10px;
-  color: #FFFFFF;
-  text-align: center;
-  width: 300px;
-}
-
-#loginContent input {
-  width: 280px;
-  padding: 10px;
-  font-size: 16px;
-  margin-bottom: 10px;
-}
-
-/* -------------------------------------------------- */
-/*                  SUMMARY OVERLAY                  */
-/* -------------------------------------------------- */
-#summaryOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.7);
-  display: none;
-  z-index: 600;
-  align-items: center;
-  justify-content: center;
-}
-
-#summaryOverlay .overlayContent {
-  background: #000000;
-  padding: 20px;
-  border: 5px solid #FFFFFF;
-  border-radius: 10px;
-  text-align: center;
-  color: #FFFFFF;
-}
-
-#summaryOverlay .overlayContent h2 {
-  margin: 0 0 10px;
-}
-
-#summaryOverlay .overlayContent p {
-  margin: 0 0 20px;
-}
-
-/* -------------------------------------------------- */
-/*                      CANVAS                        */
-/* -------------------------------------------------- */
-#gameCanvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  display: none;
-  background: #100C18;
-}
-
-/* -------------------------------------------------- */
-/*                   GAME OVER OVERLAY               */
-/* -------------------------------------------------- */
-#gameOverOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.75);
-  display: none;
-  z-index: 600;
-  color: #FFFFFF;
-}
-
-#gameOverContent {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-}
-
-#gameOverContent h1 {
-  font-size: 36px;
-  margin-bottom: 20px;
-}
-
-#gameOverContent p {
-  font-size: 24px;
-  margin: 20px 0;
-}
-
-.goButton {
-  margin: 10px;
-  padding: 10px 20px;
-  font-size: 18px;
-  background: linear-gradient(45deg, #555555, #888888);
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.goButton:hover {
-  background: linear-gradient(45deg, #ff9a7a, #ffcc99);
-}
-
-/* -------------------------------------------------- */
-/*                    RECORDS OVERLAY                */
-/* -------------------------------------------------- */
-#recordsContainer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.9);
-  display: none;
-  z-index: 600;
-  color: #FFFFFF;
-}
-
-#recordsContent {
-  position: absolute;
-  top: 5%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90%;
-  max-height: 90%;
-  background: #000000;
-  padding: 20px;
-  border: 5px solid #FFFFFF;
-  border-radius: 10px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.stickyHeader {
-  position: sticky;
-  top: 0;
-  background: #000000; /* Фон, чтобы не просвечивала таблица */
-  z-index: 10; /* Выше таблицы */
-  padding-bottom: 10px;
-  text-align: center; /* Центрируем содержимое */
-}
-
-.stickyHeader h2 {
-  margin: 10px 0; /* Отступы для заголовка */
-}
-
-.stickyHeader #closeRecordsButton {
-  display: inline-block; /* Не растягивается на всю ширину */
-  width: auto; /* Автоматическая ширина по содержимому */
-  padding: 8px 16px; /* Уменьшенные отступы для компактности */
-  margin: 10px auto; /* Центрирование и отступ сверху */
-}
-
-#walletSearch {
-  background: #222;
-  color: #FFFFFF;
-  border: 1px solid #FFFFFF;
-  border-radius: 5px;
-  padding: 8px;
-  font-size: 16px;
-  outline: none;
-  width: 100%; /* Поле поиска на всю ширину */
-  box-sizing: border-box;
-}
-
-#walletSearch:focus {
-  border-color: #ffcc00;
-  box-shadow: 0 0 5px rgba(255, 204, 0, 0.5);
-}
-
-#recordsContent table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 10px;
-}
-
-#recordsContent th, #recordsContent td {
-  padding: 8px;
-  border: 1px solid #FFFFFF;
-  text-align: left;
-}
-
-#recordsContent th {
-  background: linear-gradient(45deg, #888888, #555555);
-  color: #000000;
-}
-
-#recordsContent button {
-  padding: 8px 16px;
-  font-size: 16px;
-  background: linear-gradient(45deg, #555555, #888888);
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-#recordsContent button:hover {
-  background: linear-gradient(45deg, #ff9a7a, #ffcc99);
-}
-
-#inGameMenuOverlay .menuBox button.closeMenuButton {
-  display: block;
-  width: 150px;
-  margin: 0 auto 15px;
-  padding: 6px 0;
-  font-size: 14px;
-  background: #b33838;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-#inGameMenuOverlay .menuBox button.closeMenuButton:hover {
-  background: #912a2a;
-}
-
-#inGameMenuOverlay .menuBox input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
-  vertical-align: middle;
-  margin-right: 8px;
-}
-
-#inGameMenuOverlay .menuBox label {
-  font-size: 18px;
-  line-height: 1.4;
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-#keyIconHUD {
-  filter: invert(100%);
-}
-
-/* Стили для отключённых чекбоксов */
-input[type="checkbox"]:disabled {
-  opacity: 0.6; /* Слегка прозрачный, чтобы показать, что чекбокс неактивен */
-  cursor: not-allowed; /* Курсор показывает, что взаимодействие невозможно */
-}
-    /* --- HUD micro-animations --- */
-@keyframes bump {
-  0% { transform: scale(1); }
-  35% { transform: scale(1.25); }
-  100% { transform: scale(1); }
-}
-@keyframes pulse {
-  0% { transform: scale(1); filter: brightness(1); }
-  30% { transform: scale(1.15); filter: brightness(1.4); }
-  100% { transform: scale(1); filter: brightness(1); }
-}
-.bump { animation: bump 220ms ease-out; }
-.pulse { animation: pulse 260ms ease-out; }
-
-/* --- Fancy title glow (легкий, не мешает) --- */
-@keyframes titleGlow {
-  0%, 100% { text-shadow: 0 0 10px rgba(255, 204, 0, .35), 0 0 25px rgba(255, 204, 0, .15); }
-  50% { text-shadow: 0 0 16px rgba(255, 204, 0, .6), 0 0 38px rgba(255, 204, 0, .25); }
-}
-#topSection h1 { animation: titleGlow 3.5s ease-in-out infinite; }
-
-    /* мягкий подсвет кнопок */
-.menuButton::after, .buyButton::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 25px;
-  opacity: 0;
-  transition: opacity .3s;
-  pointer-events: none;
-  box-shadow: 0 0 30px rgba(255,255,255,.25);
-}
-.menuButton:hover::after, .buyButton:hover::after {
-  opacity: 1;
-}
-.menuButton, .buyButton { position: relative; }
+/* =========================
+   HUD / OVERLAYS / CANVAS
+   ========================= */
+#fullscreenButton{ position:absolute; top:12px; right:12px; z-index:1000; }
+#gameMenuButton{ position:absolute; top:12px; right:12px; z-index:950; display:none; }
+
+#hud{
+  position:absolute; top:12px; left:12px; right:12px;
+  display:none; justify-content:space-between; align-items:center; z-index:900;
+  pointer-events:none;
+}
+#hud-left, #hud-right{ display:flex; align-items:center; gap:8px; }
+#hud img{ filter:invert(100%); width:28px; height:28px; }
+#hud-left span, #batteryGroup span{
+  font-size:22px; color:#fff; text-shadow:0 0 4px rgba(0,0,0,.7);
+}
+#hud-center{ position:relative; display:flex; flex-direction:column; align-items:center; }
+#batteryGroup{ display:flex; align-items:center; gap:8px; }
+#batteryGroup img{ width:28px; height:28px; transition:opacity .2s; filter: brightness(0) invert(1); }
+#plusText{
+  position:absolute; top:100%; left:50%; transform:translateX(-50%);
+  color:#71FF61; font-size:18px; opacity:0; pointer-events:none;
+}
+@keyframes plusAnim{ 0%{opacity:0} 30%{opacity:1} 70%{opacity:1} 100%{opacity:0} }
+#plusText.play{ animation: plusAnim 1s ease forwards; }
+
+#inGameMenuOverlay, #loginContainer, #summaryOverlay, #gameOverOverlay, #recordsContainer{
+  position:absolute; inset:0; display:none; z-index:600; color:#fff;
+  background: rgba(0,0,0,.78);
+}
+#inGameMenuOverlay .menuBox, #summaryOverlay .overlayContent, #gameOverContent, #loginContent, #recordsContent{
+  background:#0A0A0A; border-radius:16px; border:1px solid var(--card-stroke);
+  box-shadow:var(--shadow);
+}
+
+/* логин */
+#loginContent{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  padding:22px; width:min(340px, 92vw); text-align:center;
+}
+#loginContent h2{ margin:0 0 12px; font-weight:800; letter-spacing:.02em; }
+#loginContent input{
+  width:100%; padding:12px 14px; font-size:16px; margin:10px 0 12px;
+  border-radius:10px; border:1px solid rgba(255,255,255,.18); outline:none;
+  background: rgba(255,255,255,.05); color:var(--ink);
+}
+#loginContent input:focus{
+  border-color: var(--gold); box-shadow: 0 0 0 3px rgba(255,204,0,.18);
+}
+
+/* summary */
+#summaryOverlay .overlayContent{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  padding:22px; text-align:center; min-width: min(360px, 92vw);
+}
+#summaryOverlay .overlayContent h2{ margin:0 0 12px; }
+
+/* game over */
+#gameOverContent{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  padding:22px; text-align:center;
+}
+#gameOverContent h1{ font-size:32px; margin:0 0 12px; }
+#gameOverContent p{ font-size:20px; margin:12px 0 18px; }
+
+/* in-game menu */
+#inGameMenuOverlay{ display:none; align-items:center; justify-content:center; }
+#inGameMenuOverlay .menuBox{
+  padding:22px; text-align:center; width:min(420px, 92vw);
+}
+#inGameMenuOverlay .menuBox h3{
+  margin:12px 0 6px; font-size:14px; color:var(--gold); letter-spacing:.12em; text-transform:uppercase;
+}
+#inGameMenuOverlay .menuBox label{ display:flex; align-items:center; gap:10px; margin:8px 0; font-size:16px; }
+#inGameMenuOverlay .menuBox input[type="checkbox"]{ width:18px; height:18px; accent-color: var(--violet-2); }
+
+/* records */
+#recordsContent{
+  position:absolute; top:5%; left:50%; transform:translateX(-50%);
+  width:min(980px, 94vw); max-height:90%; padding:18px; overflow-y:auto; display:flex; flex-direction:column;
+}
+.stickyHeader{ position:sticky; top:0; background:#0A0A0A; z-index:10; padding-bottom:8px; text-align:center; }
+.stickyHeader h2{ margin:10px 0; }
+#walletSearch{
+  background:#1A1A1A; color:#FFFFFF; border:1px solid var(--card-stroke);
+  border-radius:10px; padding:10px 12px; font-size:16px; outline:none; width:100%; box-sizing:border-box;
+}
+#walletSearch:focus{ border-color:var(--gold); box-shadow:0 0 0 3px rgba(255,204,0,.18); }
+
+#recordsContent table{ width:100%; border-collapse:collapse; margin-top:12px; }
+#recordsContent th, #recordsContent td{ padding:10px; border:1px solid rgba(255,255,255,.12); text-align:left; }
+#recordsContent th{
+  background: linear-gradient(135deg, #8A86A0, #5F5C74);
+  color:#0F0D18;
+}
+
+/* canvas */
+#gameCanvas{ position:absolute; inset:0; display:none; background: var(--bg); }
+
+/* мелкие эффекты / утилити */
+@keyframes bump { 0%{transform:scale(1)} 35%{transform:scale(1.22)} 100%{transform:scale(1)} }
+@keyframes pulse{ 0%{transform:scale(1); filter:brightness(1)} 30%{transform:scale(1.12); filter:brightness(1.35)} 100%{transform:scale(1); filter:brightness(1)} }
+.bump{ animation: bump 220ms ease-out; }
+.pulse{ animation: pulse 260ms ease-out; }
+
+input[type="checkbox"]:disabled{ opacity:.6; cursor:not-allowed; }
+#keyIconHUD{ filter: invert(100%); }
+
+/* адаптив */
+@media (max-width: 560px){
+  .button, .menuButton, .buyButton{ width: 88vw; }
+  #topSection{ padding:22px 18px; }
+}
   </style>
 </head>
 <body>
+
+  <!-- ФОНОВЫЕ СЛОИ -->
+  <div class="bg-root"></div>
+  <div class="bg-auras"></div>
+  <div class="bg-grid"></div>
+  <div class="bg-noise"></div>
+  <div class="cursor-spot" id="cursorSpot"></div>
 
   <!-- FULLSCREEN BUTTON -->
   <button id="fullscreenButton">Fullscreen</button>
@@ -674,97 +372,82 @@ input[type="checkbox"]:disabled {
 
   <!-- IN-GAME MENU OVERLAY -->
   <div id="inGameMenuOverlay">
-    <div class="menuBox">
-      <button id="btnCloseMenu" class="closeMenuButton">Close Menu</button>
-      <button id="btnFullscreenIG">FULL SCREEN</button><br/>
-      <button id="btnRestartIG">RESTART</button><br/>
-      <button id="btnMainIG">MAIN PAGE</button>
-      
-      <hr style="margin:20px 0;"/>
-      <h3 style="margin-bottom:10px;">MOVEMENT CONTROLS</h3>
-      <label style="display:block; text-align:left;">
-        <input type="checkbox" id="cbEdgePan" checked>
-        Edge scroll
-      </label>
-      <label style="display:block; text-align:left;">
-        <input type="checkbox" id="cbKeyboardPan" checked>
-        Keyboard (WASD / Arrow Keys)
-      </label>
-      <label style="display:block; text-align:left;">
-        <input type="checkbox" id="cbRightDragPan" checked>
-        Right-click drag
-      </label>
+    <div class="menuBox card">
+      <button id="btnCloseMenu" class="goButton">Close Menu</button>
+      <button id="btnFullscreenIG" class="goButton">FULL SCREEN</button><br/>
+      <button id="btnRestartIG" class="goButton">RESTART</button><br/>
+      <button id="btnMainIG" class="goButton">MAIN PAGE</button>
+
+      <hr style="margin:18px 0; border-color:rgba(255,255,255,.12)"/>
+      <h3>MOVEMENT CONTROLS</h3>
+      <label><input type="checkbox" id="cbEdgePan" checked> Edge scroll</label>
+      <label><input type="checkbox" id="cbKeyboardPan" checked> Keyboard (WASD / Arrow Keys)</label>
+      <label><input type="checkbox" id="cbRightDragPan" checked> Right-click drag</label>
     </div>
   </div>
 
-<!-- LOGIN OVERLAY -->
-<div id="loginContainer">
-  <div id="loginContent">
-    <h2>Enter your wallet</h2>
-    <input
-      id="walletInput"
-      type="text"
-      placeholder="0x... (42 chars)"
-      maxlength="42"
-    />
-    <div style="margin-top:10px;">
-      <button id="loginOkButton" class="menuButton" style="margin-bottom: 10px;">OK</button><br/>
-      <button id="loginCancelButton" class="menuButton" style="margin-bottom: 10px;">Cancel</button><br/>
-      <button id="playWithoutWalletButton" class="menuButton buyButton">Play without wallet</button>
+  <!-- LOGIN OVERLAY -->
+  <div id="loginContainer">
+    <div id="loginContent" class="card">
+      <h2>Enter your wallet</h2>
+      <input id="walletInput" type="text" placeholder="0x... (42 chars)" maxlength="42" />
+      <div style="margin-top:10px;">
+        <button id="loginOkButton" class="menuButton" style="margin-bottom:10px;">OK</button><br/>
+        <button id="loginCancelButton" class="menuButton" style="margin-bottom:10px;">Cancel</button><br/>
+        <button id="playWithoutWalletButton" class="buyButton">Play without wallet</button>
+      </div>
     </div>
   </div>
-</div>
-
 
   <!-- SUMMARY OVERLAY -->
-<div id="summaryOverlay">
-  <div class="overlayContent">
-    <h2>Your best score: <span id="lastRecord">0</span></h2>
-    <button id="btnPlayNow" class="menuButton" style="background: linear-gradient(45deg, #555555, #888888)">
-      PLAY
-    </button>
+  <div id="summaryOverlay">
+    <div class="overlayContent card">
+      <h2>Your best score: <span id="lastRecord">0</span></h2>
+      <button id="btnPlayNow" class="menuButton">PLAY</button>
+    </div>
   </div>
-</div>
 
-<!-- MAIN MENU -->
-<div id="menuContainer">
-  <div id="topSection">
-    <h1>Secret Society: Key Quest</h1>
-    <div class="game-description">
-      <p>Collect:</p>
-      <p><img src="icons/key.svg" alt="Key" /> Keys — to score points</p>
-      <p><img src="icons/clock.svg" alt="Clock" /> Clocks — to recharge your flashlight — don’t get lost in the dark!</p>
+  <!-- MAIN MENU -->
+  <div id="menuContainer">
+    <div id="topSection" class="card">
+      <div class="badges">
+        <span class="badge">NFT Mini-Game</span>
+        <span class="badge">60s Challenge</span>
+        <span class="badge">Top-100 = GTD</span>
+      </div>
+      <h1>Secret Society: Key Quest</h1>
+      <div class="game-description">
+        <p>Collect:</p>
+        <p><img src="icons/key.svg" alt="Key" /> Keys — to score points</p>
+        <p><img src="icons/clock.svg" alt="Clock" /> Clocks — recharge your flashlight — don’t get lost in the dark!</p>
+      </div>
+    </div>
+
+    <div id="centerSection">
+      <div id="centerLeft">
+        <button id="btnStart" class="menuButton">Start Game</button>
+        <button id="btnRecords" class="menuButton">Leaderboard</button>
+        <a href="https://www.secretsociety.so/" target="_blank" class="buyButton">Secret Society Website</a>
+      </div>
+      <div id="centerRight" class="card">
+        <h3>MOVEMENT SETTINGS</h3>
+        <label><input type="checkbox" id="cbEdgePanMain" checked> Edge scroll</label>
+        <label><input type="checkbox" id="cbKeyboardPanMain" checked> Keyboard (WASD / Arrow Keys)</label>
+        <label><input type="checkbox" id="cbRightDragPanMain" checked> Right-click drag</label>
+      </div>
     </div>
   </div>
-  <div id="centerSection">
-    <div id="centerLeft">
-      <button id="btnStart" class="menuButton">Start Game</button>
-      <button id="btnRecords" class="menuButton">Leaderboard</button>
-      <a href="https://www.secretsociety.so/" target="_blank" class="menuButton buyButton">Secret Society Website</a>
-    </div>
-    <div id="centerRight">
-      <h3>MOVEMENT SETTINGS</h3>
-      <label style="display:block; text-align:left;">
-        <input type="checkbox" id="cbEdgePanMain" checked> Edge scroll
-      </label>
-      <label style="display:block; text-align:left;">
-        <input type="checkbox" id="cbKeyboardPanMain" checked> Keyboard (WASD / Arrow Keys)
-      </label>
-      <label style="display:block; text-align:left;">
-        <input type="checkbox" id="cbRightDragPanMain" checked> Right-click drag
-      </label>
-    </div>
-  </div>
-</div>
 
   <!-- GAME CANVAS -->
   <canvas id="gameCanvas"></canvas>
 
   <!-- GAME OVER OVERLAY -->
   <div id="gameOverOverlay">
-    <div id="gameOverContent">
+    <div id="gameOverContent" class="card">
       <h1>Time’s up!</h1>
-      <p id="finalScore">Your score: 0 <img src="icons/key.svg" alt="Key" style="filter: invert(100%); vertical-align: middle; width: 24px; height: 24px;" /></p>
+      <p id="finalScore">Your score: 0
+        <img src="icons/key.svg" alt="Key" style="filter: invert(100%); vertical-align: middle; width: 22px; height: 22px;" />
+      </p>
       <button id="btnMenu" class="goButton">MENU</button>
       <button id="btnRestart" class="goButton">RESTART</button>
     </div>
@@ -782,10 +465,27 @@ input[type="checkbox"]:disabled {
     </div>
   </div>
 
+  <!-- легкие интерактивные эффекты (не ломают логику игры) -->
+  <script>
+    /* курсор-спотлайт и микро-параллакс */
+    const spot = document.getElementById('cursorSpot');
+    window.addEventListener('pointermove', (e)=>{
+      const x = e.clientX/window.innerWidth*100;
+      const y = e.clientY/window.innerHeight*100;
+      spot.style.setProperty('--mx', x + '%');
+      spot.style.setProperty('--my', y + '%');
+    });
+
+    /* лёгкий «бамповый» отклик у главных кнопок */
+    const bumpIds = ['btnStart','btnRecords','btnPlayNow'];
+    bumpIds.forEach(id=>{
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.addEventListener('pointerdown', ()=>{ el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); });
+    });
+  </script>
+
+  <!-- твоя игровая логика -->
   <script type="module" src="main.js"></script>
 </body>
 </html>
-
-
-
-
