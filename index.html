@@ -492,10 +492,13 @@ input[type="checkbox"]:disabled{ opacity:.6; cursor:not-allowed; }
   <div id="loginContent" class="card" style="position: relative;">
     <button id="loginCloseIcon" aria-label="Close">✕</button>
     <h2>Enter your wallet</h2>
+    <p style="font-size: 13px; color: var(--muted); margin: 4px 0 10px;">
+  Top&nbsp;100 players will get a <span style="color: var(--gold); font-weight: 600;">GTD spot</span> — enter your wallet to participate!
+</p>
     <input id="walletInput" type="text" placeholder="0x... (42 chars)" maxlength="42" />
     <div style="margin-top:10px;">
       <button id="loginOkButton" class="menuButton" style="margin-bottom:10px;">OK</button><br/>
-      <button id="playWithoutWalletButton" class="buyButton">Play without wallet</button>
+      <button id="playWithoutWalletButton" class="buyButton">Play for fun (no wallet)</button>
     </div>
   </div>
 </div>
@@ -591,6 +594,7 @@ input[type="checkbox"]:disabled{ opacity:.6; cursor:not-allowed; }
   <script type="module" src="main.js"></script>
 </body>
 </html>
+
 
 
 
