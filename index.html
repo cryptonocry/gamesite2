@@ -610,6 +610,26 @@ input[type="checkbox"]:disabled {
   opacity: 0.6; /* Слегка прозрачный, чтобы показать, что чекбокс неактивен */
   cursor: not-allowed; /* Курсор показывает, что взаимодействие невозможно */
 }
+    /* --- HUD micro-animations --- */
+@keyframes bump {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+@keyframes pulse {
+  0% { transform: scale(1); filter: brightness(1); }
+  30% { transform: scale(1.15); filter: brightness(1.4); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+.bump { animation: bump 220ms ease-out; }
+.pulse { animation: pulse 260ms ease-out; }
+
+/* --- Fancy title glow (легкий, не мешает) --- */
+@keyframes titleGlow {
+  0%, 100% { text-shadow: 0 0 10px rgba(255, 204, 0, .35), 0 0 25px rgba(255, 204, 0, .15); }
+  50% { text-shadow: 0 0 16px rgba(255, 204, 0, .6), 0 0 38px rgba(255, 204, 0, .25); }
+}
+#topSection h1 { animation: titleGlow 3.5s ease-in-out infinite; }
   </style>
 </head>
 <body>
@@ -749,5 +769,6 @@ input[type="checkbox"]:disabled {
   <script type="module" src="main.js"></script>
 </body>
 </html>
+
 
 
