@@ -98,7 +98,7 @@ function pulse(el) { bump(el, "pulse", 260); }
 // общий спавн эффектов при подборе
 function spawnPickupEffects(type, x, y) {
   if (type === "key") {
-    const col = [255, 210, 80];
+    const col = [255, 250, 200];
     spawnParticles(x, y, 18, col);
     spawnRipple(x, y, col);
     FX.flashColor = col;
@@ -801,6 +801,7 @@ function updateUI() {
 
 updateUI();
 Icon._loadImages();
+
 
 
 
