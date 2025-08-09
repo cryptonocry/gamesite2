@@ -423,11 +423,26 @@ btnPlayNow.addEventListener("click", () => {
   startGame(0);
 });
 
-btnRecords.addEventListener("click", () => {
-  showRecordsOverlay(recordsTableContainer, recordsContainer, currentPlayer);
-  walletSearch.value = ''; // Clear search input
-  filterRecords(); // Reset table display
+btnRecords.addEventListener("click", async () => {
+  // Запоминаем старый текст кнопки
+  const prevText = btnRecords.textContent;
+
+  // Меняем текст и блокируем кнопку
+  btnRecords.textContent = "Loading…";
+  btnRecords.disabled = true;
+
+  try {
+    // Ждём, пока подгрузятся данные
+    await showRecordsOverlay(recordsTableContainer, recordsContainer, currentPlayer);
+    walletSearch.value = '';   // очищаем поиск
+    filterRecords();           // сбрасываем фильтр
+  } finally {
+    // Возвращаем кнопку в норму
+    btnRecords.disabled = false;
+    btnRecords.textContent = prevText;
+  }
 });
+
 closeRecordsButton.addEventListener("click", () => {
   if (backgroundMusic) {
     backgroundMusic.pause();
@@ -825,6 +840,7 @@ function updateUI() {
 
 updateUI();
 Icon._loadImages();
+
 
 
 
