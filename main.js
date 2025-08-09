@@ -205,7 +205,7 @@ gameMenuButton.addEventListener("click", () => {
 const loginContainer          = document.getElementById("loginContainer");
 const walletInput             = document.getElementById("walletInput");
 const loginOkButton           = document.getElementById("loginOkButton");
-const loginCancelButton       = document.getElementById("loginCancelButton");
+const loginCloseIcon          = document.getElementById("loginCloseIcon");
 const playWithoutWalletButton = document.getElementById("playWithoutWalletButton");
 
 const summaryOverlay = document.getElementById("summaryOverlay");
@@ -409,9 +409,12 @@ loginOkButton.addEventListener("click", async () => {
   summaryOverlay.style.display = "flex";
 });
 
-loginCancelButton.addEventListener("click", () => {
-  loginContainer.style.display = "none";
-});
+if (loginCloseIcon) {
+  loginCloseIcon.addEventListener("click", () => {
+    loginContainer.style.display = "none";
+  });
+}
+
 playWithoutWalletButton.addEventListener("click", () => {
   currentPlayer = null;
   loginContainer.style.display = "none";
@@ -840,6 +843,7 @@ function updateUI() {
 
 updateUI();
 Icon._loadImages();
+
 
 
 
