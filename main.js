@@ -1,4 +1,4 @@
-import { addParticipantToXano, fetchAllParticipantsFromXano } from "./api.js";
+import { fetchAllParticipantsFromXano, startSession, submitScore } from "./api.js";
 import { showRecordsOverlay } from "./ui.js";
 import { Icon } from "./digit.js";
 import {
@@ -25,19 +25,19 @@ function preloadAudio() {
 preloadAudio();
 
 /* =========================
-   FX: частицы / рябь / шлейф / вспышка / подпрыгивание HUD
+   FX
    ========================= */
 const FX = {
-  particles: [],     // искры/звёздочки
-  ripples: [],       // круговая рябь на месте подбора
-  trails: [],        // шлейф «призрак»
-  flashAlpha: 0,     // интенсивность вспышки экрана
-  flashColor: [255, 204, 0], // базовый тёплый цвет (для ключа)
+  particles: [],
+  ripples: [],
+  trails: [],
+  flashAlpha: 0,
+  flashColor: [255, 204, 0],
 };
 
 const rand = (a, b) => a + Math.random() * (b - a);
 
-// создать набор частиц
+// эффекты
 function spawnParticles(x, y, count, color) {
   for (let i = 0; i < count; i++) {
     const ang = rand(0, Math.PI * 2);
@@ -46,29 +46,27 @@ function spawnParticles(x, y, count, color) {
       x, y,
       vx: Math.cos(ang) * spd,
       vy: Math.sin(ang) * spd,
-      life: rand(300, 600),  // мс
+      life: rand(300, 600),
       age: 0,
       size: rand(2, 4),
-      color, // [r,g,b]
+      color,
       alpha: 1
     });
   }
 }
 
-// круговая рябь
 function spawnRipple(x, y, color) {
   FX.ripples.push({
     x, y,
     r: 0,
     maxR: 120,
-    life: 400, // мс
+    life: 400,
     age: 0,
     alpha: 1,
     color
   });
 }
 
-// «шлейф» (несколько копий, быстро растворяются)
 function spawnTrail(x, y, img, copies = 3) {
   const now = performance.now();
   for (let i = 0; i < copies; i++) {
@@ -83,11 +81,9 @@ function spawnTrail(x, y, img, copies = 3) {
   }
 }
 
-// подпрыгивание HUD-элемента (добавляет/убирает CSS-класс)
 function bump(el, cls = "bump", dur = 220) {
   if (!el) return;
   el.classList.remove(cls);
-  // форс-рефлоу — чтобы переигрывалось при быстром наборе
   void el.offsetWidth;
   el.classList.add(cls);
   setTimeout(() => el.classList.remove(cls), dur + 30);
@@ -95,7 +91,6 @@ function bump(el, cls = "bump", dur = 220) {
 
 function pulse(el) { bump(el, "pulse", 260); }
 
-// общий спавн эффектов при подборе
 function spawnPickupEffects(type, x, y) {
   if (type === "key") {
     const col = [255, 250, 200];
@@ -144,9 +139,9 @@ if (btnCloseMenuIcon) {
 // — CAMERA MODE TOGGLES —
 let enableEdgePan      = true;
 let enableKeyboardPan  = true;
-let enableRightDragPan = true; // Всегда включено
+let enableRightDragPan = true;
 
-// Найдём чекбоксы для in-game и main menu
+// Найдём чекбоксы
 const cbEdgePan      = document.getElementById("cbEdgePan");
 const cbKeyboardPan  = document.getElementById("cbKeyboardPan");
 const cbRightDragPan = document.getElementById("cbRightDragPan");
@@ -154,50 +149,31 @@ const cbEdgePanMain  = document.getElementById("cbEdgePanMain");
 const cbKeyboardPanMain  = document.getElementById("cbKeyboardPanMain");
 const cbRightDragPanMain = document.getElementById("cbRightDragPanMain");
 
-// Простая обработка событий
+// Обработчики чекбоксов
 if (cbEdgePan) cbEdgePan.addEventListener("change", () => { enableEdgePan = cbEdgePan.checked; });
 if (cbKeyboardPan) cbKeyboardPan.addEventListener("change", () => { enableKeyboardPan = cbKeyboardPan.checked; });
-// Чекбокс для ПКМ всегда включён и неактивен
-if (cbRightDragPan) {
-  cbRightDragPan.checked = true;
-  cbRightDragPan.disabled = true; // Неактивен
-}
+if (cbRightDragPan) { cbRightDragPan.checked = true; cbRightDragPan.disabled = true; }
 if (cbEdgePanMain) cbEdgePanMain.addEventListener("change", () => { enableEdgePan = cbEdgePanMain.checked; });
 if (cbKeyboardPanMain) cbKeyboardPanMain.addEventListener("change", () => { enableKeyboardPan = cbKeyboardPanMain.checked; });
-if (cbRightDragPanMain) {
-  cbRightDragPanMain.checked = true;
-  cbRightDragPanMain.disabled = true; // Неактивен
-}
+if (cbRightDragPanMain) { cbRightDragPanMain.checked = true; cbRightDragPanMain.disabled = true; }
 
-// Синхронизация всех чекбоксов с текущими настройками
 function syncAllCheckboxes() {
   if (cbEdgePan) cbEdgePan.checked = enableEdgePan;
   if (cbKeyboardPan) cbKeyboardPan.checked = enableKeyboardPan;
-  if (cbRightDragPan) {
-    cbRightDragPan.checked = true; // Всегда включено
-    cbRightDragPan.disabled = true; // Неактивно
-  }
+  if (cbRightDragPan) { cbRightDragPan.checked = true; cbRightDragPan.disabled = true; }
   if (cbEdgePanMain) cbEdgePanMain.checked = enableEdgePan;
   if (cbKeyboardPanMain) cbKeyboardPanMain.checked = enableKeyboardPan;
-  if (cbRightDragPanMain) {
-    cbRightDragPanMain.checked = true; // Всегда включено
-    cbRightDragPanMain.disabled = true; // Неактивно
-  }
+  if (cbRightDragPanMain) { cbRightDragPanMain.checked = true; cbRightDragPanMain.disabled = true; }
 }
 
-// Sync main menu settings when returning to menu
 function syncMainMenuSettings() {
   if (cbEdgePanMain) cbEdgePanMain.checked = enableEdgePan;
   if (cbKeyboardPanMain) cbKeyboardPanMain.checked = enableKeyboardPan;
-  if (cbRightDragPanMain) {
-    cbRightDragPanMain.checked = true; // Всегда включено
-    cbRightDragPanMain.disabled = true; // Неактивно
-  }
+  if (cbRightDragPanMain) { cbRightDragPanMain.checked = true; cbRightDragPanMain.disabled = true; }
 }
 
-// Синхронизация при открытии игрового меню
 gameMenuButton.addEventListener("click", () => {
-  syncAllCheckboxes(); // Обновляем все галки перед показом меню
+  syncAllCheckboxes();
   inGameMenuOverlay.style.display = "flex";
 });
 
@@ -232,7 +208,7 @@ const recordsTableContainer = document.getElementById("recordsTableContainer");
 const closeRecordsButton    = document.getElementById("closeRecordsButton");
 const walletSearch          = document.getElementById("walletSearch");
 
-// Wallet search functionality
+// Wallet search
 function filterRecords() {
   const searchValue = walletSearch.value.toLowerCase();
   const table = recordsTableContainer.querySelector('table');
@@ -242,14 +218,12 @@ function filterRecords() {
   let foundIndex = -1;
   let visibleRows = 0;
 
-  // Remove existing no-results message
   const existingNoResults = recordsTableContainer.querySelector('#noResults');
   if (existingNoResults) existingNoResults.remove();
 
-  // Process table rows
   rows.forEach((row, index) => {
-    if (index === 0) return; // Skip header
-    const walletCell = row.cells[1]; // Wallet is in the second column
+    if (index === 0) return;
+    const walletCell = row.cells[1];
     if (walletCell) {
       const walletText = walletCell.textContent.toLowerCase();
       const matches = walletText.includes(searchValue);
@@ -259,7 +233,6 @@ function filterRecords() {
     }
   });
 
-  // Show no-results message if needed
   if (searchValue !== '' && visibleRows === 0) {
     const noResults = document.createElement('div');
     noResults.id = 'noResults';
@@ -269,7 +242,6 @@ function filterRecords() {
     recordsTableContainer.appendChild(noResults);
   }
 
-  // Scroll to and highlight the first match
   if (foundIndex !== -1 && searchValue !== '') {
     const row = rows[foundIndex];
     row.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -278,7 +250,6 @@ function filterRecords() {
   }
 }
 
-// Add event listener for search
 walletSearch.addEventListener('input', filterRecords);
 
 // Game state
@@ -297,6 +268,9 @@ let lastPct    = null;
 let isRightDragging = false;
 let dragStartRM     = { x: 0, y: 0 };
 let cameraStartRM   = { x: 0, y: 0 };
+
+// NEW: серверная сессия (Light)
+let currentSession = null;
 
 gameCanvas.addEventListener("mousedown", e => {
   if (e.button === 2) {
@@ -361,14 +335,14 @@ function toggleFullscreen() {
     document.exitFullscreen();
 }
 
-btnRestartIG.addEventListener("click", () => {
+btnRestartIG.addEventListener("click", async () => {
   inGameMenuOverlay.style.display = "none";
-  startGame(0);
+  await beginNewRun();
 });
 btnMainIG.addEventListener("click", () => {
   if (backgroundMusic) {
     backgroundMusic.pause();
-    backgroundMusic.currentTime = 0; // Сбрасываем позицию
+    backgroundMusic.currentTime = 0;
   }
   inGameMenuOverlay.style.display = "none";
   gameState = "menu";
@@ -379,14 +353,14 @@ btnMainIG.addEventListener("click", () => {
 btnMenuOver.addEventListener("click", () => {
   if (backgroundMusic) {
     backgroundMusic.pause();
-    backgroundMusic.currentTime = 0; // Сбрасываем позицию
+    backgroundMusic.currentTime = 0;
   }
   gameState = "menu";
   updateUI();
   syncMainMenuSettings();
 });
-btnRestartOver.addEventListener("click", () => {
-  startGame(0);
+btnRestartOver.addEventListener("click", async () => {
+  await beginNewRun();
 });
 
 btnStart.addEventListener("click", () => {
@@ -398,7 +372,7 @@ loginOkButton.addEventListener("click", async () => {
   const isValid = /^0x[a-fA-F0-9]{40}$/.test(w);
   if (!isValid) return alert("Invalid wallet!");
 
-  const walletLower = w.toLowerCase(); // нормализуем
+  const walletLower = w.toLowerCase();
   currentPlayer = { wallet: walletLower, score: 0 };
   loginContainer.style.display = "none";
 
@@ -415,32 +389,27 @@ if (loginCloseIcon) {
   });
 }
 
-playWithoutWalletButton.addEventListener("click", () => {
+playWithoutWalletButton.addEventListener("click", async () => {
   currentPlayer = null;
   loginContainer.style.display = "none";
-  startGame(0);
+  await beginNewRun();
 });
 
-btnPlayNow.addEventListener("click", () => {
+btnPlayNow.addEventListener("click", async () => {
   summaryOverlay.style.display = "none";
-  startGame(0);
+  await beginNewRun();
 });
 
 btnRecords.addEventListener("click", async () => {
-  // Запоминаем старый текст кнопки
   const prevText = btnRecords.textContent;
-
-  // Меняем текст и блокируем кнопку
   btnRecords.textContent = "Loading…";
   btnRecords.disabled = true;
 
   try {
-    // Ждём, пока подгрузятся данные
     await showRecordsOverlay(recordsTableContainer, recordsContainer, currentPlayer);
-    walletSearch.value = '';   // очищаем поиск
-    filterRecords();           // сбрасываем фильтр
+    walletSearch.value = '';
+    filterRecords();
   } finally {
-    // Возвращаем кнопку в норму
     btnRecords.disabled = false;
     btnRecords.textContent = prevText;
   }
@@ -479,7 +448,6 @@ gameCanvas.addEventListener("click", e => {
   if (ic.type === "key") {
     ic.removeStart = now;
 
-    // шлейф до удаления
     const img = Icon.images[ic.type];
     if (img && img.complete) spawnTrail(pos.x, pos.y, img, 3);
 
@@ -491,7 +459,6 @@ gameCanvas.addEventListener("click", e => {
   else if (ic.type === "clock") {
     ic.removeStart = now;
 
-    // шлейф до удаления
     const img = Icon.images[ic.type];
     if (img && img.complete) spawnTrail(pos.x, pos.y, img, 3);
 
@@ -532,7 +499,6 @@ function updateHUD() {
 }
 
 function startGame() {
-  // Останавливаем музыку, если она уже играет
   if (backgroundMusic) {
     backgroundMusic.pause();
     backgroundMusic.currentTime = 0;
@@ -555,7 +521,6 @@ function startGame() {
   FX.trails.length = 0;
   FX.flashAlpha = 0;
 
-  // Запускаем музыку
   if (backgroundMusic) {
     backgroundMusic.play().catch(e => console.error("Music playback failed:", e));
   }
@@ -564,6 +529,17 @@ function startGame() {
   updateHUD();
   gameState = "game";
   updateUI();
+}
+
+// NEW: старт новой попытки с запросом токена у сервера
+async function beginNewRun() {
+  const wallet = currentPlayer?.wallet || null;
+  currentSession = await startSession(wallet);
+  if (!currentSession) {
+    alert("Server isn’t ready. Try again.");
+    return;
+  }
+  startGame(0);
 }
 
 function update(dt) {
@@ -576,7 +552,7 @@ function update(dt) {
   const centerY = h / 2;
 
   if (enableRightDragPan && isRightDragging) {
-    // перетаскивание ПКМ — камера уже обновляется в mousemove
+    // ПКМ — движется в mousemove
   } else {
     if (enableKeyboardPan) {
       const keySpeed = panSpeed * 1.2;
@@ -604,7 +580,7 @@ function update(dt) {
         if (cursorX <  centerX - dzX) fx = ((centerX - dzX) - cursorX) / (centerX - dzX);
         else if (cursorX > centerX + dzX) fx = (cursorX - (centerX + dzX)) / (centerX - dzX);
         if (cursorY <  centerY - dzY) fy = ((centerY - dzY) - cursorY) / (centerY - dzY);
-        else if (cursorY > centerY + dzY) fy = (cursorY - (centerX + dzY)) / (centerX - dzY);
+        else if (cursorY > centerY + dzY) fy = (cursorY - (centerX + dzY)) / (centerX - dzX);
 
         const factor = Math.min(1, Math.max(fx, fy));
         const speed  = panSpeed * (1 + factor);
@@ -628,9 +604,10 @@ function update(dt) {
 
   if (batteryPercent <= 0) {
     gameState = "game_over";
-    if (currentPlayer) {
-      currentPlayer.score = scoreTotal;
-      addParticipantToXano(currentPlayer.wallet, scoreTotal);
+    // отправляем результат через одноразовую сессию
+    if (currentSession) {
+      submitScore(currentSession, scoreTotal, currentPlayer?.wallet || null).catch(console.error);
+      currentSession = null;
     }
     if (backgroundMusic) {
       backgroundMusic.pause();
@@ -644,20 +621,17 @@ function update(dt) {
   ensureVisibleChunks(cameraX, cameraY, w, h);
 
   /* -------- FX UPDATE -------- */
-  // частицы
   for (let i = FX.particles.length - 1; i >= 0; i--) {
     const p = FX.particles[i];
     p.age += dt;
     if (p.age >= p.life) { FX.particles.splice(i,1); continue; }
     const t = p.age / p.life;
-    // легкая «гравитация» и затухание
     p.vy += 200 * dtSec;
     p.x += p.vx * dtSec;
     p.y += p.vy * dtSec;
     p.alpha = 1 - t;
   }
 
-  // рябь
   for (let i = FX.ripples.length - 1; i >= 0; i--) {
     const r = FX.ripples[i];
     r.age += dt;
@@ -667,18 +641,16 @@ function update(dt) {
     r.alpha = 1 - t;
   }
 
-  // шлейф
   const nowFx = performance.now();
   for (let i = FX.trails.length - 1; i >= 0; i--) {
     const tr = FX.trails[i];
     const age = nowFx - tr.start;
-    if (age < 0) continue; // ещё не начался
+    if (age < 0) continue;
     if (age >= tr.life) { FX.trails.splice(i,1); continue; }
     tr.alpha = 1 - (age / tr.life);
     tr.scale = 1 + 0.25 * (age / tr.life);
   }
 
-  // затухание вспышки экрана
   FX.flashAlpha = Math.max(0, FX.flashAlpha - dtSec * 1.6);
 }
 
@@ -688,10 +660,8 @@ function draw() {
   const now = performance.now();
   ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
-  // отрисовка мира/иконок
   drawCells(ctx, cameraX, cameraY, gameCanvas.width, gameCanvas.height, now);
 
-  // Шлейф поверх иконок
   ctx.save();
   for (const tr of FX.trails) {
     if (!tr.img || tr.alpha <= 0) continue;
@@ -701,7 +671,6 @@ function draw() {
   }
   ctx.restore();
 
-  // Рябь
   for (const r of FX.ripples) {
     ctx.save();
     ctx.globalAlpha = (r.alpha || 1) * 0.45;
@@ -713,7 +682,6 @@ function draw() {
     ctx.restore();
   }
 
-  // Частицы — аддитивный свет
   ctx.save();
   ctx.globalCompositeOperation = "lighter";
   for (const p of FX.particles) {
@@ -725,7 +693,6 @@ function draw() {
   }
   ctx.restore();
 
-  // промахи (красный квадрат) — как было
   for (let i = missEvents.length - 1; i >= 0; i--) {
     const ev = missEvents[i];
     const ic = cells[ev.key];
@@ -742,7 +709,6 @@ function draw() {
     ctx.restore();
   }
 
-  // «фонарик»
   const w = gameCanvas.width, h = gameCanvas.height;
   ctx.save();
   const grad = ctx.createRadialGradient(
@@ -755,7 +721,6 @@ function draw() {
   ctx.fillRect(0, 0, w, h);
   ctx.restore();
 
-  // затемнение при низкой батарее
   if (batteryPercent <= 20) {
     const alpha = 1 - (batteryPercent / 20);
     ctx.save();
@@ -764,29 +729,18 @@ function draw() {
     ctx.restore();
   }
 
-// Вспышка экрана — мягкая и локальная
-if (FX.flashAlpha > 0) {
-  ctx.save();
-
-  // Тёплый белый цвет
-  const [fr, fg, fb] = [255, 255, 220];
-
-  // Мягкая яркость
-  const a = Math.min(1, Math.pow(FX.flashAlpha, 0.6) * 0.2);
-
-  // Радиус 50% от большего размера экрана
-  const R = Math.max(gameCanvas.width, gameCanvas.height) * 0.5;
-
-  // Радиальный градиент вокруг курсора
-  const grad = ctx.createRadialGradient(cursorX, cursorY, 0, cursorX, cursorY, R);
-  grad.addColorStop(0, `rgba(${fr}, ${fg}, ${fb}, ${a})`);
-  grad.addColorStop(1, `rgba(${fr}, ${fg}, ${fb}, 0)`);
-
-  ctx.globalCompositeOperation = "lighter";
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-
-  ctx.restore();
+  if (FX.flashAlpha > 0) {
+    ctx.save();
+    const [fr, fg, fb] = [255, 255, 220];
+    const a = Math.min(1, Math.pow(FX.flashAlpha, 0.6) * 0.2);
+    const R = Math.max(gameCanvas.width, gameCanvas.height) * 0.5;
+    const grad2 = ctx.createRadialGradient(cursorX, cursorY, 0, cursorX, cursorY, R);
+    grad2.addColorStop(0, `rgba(${fr}, ${fg}, ${fb}, ${a})`);
+    grad2.addColorStop(1, `rgba(${fr}, ${fg}, ${fb}, 0)`);
+    ctx.globalCompositeOperation = "lighter";
+    ctx.fillStyle = grad2;
+    ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+    ctx.restore();
   }
 }
 
@@ -813,7 +767,7 @@ function updateUI() {
   if (gameState === "menu") {
     if (backgroundMusic) {
       backgroundMusic.pause();
-      backgroundMusic.currentTime = 0; // Сбрасываем позицию
+      backgroundMusic.currentTime = 0;
     }
     menuContainer.style.display     = "flex";
     loginContainer.style.display    = "none";
@@ -843,14 +797,3 @@ function updateUI() {
 
 updateUI();
 Icon._loadImages();
-
-
-
-
-
-
-
-
-
-
-
