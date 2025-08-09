@@ -364,6 +364,31 @@ html, body {
 /* CANVAS */
 #gameCanvas{ position:absolute; inset:0; display:none; background: var(--bg); }
 
+/* Лоадер для Leaderboard */
+.loader {
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top: 4px solid #fff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 26px auto 10px;
+}
+.loaderText {
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Вид заблокированной кнопки */
+.menuButton[disabled] {
+  opacity: .6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+
 /* мелкие эффекты / утилити */
 @keyframes bump { 0%{transform:scale(1)} 35%{transform:scale(1.22)} 100%{transform:scale(1)} }
 @keyframes pulse{ 0%{transform:scale(1); filter:brightness(1)} 30%{transform:scale(1.12); filter:brightness(1.35)} 100%{transform:scale(1); filter:brightness(1)} }
@@ -511,7 +536,7 @@ input[type="checkbox"]:disabled{ opacity:.6; cursor:not-allowed; }
         <h2>Ranking</h2>
         <input type="text" id="walletSearch" placeholder="Search by wallet..." />
       </div>
-      <div id="recordsTableContainer">Loading...</div>
+      <div id="recordsTableContainer" aria-live="polite">Loading...</div>
     </div>
   </div>
 
@@ -539,4 +564,5 @@ input[type="checkbox"]:disabled{ opacity:.6; cursor:not-allowed; }
   <script type="module" src="main.js"></script>
 </body>
 </html>
+
 
