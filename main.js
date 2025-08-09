@@ -738,27 +738,29 @@ function draw() {
     ctx.restore();
   }
 
-  // Вспышка экрана — мягкий радиальный градиент вокруг курсора
-  if (FX.flashAlpha > 0) {
-    ctx.save();
-    const [fr, fg, fb] = FX.flashColor;
+// Вспышка экрана — мягкая и локальная
+if (FX.flashAlpha > 0) {
+  ctx.save();
 
-    // делаем вспышку мягче: гамма-кривой и ограничением силы
-    const a = Math.min(1, Math.pow(FX.flashAlpha, 0.6) * 0.8);
+  // Тёплый белый цвет
+  const [fr, fg, fb] = [255, 255, 220];
 
-    // большой радиус, чтобы края были плавные
-    const R = Math.max(gameCanvas.width, gameCanvas.height) * 0.75;
+  // Мягкая яркость
+  const a = Math.min(1, Math.pow(FX.flashAlpha, 0.6) * 0.4);
 
-    const grad = ctx.createRadialGradient(cursorX, cursorY, 0, cursorX, cursorY, R);
-    grad.addColorStop(0, `rgba(${fr}, ${fg}, ${fb}, ${a})`);
-    grad.addColorStop(1, `rgba(${fr}, ${fg}, ${fb}, 0)`);
+  // Радиус 50% от большего размера экрана
+  const R = Math.max(gameCanvas.width, gameCanvas.height) * 0.5;
 
-    // мягкое смешение (можно 'screen'; если ярковато — убери строку)
-    ctx.globalCompositeOperation = "lighter";
+  // Радиальный градиент вокруг курсора
+  const grad = ctx.createRadialGradient(cursorX, cursorY, 0, cursorX, cursorY, R);
+  grad.addColorStop(0, `rgba(${fr}, ${fg}, ${fb}, ${a})`);
+  grad.addColorStop(1, `rgba(${fr}, ${fg}, ${fb}, 0)`);
 
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-    ctx.restore();
+  ctx.globalCompositeOperation = "lighter";
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+  ctx.restore();
   }
 }
 
@@ -815,6 +817,7 @@ function updateUI() {
 
 updateUI();
 Icon._loadImages();
+
 
 
 
