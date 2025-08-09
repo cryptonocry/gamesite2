@@ -746,7 +746,7 @@ if (FX.flashAlpha > 0) {
   const [fr, fg, fb] = [255, 255, 220];
 
   // Мягкая яркость
-  const a = Math.min(1, Math.pow(FX.flashAlpha, 0.6) * 0.4);
+  const a = Math.min(1, Math.pow(FX.flashAlpha, 0.6) * 0.2);
 
   // Радиус 50% от большего размера экрана
   const R = Math.max(gameCanvas.width, gameCanvas.height) * 0.5;
@@ -817,6 +817,7 @@ function updateUI() {
 
 updateUI();
 Icon._loadImages();
+
 
 
 
