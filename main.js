@@ -102,14 +102,14 @@ function spawnPickupEffects(type, x, y) {
     spawnParticles(x, y, 18, col);
     spawnRipple(x, y, col);
     FX.flashColor = col;
-    FX.flashAlpha = Math.min(0.05, FX.flashAlpha + 0.18);
+    FX.flashAlpha = Math.min(0.1, FX.flashAlpha + 0.18);
     bump(keyCountEl);
   } else if (type === "clock") {
     const col = [120, 220, 255];
     spawnParticles(x, y, 16, col);
     spawnRipple(x, y, col);
     FX.flashColor = col;
-    FX.flashAlpha = Math.min(0.05, FX.flashAlpha + 0.16);
+    FX.flashAlpha = Math.min(0.1, FX.flashAlpha + 0.16);
     pulse(batteryIconEl);
   }
 }
@@ -801,5 +801,6 @@ function updateUI() {
 
 updateUI();
 Icon._loadImages();
+
 
 
