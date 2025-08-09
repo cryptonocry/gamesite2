@@ -760,7 +760,7 @@ function draw() {
     ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
     ctx.restore();
   }
-
+}
 
 let last = performance.now();
 function loop() {
@@ -815,6 +815,7 @@ function updateUI() {
 
 updateUI();
 Icon._loadImages();
+
 
 
 
