@@ -630,6 +630,22 @@ input[type="checkbox"]:disabled {
   50% { text-shadow: 0 0 16px rgba(255, 204, 0, .6), 0 0 38px rgba(255, 204, 0, .25); }
 }
 #topSection h1 { animation: titleGlow 3.5s ease-in-out infinite; }
+
+    /* мягкий подсвет кнопок */
+.menuButton::after, .buyButton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 25px;
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+  box-shadow: 0 0 30px rgba(255,255,255,.25);
+}
+.menuButton:hover::after, .buyButton:hover::after {
+  opacity: 1;
+}
+.menuButton, .buyButton { position: relative; }
   </style>
 </head>
 <body>
@@ -769,6 +785,7 @@ input[type="checkbox"]:disabled {
   <script type="module" src="main.js"></script>
 </body>
 </html>
+
 
 
 
