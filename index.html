@@ -1,13 +1,603 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
   <title>Secret Society: Key Quest</title>
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+/* =========================
+   THEME
+   ========================= */
+:root{
+  --bg:#0E0A16;            /* основной фон */
+  --bg-deep:#0A0810;       /* ещё темнее */
+  --violet-1:#6A00FF;      /* фирменный фиолетовый */
+  --violet-2:#B300FF;      /* фиолетовый 2 */
+  --violet-3:#3E1B74;      /* тёмный фиолетовый для карточек */
+  --gold:#FFCC00;          /* золото для акцентов/текста */
+  --gold-2:#FFB100;        /* золото 2 */
+  --ink:#FFFFFF;
+  --muted:#C9C4D6;
+  --card-glass:rgba(255,255,255,0.06);
+  --card-stroke:rgba(255,255,255,0.12);
+  --shadow:0 10px 30px rgba(0,0,0,.45);
+}
+
+/* =========================
+   BASE
+   ========================= */
+html, body {
+  margin:0; padding:0;
+  width:100vw; height:100vh;
+  overflow:hidden;
+  background: var(--bg);
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color:var(--ink);
+}
+
+/* СЛОИ ФОНА: градиент + ауры + сетка + зерно + спотлайт */
+.bg-root, .bg-auras, .bg-grid, .bg-noise, .cursor-spot {
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+}
+
+/* Радиальный градиент центра */
+.bg-root{
+  background:
+    radial-gradient(1200px 800px at 50% -10%, rgba(179,0,255,.25), transparent 60%),
+    radial-gradient(900px 600px at 50% 120%, rgba(106,0,255,.18), transparent 60%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
+}
+
+/* Плавающие ауры */
+.bg-auras:before, .bg-auras:after{
+  content:""; position:absolute; width:55vmax; height:55vmax; border-radius:50%;
+  filter: blur(70px);
+  opacity:.25; mix-blend-mode:screen;
+  animation: auraMove 16s ease-in-out infinite alternate;
+}
+.bg-auras:before{
+  background: radial-gradient(closest-side, rgba(179,0,255,.55), transparent 70%);
+  left:-15vmax; top:-10vmax;
+}
+.bg-auras:after{
+  background: radial-gradient(closest-side, rgba(106,0,255,.55), transparent 70%);
+  right:-12vmax; bottom:-10vmax; animation-delay: 1.2s;
+}
+@keyframes auraMove{
+  0%{ transform: translate(0,0) scale(1);}
+  100%{ transform: translate(2vmax, -1vmax) scale(1.05);}
+}
+
+/* Тонкая «сетка» */
+.bg-grid{
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,.06) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(1200px 700px at 50% 40%, #000 35%, transparent 75%);
+  opacity:.35;
+}
+
+/* Едва заметное зерно */
+.bg-noise{
+  background-image: url('data:image/svg+xml;utf8,\
+  <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">\
+  <filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/></filter>\
+  <rect width="120" height="120" filter="url(%23n)" opacity="0.035"/></svg>');
+  background-size: 120px 120px;
+  mix-blend-mode: overlay;
+}
+
+/* Спотлайт за курсором */
+.cursor-spot{
+  background: radial-gradient(220px 160px at var(--mx,50%) var(--my,50%), rgba(255,255,255,.08), transparent 60%);
+  transition: background-position .06s linear;
+}
+
+/* =========================
+   MAIN MENU
+   ========================= */
+#menuContainer{
+  position:absolute; inset:0; z-index:300;
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  padding:28px; gap:32px; text-align:center;
+  animation: fadeIn .8s ease-out both;
+}
+@keyframes fadeIn { from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none} }
+
+.card{
+  background: linear-gradient(180deg, var(--card-glass), rgba(255,255,255,0.03));
+  border: 1px solid var(--card-stroke);
+  box-shadow: var(--shadow);
+  border-radius: 18px;
+  backdrop-filter: blur(8px);
+}
+
+#topSection{
+  padding:28px 28px 22px; margin:0 16px; max-width:min(900px, 92vw);
+  animation: float 4.5s ease-in-out infinite;
+}
+@keyframes float{ 0%,100%{ transform: translateY(0)} 50%{ transform: translateY(-8px)} }
+
+#topSection h1{
+  margin:0; font-weight:800; line-height:1.05;
+  font-size: clamp(34px, 6vw, 64px);
+  letter-spacing:.02em;
+  background: linear-gradient(90deg, var(--gold) 0%, #FFF6BF 35%, var(--gold-2) 70%, var(--gold) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: 0 0 24px rgba(255,204,0,.12);
+  animation: titleGlow 3.5s ease-in-out infinite;
+}
+@keyframes titleGlow{
+  0%,100%{ filter: drop-shadow(0 0 12px rgba(255,204,0,.18)); }
+  50%{ filter: drop-shadow(0 0 22px rgba(255,204,0,.34)); }
+}
+
+/* мини-лейблы */
+.badges{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:10px;}
+.badge{
+  padding:6px 10px; font-size:12px; letter-spacing:.08em; text-transform:uppercase;
+  border-radius:999px; border:1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.05);
+  color:var(--muted);
+}
+
+/* описание с иконками */
+.game-description{ margin-top:18px; }
+.game-description p{
+  margin:8px 0; display:flex; justify-content:center; align-items:center; gap:10px;
+  font-size: clamp(14px, 2.2vw, 18px); color:var(--muted);
+}
+.game-description p:first-child{
+  font-size: clamp(18px, 3.4vw, 28px); font-weight:700; color:var(--ink);
+}
+.game-description img{ width:28px; height:28px; filter: invert(100%); opacity:.95; }
+
+/* центр секции */
+#centerSection{
+  display:flex; gap:28px; align-items:stretch; justify-content:center; flex-wrap:wrap;
+}
+#centerLeft{ display:flex; flex-direction:column; gap:12px; }
+
+/* стеклянная панель */
+#centerRight{
+  width:min(440px, 92vw);
+  padding:18px 18px 14px;
+}
+#centerRight h3{
+  margin:4px 0 10px;
+  font-size:14px; letter-spacing:.12em; color: var(--gold); text-transform: uppercase;
+}
+#centerRight label{
+  font-size:16px; display:flex; gap:10px; align-items:center; margin:10px 0; color:var(--ink);
+}
+#centerRight input[type="checkbox"]{
+  width:18px; height:18px; accent-color: var(--violet-2);
+}
+
+/* =========================
+   BUTTONS
+   ========================= */
+.button, .menuButton, .buyButton, .goButton, #gameMenuButton, #fullscreenButton, #recordsContent button {
+  --pad: 14px;
+  display:inline-block; width: 260px; padding: var(--pad) 18px;
+  font-size:18px; font-weight:700; letter-spacing:.02em; text-decoration:none; text-align:center;
+  border:none; border-radius: 999px; cursor:pointer; position:relative; overflow:hidden;
+  transition: transform .18s ease, box-shadow .18s ease, background .2s ease;
+  will-change: transform;
+}
+
+/* primary — фиолетовый */
+.menuButton{
+  background: linear-gradient(135deg, var(--violet-1) 0%, var(--violet-2) 100%);
+  color:#fff; box-shadow: 0 8px 20px rgba(179,0,255,.25);
+}
+.menuButton:hover{ transform: translateY(-1px); box-shadow: 0 12px 28px rgba(179,0,255,.35);}
+.menuButton:active{ transform: translateY(0); }
+
+/* secondary — золото */
+.buyButton{
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-2) 100%);
+  color:#1A1200; box-shadow: 0 8px 20px rgba(255,204,0,.25);
+}
+.buyButton:hover{ transform: translateY(-1px); box-shadow: 0 12px 28px rgba(255,204,0,.35); }
+.buyButton:active{ transform: translateY(0); }
+
+/* shine-эффект на ховере */
+.menuButton::before, .buyButton::before, .goButton::before{
+  content:""; position:absolute; inset:-2px; border-radius:inherit; pointer-events:none;
+  background: linear-gradient(120deg, transparent 15%, rgba(255,255,255,.35) 27%, transparent 40%);
+  transform: translateX(-120%);
+  transition: transform .6s cubic-bezier(.19,1,.22,1);
+}
+.menuButton:hover::before, .buyButton:hover::before, .goButton:hover::before{
+  transform: translateX(120%);
+}
+
+/* компактные кнопки в оверлеях */
+.goButton, #recordsContent button, #gameMenuButton, #fullscreenButton{
+  width:auto; border-radius:12px; padding:10px 14px; font-weight:600; font-size:16px;
+  background: linear-gradient(135deg, #5B5B6B, #8B8B9A);
+  color:#fff;
+}
+.goButton:hover, #recordsContent button:hover, #gameMenuButton:hover, #fullscreenButton:hover{
+  background: linear-gradient(135deg, #FF9A7A, #FFCC99);
+  color:#000;
+}
+
+/* =========================
+   HUD / OVERLAYS / CANVAS
+   ========================= */
+#fullscreenButton{ position:absolute; top:12px; right:12px; z-index:1000; }
+#gameMenuButton{ position:absolute; top:12px; right:12px; z-index:950; display:none; }
+
+#hud{
+  position:absolute; top:12px; left:12px; right:12px;
+  display:none; justify-content:space-between; align-items:center; z-index:900;
+  pointer-events:none;
+}
+#hud-left, #hud-right{ display:flex; align-items:center; gap:8px; }
+#hud img{ filter:invert(100%); width:28px; height:28px; }
+#hud-left span, #batteryGroup span{
+  font-size:22px; color:#fff; text-shadow:0 0 4px rgba(0,0,0,.7);
+}
+#hud-center{ position:relative; display:flex; flex-direction:column; align-items:center; }
+#batteryGroup{ display:flex; align-items:center; gap:8px; }
+#batteryGroup img{ width:28px; height:28px; transition:opacity .2s; filter: brightness(0) invert(1); }
+#plusText{
+  position:absolute; top:100%; left:50%; transform:translateX(-50%);
+  color:#71FF61; font-size:18px; opacity:0; pointer-events:none;
+}
+@keyframes plusAnim{ 0%{opacity:0} 30%{opacity:1} 70%{opacity:1} 100%{opacity:0} }
+#plusText.play{ animation: plusAnim 1s ease forwards; }
+
+#inGameMenuOverlay, #loginContainer, #summaryOverlay, #gameOverOverlay, #recordsContainer{
+  position:absolute; inset:0; display:none; z-index:600; color:#fff;
+  background: rgba(0,0,0,.78);
+}
+#inGameMenuOverlay .menuBox, #summaryOverlay .overlayContent, #gameOverContent, #loginContent, #recordsContent{
+  background:#0A0A0A; border-radius:16px; border:1px solid var(--card-stroke);
+  box-shadow:var(--shadow);
+}
+
+/* логин */
+#loginContent{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  padding:22px; width:min(340px, 92vw); text-align:center;
+}
+#loginContent h2{ margin:0 0 12px; font-weight:800; letter-spacing:.02em; }
+#loginContent input{
+  width:100%; padding:12px 14px; font-size:16px; margin:10px 0 12px;
+  border-radius:10px; border:1px solid rgba(255,255,255,.18); outline:none;
+  background: rgba(255,255,255,.05); color:var(--ink);
+}
+#loginContent input:focus{
+  border-color: var(--gold); box-shadow: 0 0 0 3px rgba(255,204,0,.18);
+}
+
+/* summary */
+#summaryOverlay .overlayContent{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  padding:22px; text-align:center; min-width: min(360px, 92vw);
+}
+#summaryOverlay .overlayContent h2{ margin:0 0 12px; }
+
+/* game over */
+#gameOverContent{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  padding:22px; text-align:center;
+}
+#gameOverContent h1{ font-size:32px; margin:0 0 12px; }
+#gameOverContent p{ font-size:20px; margin:12px 0 18px; }
+
+/* in-game menu контейнер */
+#inGameMenuOverlay{ display:none; align-items:center; justify-content:center; }
+#inGameMenuOverlay .menuBox{
+  padding:22px; text-align:center; width:min(420px, 92vw);
+}
+#inGameMenuOverlay .menuBox h3{
+  margin:12px 0 6px; font-size:14px; color:var(--gold); letter-spacing:.12em; text-transform:uppercase;
+}
+#inGameMenuOverlay .menuBox label{ display:flex; align-items:center; gap:10px; margin:8px 0; font-size:16px; }
+#inGameMenuOverlay .menuBox input[type="checkbox"]{ width:18px; height:18px; accent-color: var(--violet-2); }
+
+/* === ОБНОВЛЕНО: меню кнопок 1 колонка и крестик с отступом === */
+#inGameMenuOverlay .menuBox {
+  position: relative;
+  padding-top: 60px; /* увеличили отступ для крестика */
+}
+.menuActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-items: center;
+  margin-bottom: 14px;
+}
+#inGameMenuOverlay .menuBox .goButton {
+  width: 100%;
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+/* крестик */
+#btnCloseMenuIcon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ff5a5a, #ff8a7a);
+  color: #fff;
+  font-weight: 800;
+  line-height: 34px;
+  box-shadow: 0 6px 16px rgba(255,90,90,.25);
+  z-index: 2;
+}
+#btnCloseMenuIcon:hover {
+  background: linear-gradient(135deg, #ff7676, #ffbd9a);
+  color: #000;
+}
+/* старую кнопку Close Menu скрываем (оставляем для совместимости) */
+#btnCloseMenu{ display:none; }
+
+/* RECORDS */
+#recordsContent{
+  position:absolute; top:5%; left:50%; transform:translateX(-50%);
+  width:min(980px, 94vw); max-height:90%; padding:18px; overflow-y:auto; display:flex; flex-direction:column;
+}
+.stickyHeader{ position:sticky; top:0; background:#0A0A0A; z-index:10; padding-bottom:8px; text-align:center; }
+.stickyHeader h2{ margin:10px 0; }
+#walletSearch{
+  background:#1A1A1A; color:#FFFFFF; border:1px solid var(--card-stroke);
+  border-radius:10px; padding:10px 12px; font-size:16px; outline:none; width:100%; box-sizing:border-box;
+}
+#walletSearch:focus{ border-color:var(--gold); box-shadow:0 0 0 3px rgba(255,204,0,.18); }
+
+#recordsContent table{ width:100%; border-collapse:collapse; margin-top:12px; }
+#recordsContent th, #recordsContent td{ padding:10px; border:1px solid rgba(255,255,255,.12); text-align:left; }
+#recordsContent th{
+  background: linear-gradient(135deg, #8A86A0, #5F5C74);
+  color:#0F0D18;
+}
+
+/* CANVAS */
+#gameCanvas{ position:absolute; inset:0; display:none; background: var(--bg); }
+
+/* Лоадер для Leaderboard */
+.loader {
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top: 4px solid #fff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 26px auto 10px;
+}
+.loaderText {
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Вид заблокированной кнопки */
+.menuButton[disabled] {
+  opacity: .6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+
+/* мелкие эффекты / утилити */
+@keyframes bump { 0%{transform:scale(1)} 35%{transform:scale(1.22)} 100%{transform:scale(1)} }
+@keyframes pulse{ 0%{transform:scale(1); filter:brightness(1)} 30%{transform:scale(1.12); filter:brightness(1.35)} 100%{transform:scale(1); filter:brightness(1)} }
+.bump{ animation: bump 220ms ease-out; }
+.pulse{ animation: pulse 260ms ease-out; }
+
+input[type="checkbox"]:disabled{ opacity:.6; cursor:not-allowed; }
+#keyIconHUD{ filter: invert(100%); }
+
+/* адаптив */
+@media (max-width: 560px){
+  .button, .menuButton, .buyButton{ width: 88vw; }
+  #topSection{ padding:22px 18px; }
+}
+      /* фикс ширины поля ввода */
+  #loginContent input {
+    box-sizing: border-box;
+  }
+
+  /* крестик для окна логина */
+  #loginCloseIcon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    background: linear-gradient(135deg, #ff5a5a, #ff8a7a);
+    color: #fff;
+    font-weight: 800;
+    line-height: 34px;
+    box-shadow: 0 6px 16px rgba(255,90,90,.25);
+    z-index: 2;
+  }
+  #loginCloseIcon:hover {
+    background: linear-gradient(135deg, #ff7676, #ffbd9a);
+    color: #000;
+  }
+  </style>
 </head>
 <body>
-  <noscript>JavaScript is required to run this app.</noscript>
+
+  <!-- ФОНОВЫЕ СЛОИ -->
+  <div class="bg-root"></div>
+  <div class="bg-auras"></div>
+  <div class="bg-grid"></div>
+  <div class="bg-noise"></div>
+  <div class="cursor-spot" id="cursorSpot"></div>
+
+  <!-- FULLSCREEN BUTTON -->
+  <button id="fullscreenButton">Fullscreen</button>
+
+  <!-- HUD -->
+  <div id="hud">
+    <div id="hud-left">
+      <img id="keyIconHUD" src="icons/key.svg" alt="Key" />
+      <span id="keyCount">0</span>
+    </div>
+    <div id="hud-center">
+      <div id="batteryGroup">
+        <img id="batteryIcon" src="icons/per100.svg" alt="Battery" />
+        <span id="batteryPercent">100%</span>
+      </div>
+      <span id="plusText">+10</span>
+    </div>
+    <div id="hud-right"></div>
+  </div>
+
+  <!-- IN-GAME MENU BUTTON -->
+  <button id="gameMenuButton">MENU</button>
+
+  <!-- IN-GAME MENU OVERLAY -->
+  <div id="inGameMenuOverlay">
+    <div class="menuBox card">
+      <!-- Крестик -->
+      <button id="btnCloseMenuIcon" aria-label="Close">✕</button>
+
+      <!-- Кнопки в ОДИН столбец -->
+      <div class="menuActions">
+        <button id="btnFullscreenIG" class="goButton">FULL SCREEN</button>
+        <button id="btnRestartIG"   class="goButton">RESTART</button>
+        <button id="btnMainIG"      class="goButton">MAIN PAGE</button>
+      </div>
+
+      <hr style="margin:12px 0; border-color:rgba(255,255,255,.12)"/>
+
+      <h3>MOVEMENT CONTROLS</h3>
+      <label><input type="checkbox" id="cbEdgePan" checked> Edge scroll</label>
+      <label><input type="checkbox" id="cbKeyboardPan" checked> Keyboard (WASD / Arrow Keys)</label>
+      <label><input type="checkbox" id="cbRightDragPan" checked> Right-click drag</label>
+
+      <!-- старая кнопка (скрыта стилями) -->
+      <button id="btnCloseMenu" class="goButton">Close Menu</button>
+    </div>
+  </div>
+
+<!-- LOGIN OVERLAY -->
+<div id="loginContainer">
+  <div id="loginContent" class="card" style="position: relative;">
+    <button id="loginCloseIcon" aria-label="Close">✕</button>
+    <h2>Enter your EVM wallet</h2>
+    <p style="font-size: 13px; color: var(--muted); margin: 4px 0 10px;">
+  Top&nbsp;100 players will get a <span style="color: var(--gold); font-weight: 600;">GTD spot</span> — enter your wallet to participate!
+</p>
+    <input id="walletInput" type="text" placeholder="0x... (42 chars)" maxlength="42" />
+    <div style="margin-top:10px;">
+      <button id="loginOkButton" class="menuButton" style="margin-bottom:10px;">OK</button><br/>
+      <button id="playWithoutWalletButton" class="buyButton">Play for fun (no wallet)</button>
+    </div>
+  </div>
+</div>
+
+
+  <!-- SUMMARY OVERLAY -->
+  <div id="summaryOverlay">
+    <div class="overlayContent card">
+      <h2>Your best score: <span id="lastRecord">0</span></h2>
+      <button id="btnPlayNow" class="menuButton">PLAY</button>
+    </div>
+  </div>
+
+  <!-- MAIN MENU -->
+  <div id="menuContainer">
+    <div id="topSection" class="card">
+      <div class="badges">
+        <span class="badge">Mini-Game</span>
+        <span class="badge">60s Challenge</span>
+        <span class="badge">Top-100 = GTD</span>
+      </div>
+      <h1>Secret Society: Key Quest</h1>
+      <div class="game-description">
+        <p>Collect:</p>
+        <p><img src="icons/key.svg" alt="Key" /> Keys — to score points</p>
+        <p><img src="icons/clock.svg" alt="Clock" /> Clocks — recharge your flashlight — don’t get lost in the dark!</p>
+      </div>
+    </div>
+
+    <div id="centerSection">
+      <div id="centerLeft">
+        <button id="btnStart" class="menuButton">Start Game</button>
+        <button id="btnRecords" class="menuButton">Leaderboard</button>
+        <a href="https://www.secretsociety.so/" target="_blank" class="buyButton">Secret Society Website</a>
+      </div>
+      <div id="centerRight" class="card">
+        <h3>MOVEMENT SETTINGS</h3>
+        <label><input type="checkbox" id="cbEdgePanMain" checked> Edge scroll</label>
+        <label><input type="checkbox" id="cbKeyboardPanMain" checked> Keyboard (WASD / Arrow Keys)</label>
+        <label><input type="checkbox" id="cbRightDragPanMain" checked> Right-click drag</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME CANVAS -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- GAME OVER OVERLAY -->
+  <div id="gameOverOverlay">
+    <div id="gameOverContent" class="card">
+      <h1>Time’s up!</h1>
+      <p id="finalScore">Your score: 0
+        <img src="icons/key.svg" alt="Key" style="filter: invert(100%); vertical-align: middle; width: 22px; height: 22px;" />
+      </p>
+      <button id="btnMenu" class="goButton">MENU</button>
+      <button id="btnRestart" class="goButton">RESTART</button>
+    </div>
+  </div>
+
+  <!-- RECORDS OVERLAY -->
+  <div id="recordsContainer">
+    <div id="recordsContent">
+      <div class="stickyHeader">
+        <button id="closeRecordsButton" class="goButton">Close</button>
+        <h2>Ranking</h2>
+        <input type="text" id="walletSearch" placeholder="Search by wallet..." />
+      </div>
+      <div id="recordsTableContainer" aria-live="polite">Loading...</div>
+    </div>
+  </div>
+
+  <!-- лёгкие интерактивные эффекты -->
+  <script>
+    /* курсор-спотлайт */
+    const spot = document.getElementById('cursorSpot');
+    window.addEventListener('pointermove', (e)=>{
+      const x = e.clientX/window.innerWidth*100;
+      const y = e.clientY/window.innerHeight*100;
+      spot.style.setProperty('--mx', x + '%');
+      spot.style.setProperty('--my', y + '%');
+    });
+
+    /* лёгкий «бамповый» отклик у главных кнопок */
+    const bumpIds = ['btnStart','btnRecords','btnPlayNow'];
+    bumpIds.forEach(id=>{
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.addEventListener('pointerdown', ()=>{ el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); });
+    });
+  </script>
+
+  <!-- игровая логика -->
+  <script type="module" src="main.js"></script>
+
   <script src="bundle.prod.js"></script>
 </body>
 </html>
+
+
+
+
+
